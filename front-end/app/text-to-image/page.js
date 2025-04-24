@@ -1,35 +1,72 @@
+// app/text-to-image/page.js
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+const STYLES = ["Realistic", "Digital Art", "Painting", "Sci-Fi", "Abstract"];
+
 export default function TextToImage() {
+  const [prompt, setPrompt] = useState("");
+  const [style, setStyle] = useState(STYLES[0]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      setError("Please enter a prompt.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setImages([]);
+
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, style }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to generate image");
+      }
+
+      const { images } = await res.json();
+      setImages(images);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
       <Navbar />
-
       <div className="flex-grow container mx-auto px-4 py-12">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-blue-400 hover:text-blue-300 flex items-center gap-2"
+        <Link
+          href="/"
+          className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mb-6"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            Back to Home
-          </Link>
-        </div>
-
+            <path
+              fillRule="evenodd"
+              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Back to Home
+        </Link>
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             Text to Image Generator
@@ -41,73 +78,59 @@ export default function TextToImage() {
         </div>
 
         <div className="max-w-4xl mx-auto bg-gray-900 rounded-xl p-6 shadow-lg">
-          <div className="mb-6">
-            <label
-              htmlFor="prompt"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
-              Enter your prompt
-            </label>
-            <textarea
-              id="prompt"
-              rows="4"
-              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Describe the image you want to generate..."
-            ></textarea>
+          <textarea
+            id="prompt"
+            rows={4}
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white mb-4"
+            placeholder="Describe the image you want to generate..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+
+          <div className="flex flex-wrap gap-4 mb-6">
+            {STYLES.map((s) => (
+              <button
+                key={s}
+                className={`px-3 py-1 rounded-full text-sm ${
+                  style === s ? "bg-blue-600" : "bg-gray-700 hover:bg-gray-600"
+                }`}
+                onClick={() => setStyle(s)}
+              >
+                {s}
+              </button>
+            ))}
           </div>
 
-          <div className="mb-6">
-            <div className="flex flex-wrap gap-4">
-              <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm">
-                Realistic
-              </button>
-              <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm">
-                Digital Art
-              </button>
-              <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm">
-                Painting
-              </button>
-              <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm">
-                Sci-Fi
-              </button>
-              <button className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm">
-                Abstract
-              </button>
-            </div>
-          </div>
+          {error && <p className="text-red-400 mb-4">{error}</p>}
 
-          <div className="mb-8">
-            <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-              Generate Image
-            </button>
-          </div>
+          <button
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors mb-8"
+            onClick={handleGenerate}
+            disabled={loading}
+          >
+            {loading ? "Generating…" : "Generate Image"}
+          </button>
 
-          <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center min-h-64">
-            <div className="text-center text-gray-400">
-              <div className="mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mx-auto"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {images.length > 0 ? (
+              images.map((url, i) => (
+                <img
+                  key={i}
+                  src={url}
+                  alt={`Generated #${i + 1}`}
+                  className="rounded-lg border border-gray-700 object-cover"
+                />
+              ))
+            ) : (
+              <div className="col-span-full bg-gray-800 rounded-lg p-4 flex items-center justify-center min-h-64">
+                <p className="text-gray-400">
+                  Your generated image will appear here
+                </p>
               </div>
-              <p>Your generated image will appear here</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
-
       <Footer />
     </main>
   );
