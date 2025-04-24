@@ -42,9 +42,9 @@ export default function Home() {
             Professional-Grade AI Image Generation
           </h2>
           <p className="text-gray-300">
-            Whether you're creating marketing materials, concept art, or unique
-            visuals for your project, our advanced AI tools deliver high-quality
-            results in seconds.
+            Whether you&apos;re creating marketing materials, concept art, or
+            unique visuals for your project, our advanced AI tools deliver
+            high-quality results in seconds.
           </p>
         </div>
       </div>
