@@ -21,7 +21,7 @@ export default function Home() {
           <ServiceCard
             title="Text to Image"
             description="Transform your ideas into stunning visuals with our AI-powered text-to-image generation"
-            imageSrc="/images/img2.jpg"
+            imageSrc="/images/img1.jpg"
             altText="Text to Image visualization"
             linkHref="/text-to-image"
             gradient="blue"
@@ -30,7 +30,7 @@ export default function Home() {
           <ServiceCard
             title="Image Update"
             description="Enhance and modify existing images with text prompts for amazing transformations"
-            imageSrc="/images/img1.jpg"
+            imageSrc="/images/img2.jpg"
             altText="Image update visualization"
             linkHref="/image-update"
             gradient="pink"
