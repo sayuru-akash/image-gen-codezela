@@ -72,7 +72,7 @@ export default function ImageUpdate() {
     setError("");
   };
 
-  const handleFileChange = useCallback(() => {
+  const handleFileChange = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) {
       resetStateForNewUpload();

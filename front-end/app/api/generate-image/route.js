@@ -153,7 +153,7 @@ export async function POST(request) {
       let errorData;
       try {
         errorData = await azureResponse.json();
-      } catch (e) {
+      } catch {
         console.error(
           "Azure API responded with non-OK status, and failed to parse error JSON:",
           azureResponse.statusText
