@@ -11,26 +11,26 @@ const STYLES = ["Realistic", "Digital Art", "Painting", "Sci-Fi", "Abstract"];
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-const dataURLtoFile = (dataurl, filename) => {
-  if (!dataurl) return null;
-  try {
-    const arr = dataurl.split(",");
-    if (arr.length < 2) throw new Error("Invalid data URL");
-    const mimeMatch = arr[0].match(/:(.*?);/);
-    if (!mimeMatch || !mimeMatch[1]) throw new Error("Cannot find MIME type");
-    const mime = mimeMatch[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  } catch (error) {
-    console.error("Error converting data URL to file:", error);
-    return null;
-  }
-};
+// const dataURLtoFile = (dataurl, filename) => {
+//   if (!dataurl) return null;
+//   try {
+//     const arr = dataurl.split(",");
+//     if (arr.length < 2) throw new Error("Invalid data URL");
+//     const mimeMatch = arr[0].match(/:(.*?);/);
+//     if (!mimeMatch || !mimeMatch[1]) throw new Error("Cannot find MIME type");
+//     const mime = mimeMatch[1];
+//     const bstr = atob(arr[1]);
+//     let n = bstr.length;
+//     const u8arr = new Uint8Array(n);
+//     while (n--) {
+//       u8arr[n] = bstr.charCodeAt(n);
+//     }
+//     return new File([u8arr], filename, { type: mime });
+//   } catch (error) {
+//     console.error("Error converting data URL to file:", error);
+//     return null;
+//   }
+// };
 
 const loadImageDimensions = (src) => {
   return new Promise((resolve, reject) => {
@@ -72,7 +72,7 @@ export default function ImageUpdate() {
     setError("");
   };
 
-  const handleFileChange = useCallback((e) => {
+  const handleFileChange = useCallback(() => {
     const file = e.target.files?.[0];
     if (!file) {
       resetStateForNewUpload();
