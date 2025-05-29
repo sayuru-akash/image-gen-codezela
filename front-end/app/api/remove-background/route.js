@@ -4,33 +4,33 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const imageFile = formData.get("image");
+    const prompt = formData.get("prompt") || "A futuristic city skyline"; // Optional default prompt
 
     if (!imageFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Forward to Flask SAM server
-    const flaskFormData = new FormData();
-    flaskFormData.append("image", imageFile);
+    // Prepare FormData to send to FastAPI backend
+    const backendFormData = new FormData();
+    backendFormData.append("image", imageFile);
+    backendFormData.append("prompt", prompt);
 
-    const flaskResponse = await fetch("http://4.194.98.230:8000/segment/", {
+    const response = await fetch("http://localhost:8000/generate/", {
       method: "POST",
-      body: flaskFormData,
+      body: backendFormData,
     });
 
-    if (!flaskResponse.ok) {
-      const errorText = await flaskResponse.text();
+    if (!response.ok) {
+      const errorText = await response.text();
       return NextResponse.json(
-        { error: `Background removal failed: ${errorText}` },
-        { status: 500 }
+        { error: `Image generation failed: ${errorText}` },
+        { status: response.status }
       );
     }
 
-    // Convert response to base64
-    const imageBuffer = await flaskResponse.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString("base64");
+    const result = await response.json(); // { generated_images: [...] }
+    return NextResponse.json(result); // Send back to frontend
 
-    return NextResponse.json({ image: base64Image });
   } catch (error) {
     return NextResponse.json(
       { error: error.message || "Internal server error" },
