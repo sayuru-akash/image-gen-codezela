@@ -1,0 +1,55 @@
+{
+  "25": {
+    "inputs": {
+      "prompt": "Let the cat hold a big fish.",
+      "seed": 1371116998,
+      "quality": "high",
+      "background": "opaque",
+      "size": "1024x1024",
+      "n": 1,
+      "image": [
+        "29",
+        0
+      ],
+      "mask": [
+        "32",
+        1
+      ]
+    },
+    "class_type": "OpenAIGPTImage1",
+    "_meta": {
+      "title": "OpenAI GPT Image 1"
+    }
+  },
+  "28": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "25",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "29": {
+    "inputs": {
+      "image": "clipspace/clipspace-mask-1031667.8000000119.png [input]"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "32": {
+    "inputs": {
+      "image": "clipspace/clipspace-mask-1031667.8000000119.png [input]"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  }
+}
