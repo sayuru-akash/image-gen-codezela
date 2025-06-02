@@ -37,6 +37,28 @@ export default function Home() {
           />
         </div>
 
+        <br></br>
+
+        <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <ServiceCard
+            title="Edit with mask"
+            description="Transform your ideas into stunning visuals with our AI-powered text-to-image generation"
+            imageSrc="/images/masking.png"
+            altText="Text to Image visualization"
+            linkHref="/mask-images"
+            gradient="green"
+          />
+
+          <ServiceCard
+            title="Transfer Styles with Multiple Images"
+            description="Enhance and modify existing images with text prompts for amazing transformations"
+            imageSrc="/images/styl.png"
+            altText="Image update visualization"
+            linkHref="/batch-images"
+            gradient="purple"
+          />
+        </div>
+
         <div className="mt-16 max-w-3xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
             Professional-Grade AI Image Generation

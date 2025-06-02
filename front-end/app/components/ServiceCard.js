@@ -9,18 +9,34 @@ export default function ServiceCard({
   linkHref,
   gradient,
 }) {
+  // Choose gradient background class
+  const gradientClass =
+    gradient === "blue"
+      ? "gradient-bg"
+      : gradient === "pink"
+      ? "creative-gradient brush-animation"
+      : gradient === "green"
+      ? "green-gradient"
+      : gradient === "purple"
+      ? "purple-gradient"
+      : "";
+
+  // Choose optional glow effect
+  const glowClass =
+    gradient === "blue"
+      ? "card-glow"
+      : gradient === "green"
+      ? "green-glow"
+      : gradient === "purple"
+      ? "purple-glow"
+      : "";
+
   return (
     <Link
       href={linkHref}
-      className={`block w-full h-full rounded-xl overflow-hidden transition-all duration-300 card-hover ${
-        gradient === "blue" ? "card-glow" : ""
-      }`}
+      className={`block w-full h-full rounded-xl overflow-hidden transition-all duration-300 card-hover ${glowClass}`}
     >
-      <div
-        className={`h-full flex flex-col ${
-          gradient === "blue" ? "gradient-bg" : "creative-gradient"
-        } ${gradient === "pink" ? "brush-animation" : ""}`}
-      >
+      <div className={`h-full flex flex-col ${gradientClass}`}>
         <div className="relative h-48 md:h-64">
           <Image
             src={imageSrc}

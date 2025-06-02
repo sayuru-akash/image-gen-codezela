@@ -119,7 +119,7 @@ export default function ImageUpdate() {
       const removeBgFormData = new FormData();
       removeBgFormData.append("image", uploadedImageFile);
 
-      const removeBgRes = await fetch("/api/remove-background", {
+      const removeBgRes = await fetch("/api/v1/img2img", {
         method: "POST",
         body: removeBgFormData,
       });
