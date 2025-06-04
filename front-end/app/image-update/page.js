@@ -105,98 +105,184 @@ export default function ImageUpdate() {
     resetStateForNewUpload();
   };
 
+  // const handleGenerate = async () => {
+  //   if (!uploadedImageFile || !prompt) {
+  //     setError("Please upload an image and enter a prompt.");
+  //     return;
+  //   }
+
+  //   setError("");
+  //   setIsLoading(true);
+  //   setResultUrls([]);
+
+  //   try {
+  //     const removeBgFormData = new FormData();
+  //     removeBgFormData.append("image", uploadedImageFile);
+
+  //     const removeBgRes = await fetch("/remove-background", {
+  //       method: "POST",
+  //       body: removeBgFormData,
+  //     });
+
+  //     if (!removeBgRes.ok) {
+  //       const errorData = await removeBgRes.json().catch(() => ({
+  //         error: "Background removal request failed: " + removeBgRes.statusText,
+  //       }));
+  //       throw new Error(errorData.error || "Background removal failed");
+  //     }
+
+  //     const { image: fgBase64 } = await removeBgRes.json();
+  //     const foregroundImageUrl = `data:image/png;base64,${fgBase64}`;
+
+  //     // Load foreground (data URL, no CORS issue expected)
+  //     const {
+  //       width: fgWidth,
+  //       height: fgHeight,
+  //       element: fgImageElement,
+  //     } = await loadImageDimensions(foregroundImageUrl);
+
+  //     const generateBgRes = await fetch("/generate-image", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         prompt: prompt,
+  //         style: style,
+  //         size: `${fgWidth}x${fgHeight}`,
+  //         n: 1,
+  //       }),
+  //     });
+
+  //     if (!generateBgRes.ok) {
+  //       const errorData = await generateBgRes.json().catch(() => ({
+  //         error:
+  //           "Background generation request failed: " + generateBgRes.statusText,
+  //       }));
+  //       throw new Error(errorData.error || "Background generation failed");
+  //     }
+
+  //     const { images: bgImageUrls } = await generateBgRes.json();
+  //     if (!bgImageUrls || bgImageUrls.length === 0) {
+  //       throw new Error("No background images were generated.");
+  //     }
+
+  //     // Load background (external URL, CORS handling via crossOrigin="anonymous" in loadImageDimensions)
+  //     const { element: bgImageElement } = await loadImageDimensions(
+  //       bgImageUrls[0]
+  //     );
+
+  //     const canvas = document.createElement("canvas");
+  //     canvas.width = fgWidth;
+  //     canvas.height = fgHeight;
+  //     const ctx = canvas.getContext("2d");
+
+  //     if (!ctx) {
+  //       throw new Error("Could not get canvas context for image compositing.");
+  //     }
+
+  //     // Draw background first
+  //     ctx.drawImage(bgImageElement, 0, 0, fgWidth, fgHeight);
+  //     // Draw foreground on top
+  //     ctx.drawImage(fgImageElement, 0, 0, fgWidth, fgHeight);
+
+  //     // This is where the "Tainted canvases" error would occur if CORS isn't handled
+  //     const mergedImageUrl = canvas.toDataURL("image/png");
+  //     setResultUrls([mergedImageUrl]);
+  //   } catch (err) {
+  //     console.error("Generation process failed:", err);
+  //     setError(
+  //       err.message || "An unexpected error occurred during generation."
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const handleGenerate = async () => {
-    if (!uploadedImageFile || !prompt) {
-      setError("Please upload an image and enter a prompt.");
-      return;
+  if (!uploadedImageFile || !prompt) {
+    setError("Please upload an image and enter a prompt.");
+    return;
+  }
+
+  setError("");
+  setIsLoading(true);
+  setResultUrls([]);
+
+  try {
+    const removeBgFormData = new FormData();
+    removeBgFormData.append("image", uploadedImageFile);
+
+    const removeBgRes = await fetch("/api/remove-background", {
+      method: "POST",
+      body: removeBgFormData,
+    });
+
+    if (!removeBgRes.ok) {
+      const errorData = await removeBgRes.json().catch(() => ({
+        error: "Background removal request failed: " + removeBgRes.statusText,
+      }));
+      throw new Error(errorData.error || "Background removal failed");
     }
 
-    setError("");
-    setIsLoading(true);
-    setResultUrls([]);
+    const { image: fgBase64 } = await removeBgRes.json();
+    const foregroundImageUrl = `data:image/png;base64,${fgBase64}`;
 
-    try {
-      const removeBgFormData = new FormData();
-      removeBgFormData.append("image", uploadedImageFile);
+    // Load foreground dimensions
+    const {
+      width: fgWidth,
+      height: fgHeight,
+      element: fgImageElement,
+    } = await loadImageDimensions(foregroundImageUrl);
 
-      const removeBgRes = await fetch("/api/v1/img2img", {
-        method: "POST",
-        body: removeBgFormData,
-      });
+    // Generate background using the corrected API
+    const generateBgFormData = new FormData();
+    generateBgFormData.append("image", uploadedImageFile);
+    generateBgFormData.append("prompt", prompt);
+    generateBgFormData.append("style", style);
+    generateBgFormData.append("size", `${fgWidth}x${fgHeight}`);
+    generateBgFormData.append("n", "1");
 
-      if (!removeBgRes.ok) {
-        const errorData = await removeBgRes.json().catch(() => ({
-          error: "Background removal request failed: " + removeBgRes.statusText,
-        }));
-        throw new Error(errorData.error || "Background removal failed");
-      }
+    const generateBgRes = await fetch("/api/generate-image", {
+      method: "POST",
+      body: generateBgFormData,
+    });
 
-      const { image: fgBase64 } = await removeBgRes.json();
-      const foregroundImageUrl = `data:image/png;base64,${fgBase64}`;
-
-      // Load foreground (data URL, no CORS issue expected)
-      const {
-        width: fgWidth,
-        height: fgHeight,
-        element: fgImageElement,
-      } = await loadImageDimensions(foregroundImageUrl);
-
-      const generateBgRes = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: prompt,
-          style: style,
-          size: `${fgWidth}x${fgHeight}`,
-          n: 1,
-        }),
-      });
-
-      if (!generateBgRes.ok) {
-        const errorData = await generateBgRes.json().catch(() => ({
-          error:
-            "Background generation request failed: " + generateBgRes.statusText,
-        }));
-        throw new Error(errorData.error || "Background generation failed");
-      }
-
-      const { images: bgImageUrls } = await generateBgRes.json();
-      if (!bgImageUrls || bgImageUrls.length === 0) {
-        throw new Error("No background images were generated.");
-      }
-
-      // Load background (external URL, CORS handling via crossOrigin="anonymous" in loadImageDimensions)
-      const { element: bgImageElement } = await loadImageDimensions(
-        bgImageUrls[0]
-      );
-
-      const canvas = document.createElement("canvas");
-      canvas.width = fgWidth;
-      canvas.height = fgHeight;
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) {
-        throw new Error("Could not get canvas context for image compositing.");
-      }
-
-      // Draw background first
-      ctx.drawImage(bgImageElement, 0, 0, fgWidth, fgHeight);
-      // Draw foreground on top
-      ctx.drawImage(fgImageElement, 0, 0, fgWidth, fgHeight);
-
-      // This is where the "Tainted canvases" error would occur if CORS isn't handled
-      const mergedImageUrl = canvas.toDataURL("image/png");
-      setResultUrls([mergedImageUrl]);
-    } catch (err) {
-      console.error("Generation process failed:", err);
-      setError(
-        err.message || "An unexpected error occurred during generation."
-      );
-    } finally {
-      setIsLoading(false);
+    if (!generateBgRes.ok) {
+      const errorData = await generateBgRes.json().catch(() => ({
+        error: "Background generation request failed: " + generateBgRes.statusText,
+      }));
+      throw new Error(errorData.error || "Background generation failed");
     }
-  };
 
+    const { images: bgImageUrls } = await generateBgRes.json();
+    if (!bgImageUrls || bgImageUrls.length === 0) {
+      throw new Error("No background images were generated.");
+    }
+
+    // Load background image
+    const { element: bgImageElement } = await loadImageDimensions(bgImageUrls[0]);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = fgWidth;
+    canvas.height = fgHeight;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("Could not get canvas context for image compositing.");
+    }
+
+    // Draw background first
+    ctx.drawImage(bgImageElement, 0, 0, fgWidth, fgHeight);
+    // Draw foreground on top
+    ctx.drawImage(fgImageElement, 0, 0, fgWidth, fgHeight);
+
+    const mergedImageUrl = canvas.toDataURL("image/png");
+    setResultUrls([mergedImageUrl]);
+  } catch (err) {
+    console.error("Generation process failed:", err);
+    setError(err.message || "An unexpected error occurred during generation.");
+  } finally {
+    setIsLoading(false);
+  }
+};
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
       <Navbar />

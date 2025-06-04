@@ -4,7 +4,10 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const imageFile = formData.get("image");
-    const prompt = formData.get("prompt") || "A futuristic city skyline"; // Optional default prompt
+    const prompt = formData.get("prompt") || "A futuristic city skyline";
+    const style = formData.get("style") || "realistic";
+    const size = formData.get("size") || "1024x1024";
+    const n = formData.get("n") || "1";
 
     if (!imageFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
@@ -14,24 +17,32 @@ export async function POST(request) {
     const backendFormData = new FormData();
     backendFormData.append("image", imageFile);
     backendFormData.append("prompt", prompt);
+    backendFormData.append("style", style);
+    backendFormData.append("size", size);
+    backendFormData.append("n", n);
 
-    const response = await fetch("http://localhost:8000/generate/", {
+    console.log("Sending request to FastAPI backend...");
+    
+    const response = await fetch("http://localhost:8000/generate-image", {
       method: "POST",
       body: backendFormData,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("FastAPI error:", errorText);
       return NextResponse.json(
         { error: `Image generation failed: ${errorText}` },
         { status: response.status }
       );
     }
 
-    const result = await response.json(); // { generated_images: [...] }
-    return NextResponse.json(result); // Send back to frontend
-
+    const result = await response.json();
+    console.log("FastAPI response:", result);
+    
+    return NextResponse.json(result);
   } catch (error) {
+    console.error("API route error:", error);
     return NextResponse.json(
       { error: error.message || "Internal server error" },
       { status: 500 }
