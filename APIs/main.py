@@ -19,7 +19,6 @@ client = OpenAI(api_key=api_key)
 
 app = FastAPI()
 
-# Allow your React app (http://localhost:3000) to hit this endpoint.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -35,11 +34,9 @@ async def edit_image_endpoint(
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024")
 ):
-    # 1. Prompt must not be empty.
     if not prompt.strip():
         return JSONResponse(status_code=400, content={"error": "Missing prompt parameter"})
 
-    # 2. Check extension
     filename = image.filename or ""
     ext = filename.rsplit(".", 1)[-1].lower()
     if ext not in {"png", "jpg", "jpeg"}:
@@ -49,30 +46,27 @@ async def edit_image_endpoint(
         )
 
     try:
-        # 3. Read the entire upload into memory
         contents = await image.read()
-        # 4. Wrap in BytesIO and assign .name so the client infers MIME correctly
+        # Wrap in BytesIO and assign .name so the client infers MIME correctly
         buffer = io.BytesIO(contents)
-        buffer.name = filename  # e.g. "photo.png"
+        buffer.name = filename  
         buffer.seek(0)
 
         # 5. Combine style + prompt
         full_prompt = f"{prompt} in a {style} style"
 
-        # 6. Call OpenAI .images.edit WITHOUT response_format
-        #    Pass a list of file‐like objects (here, [buffer])
+        
         response = client.images.edit(
-            model="gpt-image-1",   # or "dall-e-2" if your account still uses that
+            model="gpt-image-1",   
             image=[buffer],
             prompt=full_prompt,
-            size=size,                 # e.g. "1024x1024"
+            size=size,                 
             n=1
         )
 
         # 7. Extract base64 from response
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
-            # Build a data-URL so the React front-end can do: <img src={image_url} />
             data_url = f"data:image/png;base64,{image_b64}"
             return JSONResponse(status_code=200, content={"image_url": data_url})
         else:
