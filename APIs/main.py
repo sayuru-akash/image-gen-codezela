@@ -1,71 +1,100 @@
+import os
+import base64
+import io
+import traceback
+
 from fastapi import FastAPI, File, Form, UploadFile
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
-import base64
 from dotenv import load_dotenv
-import os
-import io
-import requests
-from PIL import Image
 
 load_dotenv()
+
 api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise RuntimeError("Error: OPENAI_API_KEY not found in environment variables.")
 
 client = OpenAI(api_key=api_key)
+
 app = FastAPI()
 
-# Add CORS middleware
+# Allow your React app (http://localhost:3000) to hit this endpoint.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Your Next.js frontend URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.post("/generate-image")
-async def generate_image_with_upload(
+@app.post("/edit-image")
+async def edit_image_endpoint(
     image: UploadFile = File(...),
     prompt: str = Form(...),
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024")
 ):
-    """Endpoint that accepts an uploaded image and generates based on prompt"""
-    if not prompt:
+    # 1. Prompt must not be empty.
+    if not prompt.strip():
         return JSONResponse(status_code=400, content={"error": "Missing prompt parameter"})
 
-    try:
-        # Read the uploaded image file (if you need to process it)
-        image_bytes = await image.read()
-        
-        # Create the full prompt with style
-        full_prompt = f"{prompt} in {style} style"
-        
-        # Generate image using OpenAI's DALL-E
-        response = client.images.generate(
-            model="gpt-image-1",
-            prompt=full_prompt,
-            size=size,
-            quality="standard",
-            response_format="b64_json"
+    # 2. Check extension
+    filename = image.filename or ""
+    ext = filename.rsplit(".", 1)[-1].lower()
+    if ext not in {"png", "jpg", "jpeg"}:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Allowed image types: png, jpg, jpeg"}
         )
 
-        # Get the base64 image data and decode it
-        image_b64 = response.data[0].b64_json
-        generated_image_bytes = base64.b64decode(image_b64)
-        
-        # Return the generated image as a streaming response
-        return StreamingResponse(
-            io.BytesIO(generated_image_bytes),
-            media_type="image/png",
-            headers={"Content-Disposition": "inline; filename=generated_image.png"}
+    try:
+        # 3. Read the entire upload into memory
+        contents = await image.read()
+        # 4. Wrap in BytesIO and assign .name so the client infers MIME correctly
+        buffer = io.BytesIO(contents)
+        buffer.name = filename  # e.g. "photo.png"
+        buffer.seek(0)
+
+        # 5. Combine style + prompt
+        full_prompt = f"{prompt} in a {style} style"
+
+        # 6. Call OpenAI .images.edit WITHOUT response_format
+        #    Pass a list of file‐like objects (here, [buffer])
+        response = client.images.edit(
+            model="gpt-image-1",   # or "dall-e-2" if your account still uses that
+            image=[buffer],
+            prompt=full_prompt,
+            size=size,                 # e.g. "1024x1024"
+            n=1
         )
+
+        # 7. Extract base64 from response
+        if response.data and len(response.data) > 0 and response.data[0].b64_json:
+            image_b64 = response.data[0].b64_json
+            # Build a data-URL so the React front-end can do: <img src={image_url} />
+            data_url = f"data:image/png;base64,{image_b64}"
+            return JSONResponse(status_code=200, content={"image_url": data_url})
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Image editing failed: no image data returned."}
+            )
 
     except Exception as e:
-        print(f"Error generating image: {str(e)}")
-        return JSONResponse(
-            status_code=500, 
-            content={"error": f"Image generation failed: {str(e)}"}
-        )
+        # Print out for debugging on the server side
+        print(f"Error during image editing: {type(e).__name__} - {e}")
+        print(traceback.format_exc())
+
+        # If OpenAIError has .status_code, pass it along
+        if hasattr(e, "status_code"):
+            return JSONResponse(status_code=e.status_code, content={"error": str(e)})
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    print(f"Starting server. OpenAI API key loaded (last 4 chars): …{api_key[-4:]}")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 

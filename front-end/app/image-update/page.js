@@ -1,8 +1,6 @@
-//app/image-update/page.js
 "use client";
 
 import { useState, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -10,51 +8,6 @@ import Footer from "../components/Footer";
 const STYLES = ["Realistic", "Digital Art", "Painting", "Sci-Fi", "Abstract"];
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-
-// const dataURLtoFile = (dataurl, filename) => {
-//   if (!dataurl) return null;
-//   try {
-//     const arr = dataurl.split(",");
-//     if (arr.length < 2) throw new Error("Invalid data URL");
-//     const mimeMatch = arr[0].match(/:(.*?);/);
-//     if (!mimeMatch || !mimeMatch[1]) throw new Error("Cannot find MIME type");
-//     const mime = mimeMatch[1];
-//     const bstr = atob(arr[1]);
-//     let n = bstr.length;
-//     const u8arr = new Uint8Array(n);
-//     while (n--) {
-//       u8arr[n] = bstr.charCodeAt(n);
-//     }
-//     return new File([u8arr], filename, { type: mime });
-//   } catch (error) {
-//     console.error("Error converting data URL to file:", error);
-//     return null;
-//   }
-// };
-
-const loadImageDimensions = (src) => {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    if (!src.startsWith("data:")) {
-      img.crossOrigin = "anonymous";
-    }
-
-    img.onload = () =>
-      resolve({ width: img.width, height: img.height, element: img });
-    img.onerror = (errorEvent) => {
-      let detailedError = `Failed to load image from: ${src.substring(0, 100)}${
-        src.length > 100 ? "..." : ""
-      }.`;
-      if (!src.startsWith("data:") && img.crossOrigin === "anonymous") {
-        detailedError +=
-          " This may be a CORS issue if the remote server does not send 'Access-Control-Allow-Origin' headers.";
-      }
-      console.error(detailedError, errorEvent);
-      reject(new Error(detailedError));
-    };
-    img.src = src;
-  });
-};
 
 export default function ImageUpdate() {
   const [uploadedImageFile, setUploadedImageFile] = useState(null);
@@ -80,16 +33,17 @@ export default function ImageUpdate() {
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setError(`File is too large. Max size: ${MAX_FILE_SIZE_MB}MB`);
+      setError(`File is too large. Max size: ${MAX_FILE_SIZE_MB} MB`);
       resetStateForNewUpload();
       e.target.value = "";
       return;
     }
 
+    // Read file into a data URL so we can show a preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setUploadedImageFile(file);
-      setUploadedImagePreview(reader.result);
+      setUploadedImagePreview(reader.result); // e.g. "data:image/png;base64,…"
       setError("");
       setResultUrls([]);
     };
@@ -105,187 +59,58 @@ export default function ImageUpdate() {
     resetStateForNewUpload();
   };
 
-  // const handleGenerate = async () => {
-  //   if (!uploadedImageFile || !prompt) {
-  //     setError("Please upload an image and enter a prompt.");
-  //     return;
-  //   }
-
-  //   setError("");
-  //   setIsLoading(true);
-  //   setResultUrls([]);
-
-  //   try {
-  //     const removeBgFormData = new FormData();
-  //     removeBgFormData.append("image", uploadedImageFile);
-
-  //     const removeBgRes = await fetch("/remove-background", {
-  //       method: "POST",
-  //       body: removeBgFormData,
-  //     });
-
-  //     if (!removeBgRes.ok) {
-  //       const errorData = await removeBgRes.json().catch(() => ({
-  //         error: "Background removal request failed: " + removeBgRes.statusText,
-  //       }));
-  //       throw new Error(errorData.error || "Background removal failed");
-  //     }
-
-  //     const { image: fgBase64 } = await removeBgRes.json();
-  //     const foregroundImageUrl = `data:image/png;base64,${fgBase64}`;
-
-  //     // Load foreground (data URL, no CORS issue expected)
-  //     const {
-  //       width: fgWidth,
-  //       height: fgHeight,
-  //       element: fgImageElement,
-  //     } = await loadImageDimensions(foregroundImageUrl);
-
-  //     const generateBgRes = await fetch("/generate-image", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         prompt: prompt,
-  //         style: style,
-  //         size: `${fgWidth}x${fgHeight}`,
-  //         n: 1,
-  //       }),
-  //     });
-
-  //     if (!generateBgRes.ok) {
-  //       const errorData = await generateBgRes.json().catch(() => ({
-  //         error:
-  //           "Background generation request failed: " + generateBgRes.statusText,
-  //       }));
-  //       throw new Error(errorData.error || "Background generation failed");
-  //     }
-
-  //     const { images: bgImageUrls } = await generateBgRes.json();
-  //     if (!bgImageUrls || bgImageUrls.length === 0) {
-  //       throw new Error("No background images were generated.");
-  //     }
-
-  //     // Load background (external URL, CORS handling via crossOrigin="anonymous" in loadImageDimensions)
-  //     const { element: bgImageElement } = await loadImageDimensions(
-  //       bgImageUrls[0]
-  //     );
-
-  //     const canvas = document.createElement("canvas");
-  //     canvas.width = fgWidth;
-  //     canvas.height = fgHeight;
-  //     const ctx = canvas.getContext("2d");
-
-  //     if (!ctx) {
-  //       throw new Error("Could not get canvas context for image compositing.");
-  //     }
-
-  //     // Draw background first
-  //     ctx.drawImage(bgImageElement, 0, 0, fgWidth, fgHeight);
-  //     // Draw foreground on top
-  //     ctx.drawImage(fgImageElement, 0, 0, fgWidth, fgHeight);
-
-  //     // This is where the "Tainted canvases" error would occur if CORS isn't handled
-  //     const mergedImageUrl = canvas.toDataURL("image/png");
-  //     setResultUrls([mergedImageUrl]);
-  //   } catch (err) {
-  //     console.error("Generation process failed:", err);
-  //     setError(
-  //       err.message || "An unexpected error occurred during generation."
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   const handleGenerate = async () => {
-  if (!uploadedImageFile || !prompt) {
-    setError("Please upload an image and enter a prompt.");
-    return;
-  }
-
-  setError("");
-  setIsLoading(true);
-  setResultUrls([]);
-
-  try {
-    const removeBgFormData = new FormData();
-    removeBgFormData.append("image", uploadedImageFile);
-
-    const removeBgRes = await fetch("/api/remove-background", {
-      method: "POST",
-      body: removeBgFormData,
-    });
-
-    if (!removeBgRes.ok) {
-      const errorData = await removeBgRes.json().catch(() => ({
-        error: "Background removal request failed: " + removeBgRes.statusText,
-      }));
-      throw new Error(errorData.error || "Background removal failed");
+    if (!uploadedImageFile || !prompt) {
+      setError("Please upload an image and enter a prompt.");
+      return;
     }
 
-    const { image: fgBase64 } = await removeBgRes.json();
-    const foregroundImageUrl = `data:image/png;base64,${fgBase64}`;
+    setError("");
+    setIsLoading(true);
+    setResultUrls([]);
 
-    // Load foreground dimensions
-    const {
-      width: fgWidth,
-      height: fgHeight,
-      element: fgImageElement,
-    } = await loadImageDimensions(foregroundImageUrl);
+    try {
+      const formData = new FormData();
+      formData.append("image", uploadedImageFile);
+      formData.append("prompt", prompt);
+      formData.append("style", style);
 
-    // Generate background using the corrected API
-    const generateBgFormData = new FormData();
-    generateBgFormData.append("image", uploadedImageFile);
-    generateBgFormData.append("prompt", prompt);
-    generateBgFormData.append("style", style);
-    generateBgFormData.append("size", `${fgWidth}x${fgHeight}`);
-    generateBgFormData.append("n", "1");
+      const response = await fetch("http://127.0.0.1:8000/edit-image", {
+        method: "POST",
+        body: formData,
+      });
 
-    const generateBgRes = await fetch("/api/generate-image", {
-      method: "POST",
-      body: generateBgFormData,
-    });
+      if (!response.ok) {
+        // Attempt to parse the JSON error if possible
+        const errorData = await response
+          .json()
+          .catch(() => ({
+            error: "Failed to edit image: " + response.statusText,
+          }));
+        throw new Error(errorData.error || "Image editing failed.");
+      }
 
-    if (!generateBgRes.ok) {
-      const errorData = await generateBgRes.json().catch(() => ({
-        error: "Background generation request failed: " + generateBgRes.statusText,
-      }));
-      throw new Error(errorData.error || "Background generation failed");
+      const data = await response.json();
+      const { image_url } = data;
+
+      if (!image_url) {
+        throw new Error("No image returned from the server.");
+      }
+
+      // image_url is already a data URL ("data:image/png;base64,…")
+      setResultUrls([image_url]);
+    } catch (err) {
+      console.error("Image editing failed:", err);
+      setError(err.message || "An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const { images: bgImageUrls } = await generateBgRes.json();
-    if (!bgImageUrls || bgImageUrls.length === 0) {
-      throw new Error("No background images were generated.");
-    }
-
-    // Load background image
-    const { element: bgImageElement } = await loadImageDimensions(bgImageUrls[0]);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = fgWidth;
-    canvas.height = fgHeight;
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      throw new Error("Could not get canvas context for image compositing.");
-    }
-
-    // Draw background first
-    ctx.drawImage(bgImageElement, 0, 0, fgWidth, fgHeight);
-    // Draw foreground on top
-    ctx.drawImage(fgImageElement, 0, 0, fgWidth, fgHeight);
-
-    const mergedImageUrl = canvas.toDataURL("image/png");
-    setResultUrls([mergedImageUrl]);
-  } catch (err) {
-    console.error("Generation process failed:", err);
-    setError(err.message || "An unexpected error occurred during generation.");
-  } finally {
-    setIsLoading(false);
-  }
-};
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
       <Navbar />
+
       <div className="flex-grow container mx-auto px-4 py-12">
         <div className="mb-6">
           <Link
@@ -321,12 +146,15 @@ export default function ImageUpdate() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Input Section */}
             <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-medium mb-4">1. Upload & Describe</h3>
+              <h3 className="text-xl font-medium mb-4">
+                1. Upload &amp; Describe
+              </h3>
+
               {!uploadedImagePreview ? (
                 <label className="border-2 border-dashed border-gray-700 rounded-lg h-64 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
                   <input
                     type="file"
-                    accept="image/png, image/jpeg, image/gif"
+                    accept="image/png, image/jpeg"
                     className="hidden"
                     onChange={handleFileChange}
                     aria-label="Upload source image"
@@ -346,16 +174,16 @@ export default function ImageUpdate() {
                   </svg>
                   <p className="text-gray-400 mb-1">Click to upload an image</p>
                   <p className="text-gray-500 text-sm">
-                    PNG, JPG or GIF (max. {MAX_FILE_SIZE_MB}MB)
+                    PNG or JPG (max. {MAX_FILE_SIZE_MB} MB)
                   </p>
                 </label>
               ) : (
                 <div className="relative h-64 rounded-lg overflow-hidden border border-gray-700">
-                  <Image
+                  {/* Use a plain <img> tag for data URLs */}
+                  <img
                     src={uploadedImagePreview}
                     alt="Uploaded preview"
-                    fill
-                    style={{ objectFit: "contain" }}
+                    className="object-contain w-full h-full"
                   />
                   <button
                     className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full hover:bg-black/80 transition-colors"
@@ -380,13 +208,10 @@ export default function ImageUpdate() {
               )}
 
               <div className="mt-6">
-                <label
-                  htmlFor="style-selector"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Background Style
                 </label>
-                <div id="style-selector" className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {STYLES.map((s) => (
                     <button
                       key={s}
@@ -402,16 +227,12 @@ export default function ImageUpdate() {
                   ))}
                 </div>
 
-                <label
-                  htmlFor="prompt-input"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Describe the new background
                 </label>
                 <textarea
-                  id="prompt-input"
-                  placeholder="e.g., a futuristic cityscape at sunset, a serene forest path, an abstract swirl of colors"
-                  className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                  placeholder="e.g., a futuristic cityscape at sunset"
+                  className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={4}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -430,6 +251,7 @@ export default function ImageUpdate() {
                     ? "Generating Your Image..."
                     : "Transform Background"}
                 </button>
+
                 {error && (
                   <p className="mt-3 text-sm text-red-400 text-center">
                     {error}
@@ -450,17 +272,18 @@ export default function ImageUpdate() {
                     <p className="text-gray-400">Processing, please wait...</p>
                   </div>
                 )}
+
                 {!isLoading && resultUrls.length > 0
                   ? resultUrls.map((url, idx) => (
                       <div
                         key={idx}
                         className="relative w-full h-64 md:h-full rounded-lg overflow-hidden"
                       >
-                        <Image
+                        {/* Use a plain <img> for the data URL */}
+                        <img
                           src={url}
                           alt={`Generated result ${idx + 1}`}
-                          fill
-                          style={{ objectFit: "contain" }}
+                          className="object-contain w-full h-full"
                         />
                         <a
                           href={url}
@@ -494,6 +317,7 @@ export default function ImageUpdate() {
           </div>
         </div>
       </div>
+
       <Footer />
     </main>
   );
