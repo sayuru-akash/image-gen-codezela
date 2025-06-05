@@ -155,7 +155,7 @@ export default function ImageInpaintingEditor() {
       formData.append("style", style);
 
       // Replace this with your actual API endpoint
-      const response = await fetch("/api/inpaint-image", {
+      const response = await fetch("http://localhost:8000/edit-with-mask", {
         method: "POST",
         body: formData,
       });
@@ -167,11 +167,12 @@ export default function ImageInpaintingEditor() {
         throw new Error(errorData.error || "Inpainting failed");
       }
 
-      const { inpaintedImage } = await response.json();
+      const { image_url } = await response.json();
+      setResultUrl(image_url || originalImage.preview);
       
       // For demo purposes, we'll use the original image
       // In real implementation, this would be the inpainted image URL
-      setResultUrl(inpaintedImage || originalImage.preview);
+      setResultUrl(image_url || originalImage.preview);
     } catch (err) {
       console.error("Inpainting failed:", err);
       setError(err.message || "An unexpected error occurred during inpainting.");

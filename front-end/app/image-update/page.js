@@ -75,10 +75,11 @@ export default function ImageUpdate() {
       formData.append("prompt", prompt);
       formData.append("style", style);
 
-      const response = await fetch("http://127.0.0.1:8000/edit-image", {
+      const response = await fetch("http://localhost:8000/edit-image", {
         method: "POST",
         body: formData,
       });
+     
 
       if (!response.ok) {
         // Attempt to parse the JSON error if possible

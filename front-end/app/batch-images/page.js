@@ -114,60 +114,61 @@ export default function MultiImageEditor() {
   const canSubmit = uploadedImages.length === 2 && prompt.trim().length > 0 && !isLoading;
 
   const handleGenerate = async () => {
-    if (!canSubmit) {
-      if (uploadedImages.length !== 2) {
-        setError("Please upload exactly 2 images.");
-      } else if (!prompt.trim()) {
-        setError("Please enter a prompt describing the transformation.");
-      }
-      return;
+  if (!canSubmit) {
+    if (uploadedImages.length < 1) {
+      setError("Please upload at least 1 reference image.");
+    } else if (!prompt.trim()) {
+      setError("Please enter a prompt describing what to create.");
     }
+    return;
+  }
 
-    setError("");
-    setIsLoading(true);
-    setResultUrls([]);
+  setError("");
+  setIsLoading(true);
+  setResultUrls([]);
 
-    try {
-      // Simulate API call for image processing
-      const formData = new FormData();
-      uploadedImages.forEach((image, index) => {
-        formData.append(`image${index + 1}`, image.file);
-      });
-      formData.append("prompt", prompt);
-      formData.append("style", style);
+  try {
+    const formData = new FormData();
+    
+    // Append all images
+    uploadedImages.forEach((image, index) => {
+      formData.append("images", image.file);
+    });
+    
+    formData.append("prompt", prompt);
+    formData.append("style", style);
+    formData.append("size", "1024x1024"); // or make this configurable
 
-      // Replace this with your actual API endpoint
-      const response = await fetch("/api/process-dual-images", {
-        method: "POST",
-        body: formData,
-      });
+    // Call your new endpoint
+    const response = await fetch("http://localhost:8000/create-from-references", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          error: "Processing failed: " + response.statusText,
-        }));
-        throw new Error(errorData.error || "Processing failed");
-      }
-
-      const { processedImages } = await response.json();
-      
-      // For demo purposes, we'll use the original images
-      // In real implementation, this would be the processed image URLs
-      const results = uploadedImages.map((image, index) => ({
-        id: image.id,
-        name: image.name,
-        original: image.preview,
-        processed: processedImages?.[index] || image.preview, // Replace with actual processed image
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        error: "Creation failed: " + response.statusText,
       }));
-
-      setResultUrls(results);
-    } catch (err) {
-      console.error("Processing failed:", err);
-      setError(err.message || "An unexpected error occurred during processing.");
-    } finally {
-      setIsLoading(false);
+      throw new Error(errorData.error || "Creation failed");
     }
-  };
+
+    const { image_url } = await response.json();
+    
+    // Set the created image as result
+    setResultUrls([{
+      id: Date.now(),
+      name: "Created Image",
+      original: null,
+      processed: image_url,
+    }]);
+    
+  } catch (err) {
+    console.error("Creation failed:", err);
+    setError(err.message || "An unexpected error occurred during image creation.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
