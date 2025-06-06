@@ -12,9 +12,7 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
-
 router = APIRouter()
-
     
 @router.post("/create-from-references")
 async def create_from_references(
@@ -58,7 +56,7 @@ async def create_from_references(
         # Call OpenAI API with multiple image references
         response = client.images.edit(
             model="gpt-image-1",
-            image=image_buffers,  # List of image buffers
+            image=image_buffers,  
             prompt=full_prompt,
             size=size,
             n=1
@@ -76,11 +74,9 @@ async def create_from_references(
             )
 
     except Exception as e:
-        # Print out for debugging on the server side
         print(f"Error during image creation from references: {type(e).__name__} - {e}")
         print(traceback.format_exc())
 
-        # If OpenAIError has .status_code, pass it along
         if hasattr(e, "status_code"):
             return JSONResponse(status_code=e.status_code, content={"error": str(e)})
         return JSONResponse(status_code=500, content={"error": str(e)})
