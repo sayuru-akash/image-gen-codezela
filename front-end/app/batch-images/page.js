@@ -6,34 +6,21 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const STYLES = ["Realistic", "Digital Art", "Painting", "Sci-Fi", "Abstract", "Oil Painting", "Watercolor", "Anime", "Photography"];
+const STYLES = [
+  "Realistic",
+  "Digital Art",
+  "Painting",
+  "Sci-Fi",
+  "Abstract",
+  "Oil Painting",
+  "Watercolor",
+  "Anime",
+  "Photography",
+];
+
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const MAX_IMAGES = 2;
-
-const loadImageDimensions = (src) => {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    if (!src.startsWith("data:")) {
-      img.crossOrigin = "anonymous";
-    }
-
-    img.onload = () =>
-      resolve({ width: img.width, height: img.height, element: img });
-    img.onerror = (errorEvent) => {
-      let detailedError = `Failed to load image from: ${src.substring(0, 100)}${
-        src.length > 100 ? "..." : ""
-      }.`;
-      if (!src.startsWith("data:") && img.crossOrigin === "anonymous") {
-        detailedError +=
-          " This may be a CORS issue if the remote server does not send 'Access-Control-Allow-Origin' headers.";
-      }
-      console.error(detailedError, errorEvent);
-      reject(new Error(detailedError));
-    };
-    img.src = src;
-  });
-};
 
 export default function MultiImageEditor() {
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -58,9 +45,11 @@ export default function MultiImageEditor() {
       return;
     }
 
-    const validFiles = files.filter(file => {
+    const validFiles = files.filter((file) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        setError(`File ${file.name} is too large. Max size: ${MAX_FILE_SIZE_MB}MB`);
+        setError(
+          `File ${file.name} is too large. Max size: ${MAX_FILE_SIZE_MB}MB`
+        );
         return false;
       }
       return true;
@@ -81,7 +70,7 @@ export default function MultiImageEditor() {
           id: Date.now() + Math.random(),
           file: file,
           preview: reader.result,
-          name: file.name
+          name: file.name,
         };
         newImages.push(imageData);
         processedCount++;
@@ -102,7 +91,7 @@ export default function MultiImageEditor() {
   }, []);
 
   const handleRemoveImage = (id) => {
-    setUploadedImages(prev => prev.filter(img => img.id !== id));
+    setUploadedImages((prev) => prev.filter((img) => img.id !== id));
     resetResults();
   };
 
@@ -111,64 +100,71 @@ export default function MultiImageEditor() {
     resetResults();
   };
 
-  const canSubmit = uploadedImages.length === 2 && prompt.trim().length > 0 && !isLoading;
+  const canSubmit =
+    uploadedImages.length === 2 && prompt.trim().length > 0 && !isLoading;
 
   const handleGenerate = async () => {
-  if (!canSubmit) {
-    if (uploadedImages.length < 1) {
-      setError("Please upload at least 1 reference image.");
-    } else if (!prompt.trim()) {
-      setError("Please enter a prompt describing what to create.");
-    }
-    return;
-  }
-
-  setError("");
-  setIsLoading(true);
-  setResultUrls([]);
-
-  try {
-    const formData = new FormData();
-    
-    // Append all images
-    uploadedImages.forEach((image, index) => {
-      formData.append("images", image.file);
-    });
-    
-    formData.append("prompt", prompt);
-    formData.append("style", style);
-    formData.append("size", "1024x1024"); // or make this configurable
-
-    // Call your new endpoint
-    const response = await fetch("http://localhost:8000/create-from-references", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        error: "Creation failed: " + response.statusText,
-      }));
-      throw new Error(errorData.error || "Creation failed");
+    if (!canSubmit) {
+      if (uploadedImages.length < 1) {
+        setError("Please upload at least 1 reference image.");
+      } else if (!prompt.trim()) {
+        setError("Please enter a prompt describing what to create.");
+      }
+      return;
     }
 
-    const { image_url } = await response.json();
-    
-    // Set the created image as result
-    setResultUrls([{
-      id: Date.now(),
-      name: "Created Image",
-      original: null,
-      processed: image_url,
-    }]);
-    
-  } catch (err) {
-    console.error("Creation failed:", err);
-    setError(err.message || "An unexpected error occurred during image creation.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+    setError("");
+    setIsLoading(true);
+    setResultUrls([]);
+
+    try {
+      const formData = new FormData();
+
+      // Append all images
+      uploadedImages.forEach((image) => {
+        formData.append("images", image.file);
+      });
+
+      formData.append("prompt", prompt);
+      formData.append("style", style);
+      formData.append("size", "1024x1024"); // or make this configurable
+
+      // Call your new endpoint
+      const response = await fetch(
+        "http://localhost:8000/create-from-references",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: "Creation failed: " + response.statusText,
+        }));
+        throw new Error(errorData.error || "Creation failed");
+      }
+
+      const { image_url } = await response.json();
+
+      // Set the created image as result
+      setResultUrls([
+        {
+          id: Date.now(),
+          name: "Created Image",
+          original: null,
+          processed: image_url,
+        },
+      ]);
+    } catch (err) {
+      console.error("Creation failed:", err);
+      setError(
+        err.message || "An unexpected error occurred during image creation."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
@@ -200,7 +196,8 @@ export default function MultiImageEditor() {
             AI Dual Image Editor
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Upload 2 images, apply styles with prompts, and transform them with AI.
+            Upload 2 images, apply styles with prompts, and transform them with
+            AI.
           </p>
         </div>
 
@@ -223,7 +220,7 @@ export default function MultiImageEditor() {
                 )}
               </div>
             </div>
-            
+
             {uploadedImages.length < 2 ? (
               <label className="border-2 border-dashed border-gray-700 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
                 <input
@@ -270,13 +267,23 @@ export default function MultiImageEditor() {
                       onClick={() => handleRemoveImage(image.id)}
                       aria-label={`Remove ${image.name}`}
                     >
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </button>
                     <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-sm p-2">
                       <p className="truncate font-medium">Image {index + 1}</p>
-                      <p className="truncate text-xs text-gray-300">{image.name}</p>
+                      <p className="truncate text-xs text-gray-300">
+                        {image.name}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -288,7 +295,7 @@ export default function MultiImageEditor() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
               <h3 className="text-xl font-medium mb-4">2. Choose Style</h3>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {STYLES.map((s) => (
                   <button
@@ -307,8 +314,10 @@ export default function MultiImageEditor() {
             </div>
 
             <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-medium mb-4">3. Describe Transformation</h3>
-              
+              <h3 className="text-xl font-medium mb-4">
+                3. Describe Transformation
+              </h3>
+
               <label
                 htmlFor="prompt-input"
                 className="block text-sm font-medium text-gray-300 mb-2"
@@ -334,15 +343,11 @@ export default function MultiImageEditor() {
                 disabled={!canSubmit}
                 onClick={handleGenerate}
               >
-                {isLoading
-                  ? "Processing Images..."
-                  : "Transform Images"}
+                {isLoading ? "Processing Images..." : "Transform Images"}
               </button>
-              
+
               {error && (
-                <p className="mt-3 text-sm text-red-400 text-center">
-                  {error}
-                </p>
+                <p className="mt-3 text-sm text-red-400 text-center">{error}</p>
               )}
             </div>
           </div>
@@ -350,22 +355,23 @@ export default function MultiImageEditor() {
           {/* Results Section */}
           <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
             <h3 className="text-xl font-medium mb-4">4. Transformed Images</h3>
-            
+
             <div className="bg-gray-800 rounded-lg min-h-[20rem] flex items-center justify-center border border-gray-700">
               {isLoading && (
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-3"></div>
-                  <p className="text-gray-400">
-                    Processing your images...
-                  </p>
+                  <p className="text-gray-400">Processing your images...</p>
                 </div>
               )}
-              
+
               {!isLoading && resultUrls.length > 0 && (
                 <div className="w-full">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {resultUrls.map((result, index) => (
-                      <div key={result.id} className="bg-gray-700 rounded-lg overflow-hidden">
+                      <div
+                        key={result.id}
+                        className="bg-gray-700 rounded-lg overflow-hidden"
+                      >
                         <div className="aspect-square relative">
                           <Image
                             src={result.processed}
@@ -405,7 +411,7 @@ export default function MultiImageEditor() {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-6 text-center">
                     <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
                       Download Both Images
@@ -413,10 +419,11 @@ export default function MultiImageEditor() {
                   </div>
                 </div>
               )}
-              
+
               {!isLoading && resultUrls.length === 0 && (
                 <p className="text-gray-400 p-4 text-center">
-                  Your transformed images will appear here once processing is complete.
+                  Your transformed images will appear here once processing is
+                  complete.
                 </p>
               )}
             </div>

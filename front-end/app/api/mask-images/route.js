@@ -73,40 +73,6 @@ function validateFile(file, fieldName) {
 }
 
 /**
- * Determines the best DALL-E valid size based on image dimensions
- * @param {number} width - Image width
- * @param {number} height - Image height
- * @returns {string} DALL-E compatible size
- */
-function mapToDallEValidSize(width, height) {
-  if (!width || !height || width <= 0 || height <= 0) {
-    console.warn("Invalid dimensions provided. Defaulting to square.");
-    return DALL_E_VALID_SIZES.SQUARE;
-  }
-
-  const aspectRatio = width / height;
-
-  // Aspect ratios of DALL-E standard sizes
-  const AR_SQUARE = 1024 / 1024;
-  const AR_WIDE = 1792 / 1024;
-  const AR_TALL = 1024 / 1792;
-
-  // Calculate differences from DALL-E aspect ratios
-  const diffSquare = Math.abs(aspectRatio - AR_SQUARE);
-  const diffWide = Math.abs(aspectRatio - AR_WIDE);
-  const diffTall = Math.abs(aspectRatio - AR_TALL);
-
-  // Choose the DALL-E size with the closest aspect ratio
-  if (diffSquare <= diffWide && diffSquare <= diffTall) {
-    return DALL_E_VALID_SIZES.SQUARE;
-  } else if (diffWide < diffSquare && diffWide < diffTall) {
-    return DALL_E_VALID_SIZES.WIDE;
-  } else {
-    return DALL_E_VALID_SIZES.TALL;
-  }
-}
-
-/**
  * Converts file to base64 string
  * @param {File} file - The file to convert
  * @returns {Promise<string>} Base64 string
@@ -114,7 +80,7 @@ function mapToDallEValidSize(width, height) {
 async function fileToBase64(file) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  return buffer.toString('base64');
+  return buffer.toString("base64");
 }
 
 export async function POST(request) {
@@ -157,7 +123,10 @@ export async function POST(request) {
   }
 
   // Validate original image file
-  const originalImageValidation = validateFile(originalImageFile, "Original image");
+  const originalImageValidation = validateFile(
+    originalImageFile,
+    "Original image"
+  );
   if (!originalImageValidation.isValid) {
     return NextResponse.json(
       { error: originalImageValidation.error },
@@ -186,7 +155,7 @@ export async function POST(request) {
     // Determine appropriate size (you might want to get actual image dimensions here)
     // For now, we'll use square as default
     const DALL_E_size_to_use = DALL_E_VALID_SIZES.SQUARE;
-    
+
     console.log(`Using DALL-E size: ${DALL_E_size_to_use} for inpainting`);
 
     // Create the final prompt with style
@@ -229,7 +198,7 @@ export async function POST(request) {
           { status: azureResponse.status }
         );
       }
-      
+
       console.error("Azure API Error:", errorData);
       return NextResponse.json(
         {
@@ -265,23 +234,23 @@ export async function POST(request) {
     if (imageUrls.length === 0) {
       return NextResponse.json(
         {
-          error: "No valid image URLs were returned from the inpainting service.",
+          error:
+            "No valid image URLs were returned from the inpainting service.",
         },
         { status: 500 }
       );
     }
 
     // Return the first inpainted image (or all if multiple requested)
-    return NextResponse.json({ 
+    return NextResponse.json({
       inpaintedImage: imageUrls[0],
       images: imageUrls,
       prompt: finalPrompt,
-      style: style
+      style: style,
     });
-
   } catch (error) {
     console.error("Error during image inpainting API call:", error);
-    
+
     if (error.name === "TypeError" && error.message.includes("fetch")) {
       return NextResponse.json(
         {
@@ -291,7 +260,7 @@ export async function POST(request) {
         { status: 503 }
       );
     }
-    
+
     return NextResponse.json(
       {
         error:
