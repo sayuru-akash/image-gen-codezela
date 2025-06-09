@@ -10,22 +10,22 @@ const upload = multer();
 
 // Azure OpenAI environment variables
 const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY;
-const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT;
+const NEXT_PUBLIC_AZURE_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_ENDPOINT;
 const AZURE_OPENAI_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT;
 
 if (
   !AZURE_OPENAI_API_KEY ||
-  !AZURE_OPENAI_ENDPOINT ||
+  !NEXT_PUBLIC_AZURE_ENDPOINT ||
   !AZURE_OPENAI_DEPLOYMENT
 ) {
   throw new Error(
-    "Error: Azure OpenAI environment variables (AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT) not fully configured."
+    "Error: Azure OpenAI environment variables (AZURE_OPENAI_API_KEY, NEXT_PUBLIC_AZURE_ENDPOINT, AZURE_OPENAI_DEPLOYMENT) not fully configured."
   );
 }
 
 const openai = new OpenAI({
   apiKey: AZURE_OPENAI_API_KEY,
-  baseURL: AZURE_OPENAI_ENDPOINT,
+  baseURL: NEXT_PUBLIC_AZURE_ENDPOINT,
   defaultQuery: { "api-version": "2025-04-01-preview" },
   defaultHeaders: { "api-key": AZURE_OPENAI_API_KEY },
 });

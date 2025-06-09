@@ -72,11 +72,6 @@ function validateFile(file, fieldName) {
   return { isValid: true };
 }
 
-/**
- * Converts file to base64 string
- * @param {File} file - The file to convert
- * @returns {Promise<string>} Base64 string
- */
 async function fileToBase64(file) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);

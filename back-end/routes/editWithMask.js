@@ -12,7 +12,7 @@ const upload = multer();
 // Azure OpenAI environment variables
 const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY;
 const AZURE_OPENAI_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT;
-const AZURE_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_ENDPOINT;
+const NEXT_PUBLIC_AZURE_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_ENDPOINT;
 
 if (!AZURE_OPENAI_API_KEY) {
   throw new Error(
@@ -24,7 +24,7 @@ if (!AZURE_OPENAI_DEPLOYMENT) {
     "Error: AZURE_OPENAI_DEPLOYMENT not found in environment variables."
   );
 }
-if (!AZURE_ENDPOINT) {
+if (!NEXT_PUBLIC_AZURE_ENDPOINT) {
   throw new Error(
     "Error: NEXT_PUBLIC_AZURE_ENDPOINT not found in environment variables."
   );
@@ -32,7 +32,7 @@ if (!AZURE_ENDPOINT) {
 
 const openai = new OpenAI({
   apiKey: AZURE_OPENAI_API_KEY,
-  baseURL: `${AZURE_ENDPOINT}/openai/deployments/${AZURE_OPENAI_DEPLOYMENT}`,
+  baseURL: `${NEXT_PUBLIC_AZURE_ENDPOINT}/openai/deployments/${AZURE_OPENAI_DEPLOYMENT}`,
   defaultQuery: { "api-version": "2025-04-01-preview" },
   defaultHeaders: { "api-key": AZURE_OPENAI_API_KEY },
 });
