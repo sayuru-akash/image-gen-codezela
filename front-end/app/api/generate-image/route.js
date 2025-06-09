@@ -133,7 +133,7 @@ export async function POST(request) {
   const finalAzurePrompt = `${userPrompt}, in a ${style.toLowerCase()} style, as a background scene.`;
 
   try {
-    const azureApiUrl = `${process.env.NEXT_PUBLIC_AZURE_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/images/generations?api-version=2024-02-01`;
+    const azureApiUrl = `${process.env.NEXT_PUBLIC_AZURE_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/images/generations?api-version=2025-04-01-preview`;
 
     const azureResponse = await fetch(azureApiUrl, {
       method: "POST",

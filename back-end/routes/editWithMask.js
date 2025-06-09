@@ -9,12 +9,33 @@ dotenv.config();
 const router = Router();
 const upload = multer();
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!OPENAI_API_KEY) {
-  throw new Error("Error: OPENAI_API_KEY not found in environment variables.");
+// Azure OpenAI environment variables
+const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY;
+const AZURE_OPENAI_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT;
+const AZURE_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_ENDPOINT;
+
+if (!AZURE_OPENAI_API_KEY) {
+  throw new Error(
+    "Error: AZURE_OPENAI_API_KEY not found in environment variables."
+  );
+}
+if (!AZURE_OPENAI_DEPLOYMENT) {
+  throw new Error(
+    "Error: AZURE_OPENAI_DEPLOYMENT not found in environment variables."
+  );
+}
+if (!AZURE_ENDPOINT) {
+  throw new Error(
+    "Error: NEXT_PUBLIC_AZURE_ENDPOINT not found in environment variables."
+  );
 }
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: AZURE_OPENAI_API_KEY,
+  baseURL: `${AZURE_ENDPOINT}/openai/deployments/${AZURE_OPENAI_DEPLOYMENT}`,
+  defaultQuery: { "api-version": "2025-04-01-preview" },
+  defaultHeaders: { "api-key": AZURE_OPENAI_API_KEY },
+});
 
 async function ensurePngWithAlpha(maskBuffer) {
   try {
@@ -56,8 +77,8 @@ router.post(
         .json({ error: "Both original_image and mask_image are required." });
     }
 
-    const imgFilename = originalImage.originalname || "";
-    const mskFilename = maskImage.originalname || "";
+    const imgFilename = originalImage.originalname || "original_image.png";
+    const mskFilename = maskImage.originalname || "mask_image.png";
 
     const imgExt = imgFilename.split(".").pop().toLowerCase();
     const mskExt = mskFilename.split(".").pop().toLowerCase();
@@ -74,7 +95,6 @@ router.post(
     try {
       const processedMaskBuffer = await ensurePngWithAlpha(maskImage.buffer);
 
-      // Create File objects for OpenAI API
       const originalImageFile = new File([originalImage.buffer], imgFilename, {
         type: originalImage.mimetype,
       });
@@ -85,7 +105,7 @@ router.post(
       const full_prompt = `${prompt} in a ${style} style`;
 
       const response = await openai.images.edit({
-        model: "gpt-image-1",
+        model: AZURE_OPENAI_DEPLOYMENT,
         image: originalImageFile,
         mask: maskImageFile,
         prompt: full_prompt,
@@ -101,23 +121,45 @@ router.post(
         const image_b64 = response.data[0].b64_json;
         const data_url = `data:image/png;base64,${image_b64}`;
         return res.status(200).json({ image_url: data_url });
+      } else if (
+        response.data &&
+        response.data.length > 0 &&
+        response.data[0].url
+      ) {
+        return res.status(200).json({ image_url: response.data[0].url });
       } else {
-        return res
-          .status(500)
-          .json({ error: "Image editing failed: no image data returned." });
+        console.error(
+          "Image editing failed: Unexpected response structure from Azure OpenAI.",
+          response
+        );
+        return res.status(500).json({
+          error:
+            "Image editing failed: no image data returned or unexpected format.",
+        });
       }
     } catch (e) {
       console.error(
         `Error during image editing with mask: ${e.name} - ${e.message}`
       );
+      if (e.response && e.response.data) {
+        console.error("Azure OpenAI Error Data:", e.response.data);
+      }
       console.error(e.stack);
 
       if (e.status) {
         return res.status(e.status).json({ error: e.message });
       }
-      return res
-        .status(500)
-        .json({ error: e.message || "An unknown error occurred" });
+      const errorMessage =
+        e.response &&
+        e.response.data &&
+        e.response.data.error &&
+        e.response.data.error.message
+          ? e.response.data.error.message
+          : e.message || "An unknown error occurred";
+      const errorStatus =
+        e.response && e.response.status ? e.response.status : 500;
+
+      return res.status(errorStatus).json({ error: errorMessage });
     }
   }
 );

@@ -1,3 +1,4 @@
+//back-end/routes/createFromRef.js
 import { Router } from "express";
 import { OpenAI } from "openai";
 import multer from "multer";
@@ -8,12 +9,32 @@ dotenv.config();
 const router = Router();
 const upload = multer();
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!OPENAI_API_KEY) {
-  throw new Error("Error: OPENAI_API_KEY not found in environment variables.");
+const AZURE_OPENAI_API_KEY = process.env.AZURE_OPENAI_API_KEY;
+const AZURE_OPENAI_DEPLOYMENT = process.env.AZURE_OPENAI_DEPLOYMENT;
+const AZURE_ENDPOINT = process.env.NEXT_PUBLIC_AZURE_ENDPOINT;
+
+if (!AZURE_OPENAI_API_KEY) {
+  throw new Error(
+    "Error: AZURE_OPENAI_API_KEY not found in environment variables."
+  );
+}
+if (!AZURE_OPENAI_DEPLOYMENT) {
+  throw new Error(
+    "Error: AZURE_OPENAI_DEPLOYMENT not found in environment variables."
+  );
+}
+if (!AZURE_ENDPOINT) {
+  throw new Error(
+    "Error: NEXT_PUBLIC_AZURE_ENDPOINT not found in environment variables."
+  );
 }
 
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: AZURE_OPENAI_API_KEY,
+  baseURL: `${AZURE_ENDPOINT}openai/deployments/${AZURE_OPENAI_DEPLOYMENT}`,
+  defaultQuery: { "api-version": "2025-04-01-preview" },
+  defaultHeaders: { "api-key": AZURE_OPENAI_API_KEY },
+});
 
 router.post(
   "/create-from-references",
@@ -64,7 +85,7 @@ router.post(
       const full_prompt = `${prompt} in a ${style} style`;
 
       const response = await openai.images.edit({
-        model: "gpt-image-1",
+        model: AZURE_OPENAI_DEPLOYMENT,
         image: imageFiles[0],
         prompt: full_prompt,
         size: size,
