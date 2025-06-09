@@ -235,7 +235,7 @@ export default function TextToImage() {
                   Your generated image will appear here
                 </p>
                 <p className="text-gray-500 text-sm mt-2">
-                  Describe an image and click "Generate Image"
+                  Describe an image and click &quot;Generate Image&quot;
                 </p>
               </div>
             )}
@@ -249,7 +249,7 @@ export default function TextToImage() {
                   src={url}
                   alt={`Generated art #${i + 1}`}
                   className="w-full h-96 object-contain bg-black"
-                  crossOrigin="anonymous" // Allow CORS for images
+                  crossOrigin="anonymous"
                 />
                 <div className="p-4 flex justify-between items-center">
                   <div>
