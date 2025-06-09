@@ -145,7 +145,7 @@ export async function POST(request) {
         prompt: finalAzurePrompt,
         size: DALL_E_size_to_use,
         n: Math.min(Math.max(n, 1), 4),
-        quality: "hd",
+        quality: "high",
       }),
     });
 
