@@ -59,29 +59,29 @@ export default function TextToImage() {
     }
   };
 
-  const handleDownload = async (url, index) => {
-    try {
-      // Create a proxy download link to handle CORS
-      const response = await fetch(
-        `/api/proxy-image?url=${encodeURIComponent(url)}`
-      );
-      const blob = await response.blob();
+  // const handleDownload = async (url, index) => {
+  //   try {
+  //     // Create a proxy download link to handle CORS
+  //     const response = await fetch(
+  //       `/api/proxy-image?url=${encodeURIComponent(url)}`
+  //     );
+  //     const blob = await response.blob();
 
-      const link = document.createElement("a");
-      const objectUrl = URL.createObjectURL(blob);
-      link.href = objectUrl;
-      link.download = `generated-${style.toLowerCase()}-${index + 1}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  //     const link = document.createElement("a");
+  //     const objectUrl = URL.createObjectURL(blob);
+  //     link.href = objectUrl;
+  //     link.download = `generated-${style.toLowerCase()}-${index + 1}.png`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
 
-      // Clean up the object URL
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
-    } catch (err) {
-      console.error("Download failed:", err);
-      setError("Failed to download image. Please try again.");
-    }
-  };
+  //     // Clean up the object URL
+  //     setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
+  //   } catch (err) {
+  //     console.error("Download failed:", err);
+  //     setError("Failed to download image. Please try again.");
+  //   }
+  // };
 
   return (
     <main className="min-h-screen flex flex-col gradient-bg text-white">
