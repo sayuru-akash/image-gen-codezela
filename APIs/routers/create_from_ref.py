@@ -1,25 +1,76 @@
+import base64
+import io
+import traceback
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
-from openai import OpenAI
+from openai import AzureOpenAI
 from dotenv import load_dotenv
-import traceback
 import os
+
 load_dotenv()
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("AZURE_API_KEY")
 if not api_key:
-    raise RuntimeError("Error: OPENAI_API_KEY not found in environment variables.")
+    raise RuntimeError("Error: AZURE_API_KEY not found in environment variables.")
 
-client = OpenAI(api_key=api_key)
+client = AzureOpenAI(
+    api_key=api_key,
+    azure_endpoint="https://jegan-mboyrdhf-uaenorth.openai.azure.com",
+    api_version="2025-04-01-preview"
+)
 
 router = APIRouter()
-    
+
+def encode_image_to_base64_from_bytes(image_bytes):
+    """Convert image bytes to base64 string"""
+    return base64.b64encode(image_bytes).decode('utf-8')
+
+async def analyze_multiple_images_for_prompt_enhancement(client, image_bytes_list, user_prompt):
+    """Analyze multiple images and enhance the user prompt using OpenAI Vision API"""
+    try:
+        # Encode all images to base64
+        base64_images = [encode_image_to_base64_from_bytes(img_bytes) for img_bytes in image_bytes_list]
+        
+        # Create content array with text and all images
+        content = [
+            {
+                "type": "text", 
+                "text": f"Analyze these reference images and enhance this creation prompt: '{user_prompt}'. Provide a detailed, enhanced prompt that incorporates visual elements, styles, lighting, composition, colors, and objects from the reference images. Make the enhanced prompt suitable for creating a new image based on these references. Return only the enhanced prompt without explanations."
+            }
+        ]
+        
+        # Add all images to the content
+        for i, base64_image in enumerate(base64_images):
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+            })
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": content
+                }
+            ],
+            max_tokens=400  # Slightly higher for multiple images
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error enhancing prompt with multiple images: {e}")
+        # Return original prompt if enhancement fails
+        return user_prompt
+
 @router.post("/create-from-references")
 async def create_from_references(
     images: list[UploadFile] = File(...),
     prompt: str = Form(...),
     style: str = Form(default="realistic"),
-    size: str = Form(default="1024x1024")
+    size: str = Form(default="1024x1024"),
+    enhance_prompt: bool = Form(default=True)  # New parameter to control prompt enhancement
 ):
     if not prompt.strip():
         return JSONResponse(status_code=400, content={"error": "Missing prompt parameter"})
@@ -41,17 +92,33 @@ async def create_from_references(
             )
 
     try:
-        # Process all images into BytesIO buffers
+        # Read all image contents first
+        image_contents_list = []
         image_buffers = []
+        
         for i, image in enumerate(images):
             contents = await image.read()
+            image_contents_list.append(contents)
+            
             buffer = io.BytesIO(contents)
             buffer.name = image.filename or f"image_{i}.png"
             buffer.seek(0)
             image_buffers.append(buffer)
 
-        # Combine style + prompt
-        full_prompt = f"{prompt} in a {style} style"
+        # Enhanced prompt generation using multiple reference images
+        if enhance_prompt:
+            print(f"Original prompt: {prompt}")
+            enhanced_prompt = await analyze_multiple_images_for_prompt_enhancement(
+                client, image_contents_list, prompt
+            )
+            print(f"Enhanced prompt: {enhanced_prompt}")
+            final_prompt = enhanced_prompt
+        else:
+            final_prompt = prompt
+
+        # Combine style + enhanced prompt
+        full_prompt = f"{final_prompt} in a {style} style"
+        
 
         # Call OpenAI API with multiple image references
         response = client.images.edit(
@@ -66,7 +133,15 @@ async def create_from_references(
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
             data_url = f"data:image/png;base64,{image_b64}"
-            return JSONResponse(status_code=200, content={"image_url": data_url})
+            return JSONResponse(
+                status_code=200, 
+                content={
+                    "image_url": data_url,
+                    "original_prompt": prompt,
+                    "enhanced_prompt": final_prompt if enhance_prompt else None,
+                    "full_prompt": full_prompt
+                }
+            )
         else:
             return JSONResponse(
                 status_code=500,
@@ -80,4 +155,3 @@ async def create_from_references(
         if hasattr(e, "status_code"):
             return JSONResponse(status_code=e.status_code, content={"error": str(e)})
         return JSONResponse(status_code=500, content={"error": str(e)})
-    
