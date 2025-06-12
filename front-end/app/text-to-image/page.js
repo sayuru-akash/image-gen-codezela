@@ -39,7 +39,7 @@ export default function TextToImage() {
     setImages([]);
 
     try {
-      const res = await fetch("/api/generate-image", {
+      const res = await fetch("/api/generate-image-gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, style, size }),
