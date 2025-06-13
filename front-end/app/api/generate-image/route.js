@@ -2,29 +2,13 @@
 import { NextResponse } from "next/server";
 
 // Constants
-const REQUIRED_ENV_VARS = [
-  "AZURE_OPENAI_API_KEY",
-  "AZURE_OPENAI_DEPLOYMENT",
-  "NEXT_PUBLIC_AZURE_ENDPOINT",
-];
-
-const API_VERSION = "2025-04-01-preview";
+const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL || "http://localhost:8000";
+const FASTAPI_ENDPOINT = `${FASTAPI_BASE_URL}/im-gen`;
 
 // Helper Functions
 function checkEnvironmentVariables() {
-  const missingVars = REQUIRED_ENV_VARS.filter((v) => !process.env[v]);
-  if (missingVars.length > 0) {
-    const errorMessage = `Server configuration error: Missing environment variables: ${missingVars.join(
-      ", "
-    )}.`;
-    console.error(errorMessage);
-    return {
-      isValid: false,
-      errorResponse: NextResponse.json(
-        { error: errorMessage },
-        { status: 500 }
-      ),
-    };
+  if (!process.env.FASTAPI_BASE_URL) {
+    console.warn("FASTAPI_BASE_URL not set, using default: http://localhost:8000");
   }
   return { isValid: true };
 }
@@ -47,7 +31,7 @@ export async function POST(request) {
     );
   }
 
-  const { prompt: userPrompt, style, size = "1024x1024", n = 1 } = requestBody;
+  const { prompt: userPrompt, style, n = 1 } = requestBody;
 
   if (!userPrompt) {
     return NextResponse.json(
@@ -55,88 +39,81 @@ export async function POST(request) {
       { status: 400 }
     );
   }
-  if (!style) {
-    return NextResponse.json(
-      { error: "The 'style' field is required to generate an image." },
-      { status: 400 }
-    );
-  }
 
-  const finalAzurePrompt = `A high-quality, detailed image of: ${userPrompt}, in the style of ${style.toLowerCase()}.`;
+  // Create enhanced prompt with style if provided
+  const enhancedPrompt = style 
+    ? `A high-quality, detailed image of: ${userPrompt}, in the style of ${style.toLowerCase()}.`
+    : userPrompt;
 
   try {
-    const azureApiUrl = `${process.env.NEXT_PUBLIC_AZURE_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/images/generations?api-version=${API_VERSION}`;
-
-    const requestPayload = {
-      prompt: finalAzurePrompt,
-      size,
-      n,
-      quality: "auto",
-      output_format: "png",
+    // Prepare request payload for FastAPI
+    const fastApiPayload = {
+      prompt: enhancedPrompt,
+      number_of_images: n
     };
 
-    const azureResponse = await fetch(azureApiUrl, {
+    // Call FastAPI endpoint
+    const fastApiResponse = await fetch(FASTAPI_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": process.env.AZURE_OPENAI_API_KEY,
       },
-      body: JSON.stringify(requestPayload),
+      body: JSON.stringify(fastApiPayload),
     });
 
-    if (!azureResponse.ok) {
-      const errorData = await azureResponse.json();
-      const errorMessage =
-        errorData.error?.message ||
-        "Failed to generate image due to Azure API error";
-      console.error("Azure API Error:", {
-        status: azureResponse.status,
+    if (!fastApiResponse.ok) {
+      const errorData = await fastApiResponse.json().catch(() => ({}));
+      const errorMessage = errorData.error || errorData.detail || "Failed to generate image";
+      console.error("FastAPI Error:", {
+        status: fastApiResponse.status,
         error: errorMessage,
-        details: errorData.error,
+        details: errorData,
       });
       return NextResponse.json(
         { error: errorMessage },
-        { status: azureResponse.status }
+        { status: fastApiResponse.status }
       );
     }
 
-    const responseData = await azureResponse.json();
+    const responseData = await fastApiResponse.json();
 
-    // Handle content safety filtering
-    if (responseData.prompt_filter_results?.[0]?.hate?.filtered) {
+    // Check if the FastAPI response indicates failure
+    if (!responseData.success) {
+      console.error("FastAPI returned failure:", responseData);
       return NextResponse.json(
-        {
-          error:
-            "Prompt rejected by content safety system. Please modify your request.",
-        },
+        { error: responseData.error || responseData.message || "Image generation failed" },
         { status: 400 }
       );
     }
 
-    // Extract image URLs
-    const imageUrls = (responseData.data || [])
-      .map((item) => {
-        if (item.url) {
-          return item.url;
+    // Convert FastAPI response format to match expected frontend format
+    const imageUrls = [];
+    
+    if (responseData.images && Array.isArray(responseData.images)) {
+      for (const image of responseData.images) {
+        if (image.format === "base64" && image.data) {
+          // Convert base64 to data URL format expected by frontend
+          const dataUrl = `data:image/png;base64,${image.data}`;
+          imageUrls.push(dataUrl);
         }
-        if (item.b64_json) {
-          return `data:image/png;base64,${item.b64_json}`;
-        }
-        return null;
-      })
-      .filter(Boolean);
+      }
+    }
 
     if (imageUrls.length === 0) {
-      console.error("No images returned from Azure API:", responseData);
+      console.error("No valid images returned from FastAPI:", responseData);
       return NextResponse.json(
-        { error: "Image generation succeeded but no image URLs were returned" },
+        { error: "Image generation succeeded but no valid images were returned" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ images: imageUrls });
+    return NextResponse.json({ 
+      images: imageUrls,
+      message: responseData.message 
+    });
+
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error("Unexpected error calling FastAPI:", error);
     return NextResponse.json(
       { error: "Internal server error. Please try again later." },
       { status: 500 }
