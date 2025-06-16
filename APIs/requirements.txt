@@ -8,3 +8,5 @@ pillow
 requests
 openai
 python-dotenv
+google-genai
+numpy

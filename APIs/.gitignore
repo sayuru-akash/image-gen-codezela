@@ -6,3 +6,6 @@ __pycache__/
 *.pyd
 *.pyc
 .Python
+
+# need to ignore routers folder cache
+routers/__pycache__/
