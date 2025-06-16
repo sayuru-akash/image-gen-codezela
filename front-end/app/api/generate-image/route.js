@@ -1,3 +1,4 @@
+// app/api/generate-image/route.js
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
@@ -38,7 +39,6 @@ export async function POST(request) {
           prompt: `${prompt} (${style} style)`,
           size,
           n: Math.min(n, 4),
-          quality: "standard",
         }),
       }
     );
@@ -52,7 +52,19 @@ export async function POST(request) {
     }
 
     const data = await response.json();
-    return NextResponse.json({ images: data.data.map((item) => item.url) });
+    if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+      return NextResponse.json(
+        { error: "No images generated" },
+        { status: 500 }
+      );
+    }
+    //map to img using json_64
+    return NextResponse.json(
+      {
+        images: data.data.map((img) => img.b64_json),
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Generation error:", error);
     return NextResponse.json(
