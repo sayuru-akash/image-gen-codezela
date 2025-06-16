@@ -52,7 +52,9 @@ export default function TextToImage() {
       // to give the AI more specific instructions.
       const fullPrompt = `${prompt}, in the style of ${style}, image size ${size}.`;
 
-      const res = await fetch("http://127.0.0.1:8000/im-gen", {
+      ///api/generate-image
+      //http://127.0.0.1:8000/im-gen
+      const res = await fetch("api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Send the enhanced prompt to the backend.
@@ -145,7 +147,7 @@ export default function TextToImage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Art Style
@@ -163,7 +165,7 @@ export default function TextToImage() {
               </select>
             </div>
 
-            {/* <div>
+            <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Image Size
               </label>
@@ -178,8 +180,8 @@ export default function TextToImage() {
                   </option>
                 ))}
               </select>
-            </div> */}
-          </div>
+            </div>
+          </div> */}
 
           {error && (
             <div className="mb-6 p-3 bg-red-900/50 border border-red-700 rounded-lg">
