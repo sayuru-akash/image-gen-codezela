@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from openai import AzureOpenAI
 
 load_dotenv()
-api_key = os.getenv("AZURE_API_KEY")"
+api_key = os.getenv("AZURE_API_KEY")
 if not api_key:
     raise RuntimeError("Error: AZURE_API_KEY not found in environment variables.")
 
