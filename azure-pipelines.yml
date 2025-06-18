@@ -18,7 +18,7 @@ steps:
 
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'Azure-ML-Connection'
+    azureSubscription: 'Microsoft Azure Sponsorship'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
