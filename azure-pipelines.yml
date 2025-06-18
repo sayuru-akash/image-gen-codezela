@@ -18,9 +18,9 @@ steps:
 
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'Azure-ML-Connection' 
+    azureSubscription: 'Azure-ML-Connection'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az ml job create --file ml/job.yml --resource-group <YOUR_RESOURCE_GROUP> --workspace-name <YOUR_ML_WORKSPACE_NAME>
+      az ml job create --file ml/job.yml --resource-group "imagegen-ml-rg" --workspace-name "imagegen-ml-workspace"
   displayName: 'Run Azure ML Training Job'
