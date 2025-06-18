@@ -35,16 +35,7 @@ export default function MultiImageEditor() {
     setError("");
   };
 
-  const handleFilesChange = useCallback((e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    if (files.length > MAX_IMAGES) {
-      setError(`Maximum ${MAX_IMAGES} images allowed.`);
-      e.target.value = "";
-      return;
-    }
-
+  const processFiles = (files, shouldReplace = false) => {
     const validFiles = files.filter((file) => {
       if (file.size > MAX_FILE_SIZE_BYTES) {
         setError(
@@ -55,10 +46,7 @@ export default function MultiImageEditor() {
       return true;
     });
 
-    if (validFiles.length === 0) {
-      e.target.value = "";
-      return;
-    }
+    if (validFiles.length === 0) return;
 
     const newImages = [];
     let processedCount = 0;
@@ -76,9 +64,18 @@ export default function MultiImageEditor() {
         processedCount++;
 
         if (processedCount === validFiles.length) {
-          setUploadedImages(newImages);
           setError("");
           resetResults();
+          
+          if (shouldReplace) {
+            setUploadedImages(newImages);
+          } else {
+            setUploadedImages((prev) => {
+              const combined = [...prev, ...newImages];
+              // Limit to MAX_IMAGES
+              return combined.slice(0, MAX_IMAGES);
+            });
+          }
         }
       };
       reader.onerror = () => {
@@ -86,7 +83,35 @@ export default function MultiImageEditor() {
       };
       reader.readAsDataURL(file);
     });
+  };
 
+  const handleFilesChange = useCallback((e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const remainingSlots = MAX_IMAGES - uploadedImages.length;
+    
+    if (files.length > remainingSlots) {
+      setError(`You can only add ${remainingSlots} more image(s). Maximum ${MAX_IMAGES} images allowed.`);
+      e.target.value = "";
+      return;
+    }
+
+    processFiles(files, false);
+    e.target.value = "";
+  }, [uploadedImages.length]);
+
+  const handleReplaceAllFiles = useCallback((e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (files.length > MAX_IMAGES) {
+      setError(`Maximum ${MAX_IMAGES} images allowed.`);
+      e.target.value = "";
+      return;
+    }
+
+    processFiles(files, true);
     e.target.value = "";
   }, []);
 
@@ -107,6 +132,8 @@ export default function MultiImageEditor() {
     if (!canSubmit) {
       if (uploadedImages.length < 1) {
         setError("Please upload at least 1 reference image.");
+      } else if (uploadedImages.length === 1) {
+        setError("Please upload 1 more image to proceed (2 images required).");
       } else if (!prompt.trim()) {
         setError("Please enter a prompt describing what to create.");
       }
@@ -196,8 +223,7 @@ export default function MultiImageEditor() {
             AI Dual Image Editor
           </h1>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Upload 2 images, apply styles with prompts, and transform them with
-            AI.
+            Upload 2 images (one by one or together), apply styles with prompts, and transform them with AI.
           </p>
         </div>
 
@@ -221,15 +247,15 @@ export default function MultiImageEditor() {
               </div>
             </div>
 
-            {uploadedImages.length < 2 ? (
+            {uploadedImages.length === 0 ? (
               <label className="border-2 border-dashed border-gray-700 rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/gif"
                   multiple
                   className="hidden"
-                  onChange={handleFilesChange}
-                  aria-label="Upload 2 images"
+                  onChange={handleReplaceAllFiles}
+                  aria-label="Upload images"
                 />
                 <svg
                   className="w-12 h-12 text-gray-400 mb-2"
@@ -244,49 +270,111 @@ export default function MultiImageEditor() {
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <p className="text-gray-400 mb-1">Click to upload 2 images</p>
+                <p className="text-gray-400 mb-1">Click to upload images</p>
                 <p className="text-gray-500 text-sm">
-                  PNG, JPG or GIF (max. {MAX_FILE_SIZE_MB}MB each)
+                  PNG, JPG or GIF (max. {MAX_FILE_SIZE_MB}MB each, up to 2 images)
                 </p>
               </label>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {uploadedImages.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="relative aspect-square rounded-lg overflow-hidden border border-gray-700"
-                  >
-                    <Image
-                      src={image.preview}
-                      alt={`Image ${index + 1}: ${image.name}`}
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                    <button
-                      className="absolute top-2 right-2 p-1.5 bg-red-600 rounded-full hover:bg-red-700 transition-colors"
-                      onClick={() => handleRemoveImage(image.id)}
-                      aria-label={`Remove ${image.name}`}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {uploadedImages.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-700"
                     >
+                      <Image
+                        src={image.preview}
+                        alt={`Image ${index + 1}: ${image.name}`}
+                        fill
+                        style={{ objectFit: "cover" }}
+                      />
+                      <button
+                        className="absolute top-2 right-2 p-1.5 bg-red-600 rounded-full hover:bg-red-700 transition-colors"
+                        onClick={() => handleRemoveImage(image.id)}
+                        aria-label={`Remove ${image.name}`}
+                      >
+                        <svg
+                          className="w-4 h-4 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-sm p-2">
+                        <p className="truncate font-medium">Image {index + 1}</p>
+                        <p className="truncate text-xs text-gray-300">
+                          {image.name}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Empty slot for additional image */}
+                  {uploadedImages.length < MAX_IMAGES && (
+                    <label className="border-2 border-dashed border-gray-600 rounded-lg aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors bg-gray-800/50">
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/gif"
+                        multiple
+                        className="hidden"
+                        onChange={handleFilesChange}
+                        aria-label="Add more images"
+                      />
                       <svg
-                        className="w-4 h-4 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                        className="w-8 h-8 text-gray-400 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
                         <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
                         />
                       </svg>
-                    </button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-sm p-2">
-                      <p className="truncate font-medium">Image {index + 1}</p>
-                      <p className="truncate text-xs text-gray-300">
-                        {image.name}
+                      <p className="text-gray-400 text-sm text-center px-2">
+                        Add {uploadedImages.length === 0 ? "images" : "another image"}
                       </p>
-                    </div>
-                  </div>
-                ))}
+                      <p className="text-gray-500 text-xs text-center px-2">
+                        ({MAX_IMAGES - uploadedImages.length} more needed)
+                      </p>
+                    </label>
+                  )}
+                </div>
+
+                {/* Option to replace all images */}
+                <div className="text-center">
+                  <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg cursor-pointer transition-colors text-sm">
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg, image/gif"
+                      multiple
+                      className="hidden"
+                      onChange={handleReplaceAllFiles}
+                    />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                    Replace All Images
+                  </label>
+                </div>
               </div>
             )}
           </div>
