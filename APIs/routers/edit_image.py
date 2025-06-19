@@ -1,5 +1,6 @@
 import base64
 import io
+import logging
 import os
 import traceback
 
@@ -8,7 +9,17 @@ from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from openai import AzureOpenAI
 
+# Load environment variables
 load_dotenv()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Load API key
 api_key = os.getenv("AZURE_API_KEY")
 if not api_key:
     raise RuntimeError("Error: AZURE_API_KEY not found in environment variables.")
@@ -21,8 +32,6 @@ client = AzureOpenAI(
 
 router = APIRouter()
 
-
-
 def encode_image_to_base64_from_bytes(image_bytes):
     """Convert image bytes to base64 string"""
     return base64.b64encode(image_bytes).decode('utf-8')
@@ -30,7 +39,6 @@ def encode_image_to_base64_from_bytes(image_bytes):
 async def analyze_image_for_prompt_enhancement(client, image_bytes, user_prompt):
     """Analyze image and enhance the user prompt using OpenAI Vision API"""
     try:
-        # Encode the image to base64
         base64_image = encode_image_to_base64_from_bytes(image_bytes)
         
         response = client.chat.completions.create(
@@ -55,13 +63,11 @@ async def analyze_image_for_prompt_enhancement(client, image_bytes, user_prompt)
             max_tokens=300
         )
         return response.choices[0].message.content.strip()
+
     except Exception as e:
-        print(f"Error enhancing prompt: {e}")
-        # Return original prompt if enhancement fails
+        logger.error(f"Error enhancing prompt: {type(e).__name__} - {e}")
+        logger.debug(traceback.format_exc())
         return user_prompt
-
-
-
 
 @router.post("/edit-image")
 async def edit_image_endpoint(
@@ -69,7 +75,7 @@ async def edit_image_endpoint(
     prompt: str = Form(...),
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024"),
-    enhance_prompt: bool = Form(default=True)  # New parameter to control prompt enhancement
+    enhance_prompt: bool = Form(default=True)
 ):
     if not prompt.strip():
         return JSONResponse(status_code=400, content={"error": "Missing prompt parameter"})
@@ -84,36 +90,36 @@ async def edit_image_endpoint(
 
     try:
         contents = await image.read()
-        
-        # Enhanced prompt generation
+
+        # Enhance the prompt if requested
         if enhance_prompt:
-            print(f"Original prompt: {prompt}")
-            enhanced_prompt = await analyze_image_for_prompt_enhancement(client,contents, prompt)
-            print(f"Enhanced prompt: {enhanced_prompt}")
+            logger.info(f"Original prompt: {prompt}")
+            enhanced_prompt = await analyze_image_for_prompt_enhancement(client, contents, prompt)
+            logger.info(f"Enhanced prompt: {enhanced_prompt}")
             final_prompt = enhanced_prompt
         else:
             final_prompt = prompt
-        
-        # Wrap in BytesIO and assign .name so the client infers MIME correctly
+
+        # Prepare image for sending
         buffer = io.BytesIO(contents)
-        buffer.name = filename  
+        buffer.name = filename
         buffer.seek(0)
 
-        # Combine style + enhanced prompt
         full_prompt = f"{final_prompt} in a {style} style"
+        logger.info(f"Final prompt used for image editing: {full_prompt}")
 
         response = client.images.edit(
             model="gpt-image-1", 
             image=buffer,
             prompt=full_prompt,
-            size=size,                 
+            size=size,
             n=1,
         )
 
-        # Extract base64 from response
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
             data_url = f"data:image/png;base64,{image_b64}"
+            logger.info("Image editing successful")
             return JSONResponse(
                 status_code=200, 
                 content={
@@ -124,17 +130,16 @@ async def edit_image_endpoint(
                 }
             )
         else:
+            logger.error("Image editing failed: no image data returned.")
             return JSONResponse(
                 status_code=500,
                 content={"error": "Image editing failed: no image data returned."}
             )
 
     except Exception as e:
-        # Print out for debugging on the server side
-        print(f"Error during image editing: {type(e).__name__} - {e}")
-        print(traceback.format_exc())
+        logger.error(f"Error during image editing: {type(e).__name__} - {e}")
+        logger.debug(traceback.format_exc())
 
-        # If OpenAIError has .status_code, pass it along
         if hasattr(e, "status_code"):
             return JSONResponse(status_code=e.status_code, content={"error": str(e)})
         return JSONResponse(status_code=500, content={"error": str(e)})

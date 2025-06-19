@@ -1,4 +1,5 @@
 import base64
+import logging
 import os
 from typing import Optional
 
@@ -8,20 +9,28 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel
 
+# Load environment variables
 load_dotenv()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 def initialize_client():
     try:
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("GOOGLE API KEY Not set")
-        client = genai.Client(api_key=api_key)
-        return client
+        logger.info("Google GenAI client initialized successfully.")
+        return genai.Client(api_key=api_key)
     except Exception as e:
-        print(str(e))
+        logger.error(f"Error initializing Google GenAI client: {type(e).__name__} - {e}")
         raise
 
-# Pydantic models for request/response
+# Pydantic models
 class ImageGenerationRequest(BaseModel):
     prompt: str
     number_of_images: Optional[int] = 1
@@ -30,21 +39,23 @@ class ImageGenerationResponse(BaseModel):
     success: bool
     message: str
     images: Optional[list] = None
-    saved_files: Optional[list] = None  # List of saved file paths
+    saved_files: Optional[list] = None
     error: Optional[str] = None
 
 router = APIRouter()
-
 client = initialize_client()
-
 
 @router.post("/im-gen", response_model=ImageGenerationResponse)
 async def im_gen(request: ImageGenerationRequest):
     try:
+        logger.info(f"Received request to generate {request.number_of_images} image(s) for prompt: '{request.prompt}'")
+
         if not request.prompt or len(request.prompt.strip()) == 0:
+            logger.warning("Prompt is empty.")
             raise HTTPException(status_code=400, detail="Prompt cannot be empty")
 
         if request.number_of_images < 1 or request.number_of_images > 4:
+            logger.warning("Invalid number of images requested.")
             raise HTTPException(status_code=400, detail="Number of images must be between 1 and 4")
 
         response = client.models.generate_images(
@@ -68,14 +79,16 @@ async def im_gen(request: ImageGenerationRequest):
                         "index": idx
                     })
                 else:
-                    print(f"Image {idx} missing structure")
+                    logger.warning(f"Image {idx} missing expected structure.")
         else:
+            logger.error("No 'generated_images' in response.")
             return ImageGenerationResponse(
                 success=False,
                 message="Invalid response structure from image generation API",
                 error="No 'generated_images' in response"
             )
 
+        logger.info(f"Successfully generated {len(generated_images)} image(s).")
         return ImageGenerationResponse(
             success=True,
             message=f"Successfully generated {len(generated_images)} image(s)",
@@ -85,6 +98,7 @@ async def im_gen(request: ImageGenerationRequest):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Unexpected error during image generation: {type(e).__name__} - {e}")
         return ImageGenerationResponse(
             success=False,
             message="Failed to generate images",
