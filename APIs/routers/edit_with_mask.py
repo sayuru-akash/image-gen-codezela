@@ -2,12 +2,14 @@ import io
 import logging
 import os
 import traceback
+from datetime import datetime
 
 import numpy as np
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from openai import AzureOpenAI
 from PIL import Image
+from utils.logger import log_to_db
 
 # Setup logging
 logging.basicConfig(
@@ -31,15 +33,10 @@ client = AzureOpenAI(
 router = APIRouter()
 
 def create_black_masked_image(original_image_bytes, mask_image_bytes):
-    """
-    Create a new image where masked areas are black and unmasked areas remain original
-    """
     try:
         original_img = Image.open(io.BytesIO(original_image_bytes)).convert('RGB')
         mask_img = Image.open(io.BytesIO(mask_image_bytes)).convert('L')
-
         mask_img = mask_img.resize(original_img.size, Image.Resampling.LANCZOS)
-
         original_array = np.array(original_img)
         mask_array = np.array(mask_img)
         output_array = original_array.copy()
@@ -49,7 +46,6 @@ def create_black_masked_image(original_image_bytes, mask_image_bytes):
         output_array[black_areas] = [0, 0, 0]
 
         result_img = Image.fromarray(output_array, 'RGB')
-
         output_buffer = io.BytesIO()
         result_img.save(output_buffer, format='PNG')
         output_buffer.seek(0)
@@ -67,6 +63,7 @@ async def edit_with_mask(
     original_image: UploadFile = File(...),
     mask_image: UploadFile = File(...),
     prompt: str = Form(...),
+    user_id: str = Form(default="developer"),
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024")
 ):
@@ -104,6 +101,8 @@ async def edit_with_mask(
         full_prompt = f"{prompt} in a {style} style"
         logger.info(f"Editing image with prompt: '{full_prompt}'")
 
+        start_time = datetime.utcnow()
+
         response = client.images.edit(
             model="gpt-image-1",
             image=buffer_image,
@@ -112,10 +111,29 @@ async def edit_with_mask(
             n=1
         )
 
+        end_time = datetime.utcnow()
+        time_taken = round((end_time - start_time).total_seconds(), 2)
+
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
             data_url = f"data:image/png;base64,{image_b64}"
             logger.info("Image editing completed successfully.")
+
+            log_to_db({
+                "service": "edit_with_mask",
+                "user_id": user_id,
+                "prompt": prompt,
+                "enhanced_prompt": full_prompt,
+                "input_image": "original_image_base64",
+                "mask_image": "mask_image_base64",
+                "output_image": "output_image_base64",
+                "time_prompt_enhance": None,
+                "time_image_gen": time_taken,
+                "time_total": time_taken,
+                "status": "success",
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
             return JSONResponse(
                 status_code=200,
                 content={

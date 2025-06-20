@@ -3,11 +3,13 @@ import io
 import logging
 import os
 import traceback
+from datetime import datetime
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from openai import AzureOpenAI
+from utils.logger import log_to_db
 
 # Load environment variables
 load_dotenv()
@@ -34,11 +36,9 @@ client = AzureOpenAI(
 router = APIRouter()
 
 def encode_image_to_base64_from_bytes(image_bytes):
-    """Convert image bytes to base64 string"""
     return base64.b64encode(image_bytes).decode('utf-8')
 
 async def analyze_multiple_images_for_prompt_enhancement(client, image_bytes_list, user_prompt):
-    """Analyze multiple images and enhance the user prompt using OpenAI Vision API"""
     try:
         base64_images = [encode_image_to_base64_from_bytes(img_bytes) for img_bytes in image_bytes_list]
 
@@ -67,22 +67,23 @@ async def analyze_multiple_images_for_prompt_enhancement(client, image_bytes_lis
     except Exception as e:
         logger.error(f"Error enhancing prompt with multiple images: {type(e).__name__} - {e}")
         logger.debug(traceback.format_exc())
-        return user_prompt  # Fallback
+        return user_prompt
 
 @router.post("/create-from-references")
 async def create_from_references(
     images: list[UploadFile] = File(...),
     prompt: str = Form(...),
+    user_id: str = Form(default= "developer"),
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024"),
     enhance_prompt: bool = Form(default=True)
 ):
     if not prompt.strip():
         return JSONResponse(status_code=400, content={"error": "Missing prompt parameter"})
-    
+
     if len(images) == 0:
         return JSONResponse(status_code=400, content={"error": "At least one reference image is required"})
-    
+
     if len(images) > 10:
         return JSONResponse(status_code=400, content={"error": "Maximum 10 reference images allowed"})
 
@@ -108,6 +109,8 @@ async def create_from_references(
             buffer.seek(0)
             image_buffers.append(buffer)
 
+        start_time = datetime.utcnow()
+
         if enhance_prompt:
             logger.info(f"Original prompt: {prompt}")
             enhanced_prompt = await analyze_multiple_images_for_prompt_enhancement(
@@ -130,10 +133,29 @@ async def create_from_references(
             n=1
         )
 
+        end_time = datetime.utcnow()
+        time_taken = (end_time - start_time).total_seconds()
+
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
             data_url = f"data:image/png;base64,{image_b64}"
             logger.info("Image successfully generated")
+
+            log_to_db({
+                "service": "image_object_transfer",
+                "user_id": user_id,
+                "prompt": prompt,
+                "enhanced_prompt": enhanced_prompt if enhance_prompt else None,
+                "input_image": "image1_base64",
+                "input_image_2": "image2_base64",
+                "output_image": "output_image_base64",
+                "time_prompt_enhance": time_taken if enhance_prompt else None,
+                "time_image_gen": time_taken,
+                "time_total": time_taken,
+                "status": "success",
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
             return JSONResponse(
                 status_code=200,
                 content={

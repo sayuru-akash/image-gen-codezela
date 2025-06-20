@@ -3,7 +3,8 @@ import io
 import logging
 import os
 import traceback
-
+from datetime import datetime
+from utils.logger import log_to_db
 from dotenv import load_dotenv
 from fastapi import APIRouter, File, Form, UploadFile
 from fastapi.responses import JSONResponse
@@ -33,14 +34,12 @@ client = AzureOpenAI(
 router = APIRouter()
 
 def encode_image_to_base64_from_bytes(image_bytes):
-    """Convert image bytes to base64 string"""
     return base64.b64encode(image_bytes).decode('utf-8')
 
 async def analyze_image_for_prompt_enhancement(client, image_bytes, user_prompt):
-    """Analyze image and enhance the user prompt using OpenAI Vision API"""
     try:
         base64_image = encode_image_to_base64_from_bytes(image_bytes)
-        
+
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -73,6 +72,7 @@ async def analyze_image_for_prompt_enhancement(client, image_bytes, user_prompt)
 async def edit_image_endpoint(
     image: UploadFile = File(...),
     prompt: str = Form(...),
+    user_id: str = Form(default="dev"),
     style: str = Form(default="realistic"),
     size: str = Form(default="1024x1024"),
     enhance_prompt: bool = Form(default=True)
@@ -90,22 +90,20 @@ async def edit_image_endpoint(
 
     try:
         contents = await image.read()
+        enhanced_prompt = prompt
 
-        # Enhance the prompt if requested
+        start_time = datetime.utcnow()
+
         if enhance_prompt:
             logger.info(f"Original prompt: {prompt}")
             enhanced_prompt = await analyze_image_for_prompt_enhancement(client, contents, prompt)
             logger.info(f"Enhanced prompt: {enhanced_prompt}")
-            final_prompt = enhanced_prompt
-        else:
-            final_prompt = prompt
 
-        # Prepare image for sending
         buffer = io.BytesIO(contents)
         buffer.name = filename
         buffer.seek(0)
 
-        full_prompt = f"{final_prompt} in a {style} style"
+        full_prompt = f"{enhanced_prompt} in a {style} style"
         logger.info(f"Final prompt used for image editing: {full_prompt}")
 
         response = client.images.edit(
@@ -116,16 +114,34 @@ async def edit_image_endpoint(
             n=1,
         )
 
+        end_time = datetime.utcnow()
+        time_enhance = (end_time - start_time).total_seconds()
+
         if response.data and len(response.data) > 0 and response.data[0].b64_json:
             image_b64 = response.data[0].b64_json
             data_url = f"data:image/png;base64,{image_b64}"
             logger.info("Image editing successful")
+
+            log_to_db({
+                "service": "edit_image",
+                "user_id": user_id,
+                "prompt": prompt,
+                "enhanced_prompt": enhanced_prompt,
+                "input_image": "original_image_base64",
+                "output_image": "output_image_base64",
+                "time_prompt_enhance": round(time_enhance, 2) if enhance_prompt else None,
+                "time_image_gen": round(time_enhance, 2),
+                "time_total": round(time_enhance, 2),
+                "status": "success",
+                "timestamp": datetime.utcnow().isoformat()
+            })
+
             return JSONResponse(
                 status_code=200, 
                 content={
                     "image_url": data_url,
                     "original_prompt": prompt,
-                    "enhanced_prompt": final_prompt if enhance_prompt else None,
+                    "enhanced_prompt": enhanced_prompt if enhance_prompt else None,
                     "full_prompt": full_prompt
                 }
             )
