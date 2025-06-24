@@ -158,7 +158,7 @@ export default function MultiImageEditor() {
 
       // Call your new endpoint
       const response = await fetch(
-        "http://localhost:8000/create-from-references",
+        "http://4.194.251.51:8000/create-from-references",
         {
           method: "POST",
           body: formData,

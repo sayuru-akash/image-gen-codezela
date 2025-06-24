@@ -312,7 +312,7 @@ export default function ImageInpaintingEditor() {
       formData.append("style", style);
 
       // Replace this with your actual API endpoint
-      const response = await fetch("http://localhost:8000/edit-with-mask", {
+      const response = await fetch("http://4.194.251.51:8000/edit-with-mask", {
         method: "POST",
         body: formData,
       });

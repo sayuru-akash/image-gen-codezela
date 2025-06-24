@@ -75,7 +75,7 @@ export default function ImageUpdate() {
       formData.append("prompt", prompt);
       formData.append("style", style);
 
-      const response = await fetch("http://localhost:8000/edit-image", {
+      const response = await fetch("http://4.194.251.51:8000/edit-image", {
         method: "POST",
         body: formData,
       });

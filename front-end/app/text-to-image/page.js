@@ -27,7 +27,7 @@ export default function TextToImage() {
     ///api/generate-image
     //http://127.0.0.1:8000/im-gen
     try {
-      const res = await fetch("http://127.0.0.1:8000/im-gen", {
+      const res = await fetch("http://4.194.251.51:8000/im-gen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, style }),
