@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-off-white: #aaaaaa;
-  --color-foundation-blue: #12171F;
+  --color-foundation-blue: #12171f;
   --color-dark-blue: #1a202c;
   --color-secondary-accent: #005f6b;
   --color-gold: #d4af37;
@@ -21,4 +21,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Poppins", Arial, Helvetica, sans-serif;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
 }

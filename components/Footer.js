@@ -60,19 +60,22 @@ export default function Footer() {
           <h3 className="text-2xl text-white font-medium mb-8">About</h3>
 
           <div className="flex flex-col gap-8">
-            <Link href="/" className="text-white text-sm">
+            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               FAQ
             </Link>
-            <Link href="/" className="text-white text-sm">
+            <Link href="/blog" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               Blog
             </Link>
-            <Link href="/" className="text-white text-sm">
+            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               Contact Us
             </Link>
-            <Link href="/" className="text-white text-sm">
+            <Link
+              href="/privacy-policy"
+              className="text-white text-sm hover:text-gold cursor-pointer transition-all"
+            >
               Privacy Policy
             </Link>
-            <Link href="/" className="text-white text-sm">
+            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               Terms of Service
             </Link>
           </div>
@@ -81,7 +84,9 @@ export default function Footer() {
 
       <hr className="border-white my-8" />
 
-      <p className="text-white text-center text-sm">© {year} All Rights Reserved. Codezela Technologies</p>
+      <p className="text-white text-center text-sm">
+        © {year} All Rights Reserved. Codezela Technologies
+      </p>
     </div>
   );
 }

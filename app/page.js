@@ -8,6 +8,7 @@ import Gallery from "@/components/Gallery";
 import Hero from "@/components/Hero";
 import InnovationCard from "@/components/InnovationCard";
 import Navigationbar from "@/components/navigationbar";
+import Signup from "@/components/Signup";
 import TestimonialCard from "@/components/TestimonialCard";
 import UsersCard from "@/components/UsersCard";
 import Image from "next/image";
@@ -81,10 +82,10 @@ export default function Home() {
   return (
     <>
       <div className="bg-[url(/images/hero-img.jpg)] bg-center bg-cover h-screen">
-        <div className="w-full h-full bg-gradient-to-b from-dark-blue from-5% via-gold/20 to-dark-blue">
+        <div className="w-full h-full relative bg-gradient-to-b from-dark-blue from-5% via-gold/20 to-dark-blue">
           <Navigationbar />
 
-          <div className="w-full grid justify-items-center px-6 py-20 lg:p-28">
+          <div className="w-full grid justify-items-center px-6 py-20 lg:px-28 lg:pt-28">
             <h1 className="text-white text-5xl font-bold mb-4 text-center">
               Creativity, Unleashed.
             </h1>
@@ -104,7 +105,9 @@ export default function Home() {
             </div>
           </div>
 
-          <Hero />
+          <div className="absolute top-70 w-full">
+            <Hero />
+          </div>
         </div>
       </div>
       {/* </div> */}
@@ -193,7 +196,7 @@ export default function Home() {
 
             <div className="w-full -mt-3 md:mt-[4.15rem] relative">
               <div className="absolute md:-left-10 w-full">
-                <div className="flex gap-2 w-full overflow-hidden overflow-x-auto">
+                <div className="flex gap-2 w-full overflow-hidden overflow-x-auto scrollbar-hide">
                   <TestimonialCard />
                   <TestimonialCard />
                   <TestimonialCard />
@@ -271,7 +274,7 @@ export default function Home() {
           </div>
 
           <div className="col-span-2">
-            <div className="flex gap-2 w-full overflow-x-auto overflow-y-hidden h-32">
+            <div className="flex gap-2 w-full overflow-x-auto overflow-y-hidden scrollbar-hide h-32">
               <div className="flex items-center justify-center rounded-2xl border border-secondary-accent h-32 w-56 flex-shrink-0">
                 <Image
                   src="/images/logo-1.svg"
@@ -322,20 +325,7 @@ export default function Home() {
       </div>
 
       {/* Sign up */}
-      <div className="w-full h-fit p-4 md:p-20 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gradient-to-r from-dark-blue to-gold">
-        <div className="bg-transparent backdrop-blur-xs rounded-4xl p-2 w-full h-96 shadow-2xl border border-white/30">
-          <div className="bg-[url(/images/hero-img.jpg)] bg-center bg-cover rounded-3xl w-full h-full"></div>
-        </div>
-
-        <div className="py-10 px-5 md:p-10">
-          <p className="text-white text-4xl font-semibold mb-10">
-            Create your next artwork, with the power of KAIRO Ai
-          </p>
-          <button className="w-full md:w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000">
-            Start Using KAIRO →
-          </button>
-        </div>
-      </div>
+      <Signup />
 
       <Footer />
     </>

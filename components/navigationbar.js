@@ -17,37 +17,37 @@ export default function NavigationBar() {
         {/* Desktop Navigation */}
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center">
+          <Link href="/" className="flex items-center hover:cursor-pointer">
             <div className="w-8 h-8 bg-gradient-to-r from-white from-20% to-gold to-80% rounded-full mr-1"></div>
             <span className="text-xl font-semibold tracking-wider">kAIro</span>
-          </div>
+          </Link>
 
           {/* Desktop Menu Items */}
           <div className="hidden md:flex items-center space-x-20">
-            <a
+            <Link
               href="#features"
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Features
-            </a>
-            <a
+            </Link>
+            <Link
               href="#pricing"
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Pricing
-            </a>
-            <a
+            </Link>
+            <Link
               href="#examples"
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Examples
-            </a>
-            <a
+            </Link>
+            <Link
               href="#contact"
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Contact
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Sign Up Button */}
@@ -71,34 +71,34 @@ export default function NavigationBar() {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-4">
-              <a
+              <Link
                 href="#features"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >
                 Features
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#pricing"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >
                 Pricing
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#examples"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >
                 Examples
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#contact"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >
                 Contact
-              </a>
+              </Link>
               <Link
                 href="/signup"
                 className="bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000 mt-4 w-full"
