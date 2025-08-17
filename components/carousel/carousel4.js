@@ -1,6 +1,13 @@
 import { BsArrowUpRightCircleFill } from "react-icons/bs";
+import { useRouter } from "next/navigation";
 
 export default function Carousel4({ activeCarousel, onTabChange }) {
+  const router = useRouter();
+
+  const handleTryNow = () => {
+    router.push("/dual-image-editor");
+  };
+
   return (
     <div>
       <div className="grid grid-cols-7 gap-4 md:py-10">
@@ -58,7 +65,10 @@ export default function Carousel4({ activeCarousel, onTabChange }) {
             AI will intelligently transfer elements, colors, and lighting to
             create unique, harmonized compositions.
           </p>
-          <button className="flex items-center gap-2 p-2 pl-4 bg-gradient-to-r from-gold to-white/50 text-white hover:from-white/20 from-20% hover:to-gold cursor-pointer transition-all text-sm rounded-full">
+          <button
+            onClick={handleTryNow}
+            className="flex items-center gap-2 p-2 pl-4 bg-gradient-to-r from-gold to-white/50 text-white hover:from-white/20 from-20% hover:to-gold cursor-pointer transition-all text-sm rounded-full"
+          >
             Try Now <BsArrowUpRightCircleFill className="w-7 h-7 text-white" />
           </button>
         </div>
