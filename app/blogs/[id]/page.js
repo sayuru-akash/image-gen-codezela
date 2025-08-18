@@ -63,7 +63,7 @@ export default function Blog() {
           mollit anim id est laborum.
         </p>
 
-        <div className="grid grid-cols-3 gap-8 my-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8 my-8">
           <p className="col-span-2 text-off-white text-base text-justify">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
@@ -81,7 +81,7 @@ export default function Blog() {
             officia deserunt mollit anim id est laborum.
           </p>
 
-          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3">
+          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 my-4 md:my-0">
             <div className="relative w-full h-full rounded-2xl overflow-hidden">
               <Image
                 alt="Blog Image"
@@ -113,8 +113,8 @@ export default function Blog() {
           mollit anim id est laborum.
         </p>
 
-        <div className="grid grid-cols-3 gap-8 my-8">
-          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8 my-8">
+          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 my-4 md:my-0">
             <div className="relative w-full h-full rounded-2xl overflow-hidden">
               <Image
                 alt="Blog Image"
