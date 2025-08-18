@@ -6,7 +6,7 @@ import Carousel4 from "@/components/carousel/carousel4";
 import Footer from "@/components/Footer";
 import Gallery from "@/components/Gallery";
 import Hero from "@/components/Hero";
-import InnovationCard from "@/components/InnovationCard";
+import BlogCard from "@/components/BlogCard";
 import Navigationbar from "@/components/navigationbar";
 import Signup from "@/components/Signup";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -14,6 +14,8 @@ import UsersCard from "@/components/UsersCard";
 import Image from "next/image";
 import { useState } from "react";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
+import Articles from "@/data/articles.json";
+import ExploreInnovation from "@/components/ExploreInnovation";
 
 export default function Home() {
   const [activeCarousel, setActiveCarousel] = useState(1);
@@ -37,45 +39,6 @@ export default function Home() {
       id: "3",
       title: "For Dreamers",
       body: "Visualize a sanctuary where aspirations take flight, filled with inspiration and the energy of countless possibilities.",
-    },
-  ];
-
-  const Innvoations = [
-    {
-      id: "1",
-      image1: "/images/image-2.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "2",
-      image1: "/images/image-11.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "3",
-      image1: "/images/image-12.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "4",
-      image1: "/images/image-13.png",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
     },
   ];
 
@@ -210,38 +173,7 @@ export default function Home() {
 
       {/* Explore innvoations */}
       <div className="p-4 md:px-20 md:py-10">
-        {/* Title */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <h3 className="text-2xl md:text-5xl font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
-            Explore Innovative Possibilities with Enhanced Models
-          </h3>
-
-          <div className="hidden md:flex justify-end mt-auto">
-            <div className="md:flex gap-2">
-              <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-                <MdOutlineArrowLeft className="w-7 h-7 text-white group-hover:hidden transition-all duration-300" />
-              </div>
-              <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-                <MdOutlineArrowRight className="w-7 h-7 text-white group-hover:hidden transition-all duration-300" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grids */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6 md:py-20">
-          {Innvoations.map((innovation) => (
-            <InnovationCard
-              key={innovation.id}
-              image1={innovation.image1}
-              image2={innovation.image2}
-              title={innovation.title}
-              body={innovation.body}
-              date={innovation.date}
-              author={innovation.author}
-            />
-          ))}
-        </div>
+        <ExploreInnovation />
       </div>
 
       {/* Partners */}

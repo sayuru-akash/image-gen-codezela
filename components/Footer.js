@@ -63,8 +63,8 @@ export default function Footer() {
             <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               FAQ
             </Link>
-            <Link href="/blog" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
-              Blog
+            <Link href="/blogs" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+              Blogs
             </Link>
             <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               Contact Us
