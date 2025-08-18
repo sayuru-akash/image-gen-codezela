@@ -1,9 +1,56 @@
+"use client";
 import Image from "next/image";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import TitleBar from "../titlebar";
+import { useState } from "react";
 
 export default function EditwithMask() {
+  const [prompt, setPrompt] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [maskImage, setMaskImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState(null);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
+  const handleMaskUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setMaskImage(file);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedImage || !maskImage || !prompt.trim()) return;
+
+    setIsGenerating(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+      formData.append("mask", maskImage);
+      formData.append("prompt", prompt);
+
+      const res = await fetch("http://4.194.251.51:8000/edit-with-mask", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedImage(data.image_url || data.image);
+      }
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   return (
     <div className="grid grid-cols-12 gap-4 h-screen bg-foundation-blue">
       <div className="col-span-1 p-4">
@@ -31,22 +78,87 @@ export default function EditwithMask() {
 
       <div className="relative col-span-11 py-5 px-14">
         <TitleBar />
-        <div className="flex-grow h-9/12 bg-gray-800 mt-6"></div>
+        <div className="flex-grow h-9/12 bg-gray-800 mt-6 rounded-lg flex items-center justify-center">
+          {generatedImage ? (
+            <Image
+              src={generatedImage}
+              alt="Generated image"
+              width={500}
+              height={500}
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          ) : selectedImage ? (
+            <div className="flex gap-4">
+              <div className="text-center">
+                <div className="text-white text-sm mb-2">Original Image</div>
+                <Image
+                  src={URL.createObjectURL(selectedImage)}
+                  alt="Selected image"
+                  width={250}
+                  height={250}
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                />
+              </div>
+              {maskImage && (
+                <div className="text-center">
+                  <div className="text-white text-sm mb-2">Mask Image</div>
+                  <Image
+                    src={URL.createObjectURL(maskImage)}
+                    alt="Mask image"
+                    width={250}
+                    height={250}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-white/60 text-center">
+              <div className="text-xl mb-2">Select image and mask to edit</div>
+              <div className="text-sm">
+                Upload an image, a mask, and enter a prompt
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="absolute flex justify-between p-2 bottom-5 left-14 right-14 bg-dark-blue border border-white/50 rounded-full h-fit">
           <div className="flex gap-4">
-            <button className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
-              Add Image
-            </button>
+            <label className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
+              {selectedImage ? "Change Image" : "Add Image"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
+            <label className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
+              {maskImage ? "Change Mask" : "Add Mask"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleMaskUpload}
+                className="hidden"
+              />
+            </label>
             <div className="bg-white w-0.5 h-full"></div>
             <input
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
               placeholder="Value"
-              className="text-white outline-none transition-all"
+              className="text-white outline-none transition-all bg-transparent flex-1"
             />
           </div>
 
-          <button className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
-            Generate
+          <button
+            onClick={handleGenerate}
+            disabled={
+              isGenerating || !selectedImage || !maskImage || !prompt.trim()
+            }
+            className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isGenerating ? "Generating..." : "Generate"}
           </button>
         </div>
       </div>
