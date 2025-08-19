@@ -1,8 +1,15 @@
+"use client";
 import Articles from "@/data/articles.json";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
 import BlogCard from "./BlogCard";
+import { useRouter } from "next/navigation";
 
 export default function ExploreInnovation() {
+  const router = useRouter();
+
+  const handleSelectBlog = (id) => {
+    router.push(`/blogs/${id}`);
+  };
   return (
     <div>
       <div className="flex justify-between">
@@ -25,6 +32,7 @@ export default function ExploreInnovation() {
         {Articles.slice(0, 4).map((article) => (
           <BlogCard
             key={article.id}
+            onViewBlog={handleSelectBlog}
             image1={article.image1}
             image2={article.image2}
             title={article.title}

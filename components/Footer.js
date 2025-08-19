@@ -60,7 +60,7 @@ export default function Footer() {
           <h3 className="text-2xl text-white font-medium mb-8">About</h3>
 
           <div className="flex flex-col gap-8">
-            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link href="/faq" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               FAQ
             </Link>
             <Link href="/blogs" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
