@@ -9,11 +9,24 @@ export default function TexttoImage() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
+  const [error, setError] = useState(null);
+
+  const downloadImage = () => {
+    if (generatedImage) {
+      const link = document.createElement("a");
+      link.href = generatedImage;
+      link.download = `generated-image-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
+    setError(null);
     try {
       const res = await fetch("http://4.194.251.51:8000/im-gen", {
         method: "POST",
@@ -27,9 +40,57 @@ export default function TexttoImage() {
 
       if (res.ok) {
         const data = await res.json();
-        setGeneratedImage(data.image_url || data.image);
+        console.log("Backend response:", data);
+        console.log("Response keys:", Object.keys(data));
+        console.log("Response structure:", JSON.stringify(data, null, 2));
+
+        // Handle different response formats
+        if (data.image_url) {
+          // If GCS upload was successful
+          console.log("Using image_url:", data.image_url);
+          setGeneratedImage(data.image_url);
+        } else if (data.image) {
+          // If we have a direct image (could be base64 or URL)
+          console.log("Found data.image, length:", data.image.length);
+          if (data.image.startsWith("data:image/")) {
+            // Already a data URL
+            console.log("Using data URL as-is");
+            setGeneratedImage(data.image);
+          } else if (data.image.length > 1000) {
+            // Likely base64 string, convert to data URL
+            console.log("Converting base64 to data URL");
+            setGeneratedImage(`data:image/png;base64,${data.image}`);
+          } else {
+            // Regular URL
+            console.log("Using as regular URL");
+            setGeneratedImage(data.image);
+          }
+        } else if (data.base64_image) {
+          // If backend returns base64_image field
+          console.log("Using base64_image field");
+          setGeneratedImage(`data:image/png;base64,${data.base64_image}`);
+        } else if (data.generated_images && data.generated_images.length > 0) {
+          // If backend returns array of images
+          console.log("Using first image from generated_images array");
+          const firstImage = data.generated_images[0];
+          if (firstImage.startsWith("data:image/")) {
+            setGeneratedImage(firstImage);
+          } else {
+            setGeneratedImage(`data:image/png;base64,${firstImage}`);
+          }
+        } else {
+          console.log("No image data found in response");
+          setError("No image data received from server");
+        }
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setError(
+          `Failed to generate image: ${errorData.detail || res.statusText}`
+        );
+        console.error("Failed to generate image:", res.status, errorData);
       }
     } catch (error) {
+      setError(`Network error: ${error.message}`);
       console.error("Error generating image:", error);
     } finally {
       setIsGenerating(false);
@@ -63,14 +124,27 @@ export default function TexttoImage() {
       <div className="relative col-span-11 py-5 px-14">
         <TitleBar />
         <div className="flex-grow h-9/12 bg-gray-800 mt-6 rounded-lg flex items-center justify-center">
-          {generatedImage ? (
-            <Image
-              src={generatedImage}
-              alt="Generated image"
-              width={500}
-              height={500}
-              className="max-w-full max-h-full object-contain rounded-lg"
-            />
+          {error ? (
+            <div className="text-red-400 text-center p-4">
+              <div className="text-lg mb-2">Error</div>
+              <div className="text-sm">{error}</div>
+            </div>
+          ) : generatedImage ? (
+            <div className="relative">
+              <Image
+                src={generatedImage}
+                alt="Generated image"
+                width={500}
+                height={500}
+                className="max-w-full max-h-full object-contain rounded-lg"
+              />
+              <button
+                onClick={downloadImage}
+                className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white px-3 py-1 rounded text-sm"
+              >
+                Download
+              </button>
+            </div>
           ) : (
             <div className="text-white/60 text-center">
               <div className="text-xl mb-2">
@@ -91,7 +165,10 @@ export default function TexttoImage() {
           </button>
           <input
             value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+            onChange={(e) => {
+              setPrompt(e.target.value);
+              setError(null); // Clear error when user types
+            }}
             onKeyPress={(e) => e.key === "Enter" && handleGenerate()}
             placeholder="Prompt"
             className="text-white px-10 py-4 outline-none bg-dark-blue border border-white/50 rounded-full w-full h-fit focus:border-white transition-all"

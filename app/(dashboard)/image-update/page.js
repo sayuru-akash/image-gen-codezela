@@ -71,7 +71,36 @@ export default function ImageUpdate() {
 
       if (res.ok) {
         const data = await res.json();
-        setGeneratedImage(data.image_url || data.image);
+        console.log("Backend response:", data);
+
+        // Handle different response formats
+        if (data.image_url) {
+          // If GCS upload was successful
+          setGeneratedImage(data.image_url);
+        } else if (data.image) {
+          // If we have a direct image (could be base64 or URL)
+          if (data.image.startsWith("data:image/")) {
+            // Already a data URL
+            setGeneratedImage(data.image);
+          } else if (data.image.length > 1000) {
+            // Likely base64 string, convert to data URL
+            setGeneratedImage(`data:image/png;base64,${data.image}`);
+          } else {
+            // Regular URL
+            setGeneratedImage(data.image);
+          }
+        } else if (data.base64_image) {
+          // If backend returns base64_image field
+          setGeneratedImage(`data:image/png;base64,${data.base64_image}`);
+        } else if (data.generated_images && data.generated_images.length > 0) {
+          // If backend returns array of images
+          const firstImage = data.generated_images[0];
+          if (firstImage.startsWith("data:image/")) {
+            setGeneratedImage(firstImage);
+          } else {
+            setGeneratedImage(`data:image/png;base64,${firstImage}`);
+          }
+        }
       }
     } catch (error) {
       console.error("Error generating image:", error);

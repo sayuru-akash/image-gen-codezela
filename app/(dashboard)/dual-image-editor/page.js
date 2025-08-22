@@ -74,7 +74,49 @@ export default function DualImageEditor() {
 
       if (res.ok) {
         const data = await res.json();
-        setGeneratedImages(data.images || [data.image_url || data.image]);
+        console.log("Backend response:", data);
+
+        // Handle different response formats
+        let imagesToSet = [];
+
+        if (data.images) {
+          // If we have an array of images
+          imagesToSet = data.images.map((img) => {
+            if (img.startsWith("data:image/")) {
+              return img;
+            } else if (img.length > 1000) {
+              return `data:image/png;base64,${img}`;
+            } else {
+              return img;
+            }
+          });
+        } else if (data.image_url) {
+          // Single image URL
+          imagesToSet = [data.image_url];
+        } else if (data.image) {
+          // Single image (base64 or URL)
+          if (data.image.startsWith("data:image/")) {
+            imagesToSet = [data.image];
+          } else if (data.image.length > 1000) {
+            imagesToSet = [`data:image/png;base64,${data.image}`];
+          } else {
+            imagesToSet = [data.image];
+          }
+        } else if (data.base64_image) {
+          // Single base64 image
+          imagesToSet = [`data:image/png;base64,${data.base64_image}`];
+        } else if (data.generated_images && data.generated_images.length > 0) {
+          // Array of generated images
+          imagesToSet = data.generated_images.map((img) => {
+            if (img.startsWith("data:image/")) {
+              return img;
+            } else {
+              return `data:image/png;base64,${img}`;
+            }
+          });
+        }
+
+        setGeneratedImages(imagesToSet);
       }
     } catch (error) {
       console.error("Error generating images:", error);
