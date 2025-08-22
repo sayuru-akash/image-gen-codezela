@@ -18,17 +18,17 @@ export default function Blogs() {
       <div className="bg-black mb-10">
         <NavigationBar />
       </div>
-      <div className="p-4 md:p-20">
+      <div className="p-4 md:p-10 lg:p-20">
         <div className="bg-white/10 backdrop-blur-xs w-full h-84 rounded-4xl border border-white/30 p-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gradient-to-r from-dark-blue/90 from-5% to-gold/80 to-40% w-full h-full rounded-2xl">
-            <div className="md:col-span-1 flex items-center px-4 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-gradient-to-r from-dark-blue/90 from-5% to-gold/80 to-40% w-full h-full rounded-2xl">
+            <div className="lg:col-span-1 flex items-center px-4 md:px-10">
               <h3 className="text-4xl md:text-5xl font-semibold text-white mb-6">
                 Discover New Horizons with Advanced Models
               </h3>
             </div>
 
             {/* Images */}
-            <div className="hidden md:block md:col-span-1">
+            <div className="hidden lg:block lg:col-span-1">
               <div className="relative w-full h-full overflow-hidden">
                 <div className="absolute z-10 h-50 w-50 -bottom-10 left-35">
                   <BlogCard
@@ -76,7 +76,7 @@ export default function Blogs() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:px-20 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:px-10 lg:px-20 mb-10">
         {Articles.map((article) => (
           <BlogCard
             onViewBlog={() => handleSelectBlog(article.id)}

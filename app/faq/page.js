@@ -10,7 +10,7 @@ export default function Faq() {
         <NavigationBar />
       </div>
 
-      <div className="p-4 md:p-20">
+      <div className="p-4 md:p-10 lg:p-20">
         <div className="bg-white/10 backdrop-blur-xs w-full h-84 rounded-4xl border border-white/30 p-3">
           <div className="bg-[url(/images/image-24.jpg)] bg-center bg-cover to-gold w-full h-full rounded-2xl">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-2 bg-gradient-to-r from-dark-blue/90 from-5% to-gold/80 to-40% w-full h-full rounded-2xl">
@@ -21,7 +21,7 @@ export default function Faq() {
               </div>
 
               {/* Images */}
-              <div className="hidden md:block col-span-2 pl-20 pt-4">
+              <div className="hidden lg:block col-span-2 pl-20 pt-4">
                 <div className="relative">
                   <div className="z-50 absolute top-16 bg-white/10 border border-white/30 p-2 backdrop-blur-xs rounded-3xl w-30 h-30">
                     <div className="bg-[url(/images/image-25.jpg)] bg-center bg-cover w-full h-full rounded-xl"></div>
@@ -49,7 +49,7 @@ export default function Faq() {
         </div>
       </div>
 
-      <div className="px-4 md:px-40 md:py-10 grid gap-4">
+      <div className="px-4 md:px-20 lg:px-40 md:py-20 lg:py-10 grid gap-4">
         {Faqs.map((faq) => (
           <FaqCard key={faq.id} faq={faq}/>
         ))}

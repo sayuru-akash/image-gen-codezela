@@ -12,7 +12,7 @@ export default function Blog() {
         <NavigationBar />
       </div>
 
-      <div className="w-11/12 md:w-3/5 mx-auto my-20">
+      <div className="w-11/12 lg:w-3/5 mx-auto my-20">
         <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 mb-10">
           <div className="relative w-full h-full rounded-2xl overflow-hidden">
             <Image
@@ -63,8 +63,8 @@ export default function Blog() {
           mollit anim id est laborum.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8 my-8">
-          <p className="col-span-2 text-off-white text-base text-justify">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-8 my-8">
+          <p className="md:col-span-1 lg:col-span-2 text-off-white text-base text-justify">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -113,7 +113,7 @@ export default function Blog() {
           mollit anim id est laborum.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8 my-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-8 my-8">
           <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 my-4 md:my-0">
             <div className="relative w-full h-full rounded-2xl overflow-hidden">
               <Image
@@ -125,7 +125,7 @@ export default function Blog() {
               />
             </div>
           </div>
-          <p className="col-span-2 text-off-white text-base text-justify">
+          <p className="lg:col-span-2 text-off-white text-base text-justify">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -144,7 +144,7 @@ export default function Blog() {
         </div>
       </div>
 
-      <div className="p-4 md:px-20 md:py-10 bg-black">
+      <div className="p-4 md:px-10 lg:px-20 md:py-10 bg-black">
         <ExploreInnovation />
         <hr className="border border-off-white"/>
       </div>

@@ -90,7 +90,7 @@ export default function Hero() {
       </div>
 
       {/* Main Image */}
-      <div className="z-50 bg-transparent backdrop-blur-xs rounded-4xl p-2 mx-auto md:p-6 w-11/12 md:w-7/12 h-72 md:h-[40rem] shadow-2xl border border-white/30">
+      <div className="z-50 bg-transparent backdrop-blur-xs rounded-4xl p-2 mx-auto lg:p-6 w-11/12 lg:w-7/12 h-72 md:h-[40rem] shadow-2xl border border-white/30">
         <div className="bg-[url(/images/hero-img.jpg)] bg-center bg-cover rounded-3xl w-full h-full"></div>
       </div>
     </div>

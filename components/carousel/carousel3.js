@@ -10,9 +10,9 @@ export default function Carousel3({ activeCarousel, onTabChange }) {
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-4 md:py-10">
-        <div className="col-span-full md:col-span-4 text-white py-14">
-          <div className="grid grid-cols-2 md:grid-cols-4 md:space-x-12 text-base mb-14">
+      <div className="grid grid-cols-7 gap-4 lg:py-10">
+        <div className="col-span-full lg:col-span-4 text-white py-14">
+          <div className="grid grid-cols-2 lg:grid-cols-4 lg:space-x-12 text-base mb-14">
             <button
               onClick={() => onTabChange(1)}
               className={`text-left mb-4 transition-all underline cursor-pointer ${
@@ -73,24 +73,24 @@ export default function Carousel3({ activeCarousel, onTabChange }) {
           </button>
         </div>
 
-        <div className="col-span-full md:col-span-3">
+        <div className="col-span-full lg:col-span-3">
           {/* Right side star */}
-          <div className="hidden md:grid justify-items-end">
+          <div className="hidden lg:grid justify-items-end">
             <div className="absolute w-16 h-16 bg-[url(/images/star-icon.svg)] bg-center bg-cover"></div>
           </div>
 
           {/* Stars */}
-          <div className="hidden md:block relative">
+          <div className="hidden lg:block relative">
             <div className="absolute w-8 h-8 top-35 left-5 bg-[url(/images/stars.svg)] bg-center bg-cover"></div>
           </div>
 
           {/* Icon */}
-          <div className="hidden md:block relative">
+          <div className="hidden lg:block relative">
             <div className="absolute w-14 h-14 top-[24rem] left-5 bg-[url(/images/Product-Icon-3.svg)] bg-center bg-cover"></div>
           </div>
 
           <div className="flex justify-center h-full items-center">
-            <div className="z-10 bg-gradient-to-r from-white/20 to-gold backdrop-blur-xs rounded-4xl p-2 md:p-4 w-96 h-96 shadow-2xl">
+            <div className="z-10 bg-gradient-to-r from-white/20 to-gold backdrop-blur-xs rounded-4xl p-2 lg:p-4 w-full lg:w-96 h-96 shadow-2xl">
               <div className="bg-[url(/images/image-7.png)] bg-center bg-cover rounded-3xl w-full h-full"></div>
             </div>
           </div>
