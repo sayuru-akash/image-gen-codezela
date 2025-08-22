@@ -3,18 +3,55 @@ import Image from "next/image";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import TitleBar from "../titlebar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function ImageUpdate() {
   const [prompt, setPrompt] = useState("");
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
+  const fileInputRef = useRef(null);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(file);
+  const handleAddImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+
+    files.forEach((file) => {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImage = {
+            id: Date.now() + Math.random(),
+            name: file.name,
+            url: e.target.result,
+            file: file,
+          };
+          setUploadedImages((prev) => [...prev, newImage]);
+          if (!selectedImage) {
+            setSelectedImage(newImage);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Reset input
+    event.target.value = "";
+  };
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+  };
+
+  const removeImage = (imageId, event) => {
+    event.stopPropagation();
+    setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
+    if (selectedImage && selectedImage.id === imageId) {
+      setSelectedImage(null);
     }
   };
 
@@ -24,7 +61,7 @@ export default function ImageUpdate() {
     setIsGenerating(true);
     try {
       const formData = new FormData();
-      formData.append("image", selectedImage);
+      formData.append("image", selectedImage.file);
       formData.append("prompt", prompt);
 
       const res = await fetch("http://4.194.251.51:8000/edit-image", {
@@ -42,6 +79,7 @@ export default function ImageUpdate() {
       setIsGenerating(false);
     }
   };
+
   return (
     <div className="grid grid-cols-12 gap-4 h-screen bg-foundation-blue">
       <div className="col-span-1 p-4">
@@ -55,13 +93,51 @@ export default function ImageUpdate() {
               <HiMenu className="w-6 h-6 text-dark-blue" />
             </div>
 
-            <div className="rounded w-10 h-10 p-2 border-2 border-dashed border-gold mt-8 cursor-pointer">
-              <Image
-                alt="image"
-                src="/images/image-icon.svg"
-                width={50}
-                height={50}
-              />
+            <button onClick={handleAddImage}>
+              <div className="rounded w-10 h-10 p-2 border-2 border-dashed border-gold mt-8 cursor-pointer">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <Image
+                  alt="image"
+                  src="/images/image-icon.svg"
+                  width={50}
+                  height={50}
+                />
+              </div>
+            </button>
+
+            {/* Uploaded images */}
+            <div className="mt-6 space-y-3 max-h-96 overflow-y-auto w-full">
+              {uploadedImages.map((image) => (
+                <div
+                  key={image.id}
+                  className={`relative group rounded-lg w-12 h-12 cursor-pointer border-2 transition-all duration-200 ${
+                    selectedImage?.id === image.id
+                      ? "border-yellow-500"
+                      : "border-white/30 hover:border-yellow-500/60"
+                  }`}
+                  onClick={() => handleImageClick(image)}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.name}
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <button
+                    onClick={(e) => removeImage(image.id, e)}
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -80,7 +156,7 @@ export default function ImageUpdate() {
             />
           ) : selectedImage ? (
             <Image
-              src={URL.createObjectURL(selectedImage)}
+              src={selectedImage.url}
               alt="Selected image"
               width={500}
               height={500}
@@ -98,15 +174,12 @@ export default function ImageUpdate() {
 
         <div className="absolute flex justify-between p-2 bottom-5 left-14 right-14 bg-dark-blue border border-white/50 rounded-full h-fit">
           <div className="flex gap-4">
-            <label className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
+            <button
+              onClick={handleAddImage}
+              className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500"
+            >
               {selectedImage ? "Change Image" : "Add Image"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
+            </button>
             <div className="bg-white w-0.5 h-full"></div>
             <input
               value={prompt}

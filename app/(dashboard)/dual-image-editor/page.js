@@ -3,32 +3,66 @@ import Image from "next/image";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import TitleBar from "../titlebar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function DualImageEditor() {
   const [prompt, setPrompt] = useState("");
-  const [selectedImages, setSelectedImages] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState([]);
+  const fileInputRef = useRef(null);
 
-  const handleImageUpload = (event) => {
+  const handleAddImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
-    if (files.length > 0) {
-      setSelectedImages(files);
+
+    files.forEach((file) => {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImage = {
+            id: Date.now() + Math.random(),
+            name: file.name,
+            url: e.target.result,
+            file: file,
+          };
+          setUploadedImages((prev) => [...prev, newImage]);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Reset input
+    event.target.value = "";
+  };
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+  };
+
+  const removeImage = (imageId, event) => {
+    event.stopPropagation();
+    setUploadedImages((prev) => prev.filter((img) => img.id !== imageId));
+    if (selectedImage && selectedImage.id === imageId) {
+      setSelectedImage(null);
     }
   };
 
   const handleGenerate = async () => {
-    if (selectedImages.length === 0 || !prompt.trim()) return;
+    if (uploadedImages.length === 0 || !prompt.trim()) return;
 
     setIsGenerating(true);
     try {
       const formData = new FormData();
-      selectedImages.forEach((image, index) => {
-        formData.append(`image_${index}`, image);
+      uploadedImages.forEach((image, index) => {
+        formData.append(`image_${index}`, image.file);
       });
       formData.append("prompt", prompt);
-      formData.append("batch_size", selectedImages.length.toString());
+      formData.append("batch_size", uploadedImages.length.toString());
 
       const res = await fetch(
         "http://4.194.251.51:8000/create-from-references",
@@ -61,13 +95,52 @@ export default function DualImageEditor() {
               <HiMenu className="w-6 h-6 text-dark-blue" />
             </div>
 
-            <div className="rounded w-10 h-10 p-2 border-2 border-dashed border-gold mt-8 cursor-pointer">
-              <Image
-                alt="image"
-                src="/images/image-icon.svg"
-                width={50}
-                height={50}
-              />
+            <button onClick={handleAddImage}>
+              <div className="rounded w-10 h-10 p-2 border-2 border-dashed border-gold mt-8 cursor-pointer">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <Image
+                  alt="image"
+                  src="/images/image-icon.svg"
+                  width={50}
+                  height={50}
+                />
+              </div>
+            </button>
+
+            {/* Uploaded images */}
+            <div className="mt-6 space-y-3 max-h-96 overflow-y-auto w-full">
+              {uploadedImages.map((image) => (
+                <div
+                  key={image.id}
+                  className={`relative group rounded-lg w-12 h-12 cursor-pointer border-2 transition-all duration-200 ${
+                    selectedImage?.id === image.id
+                      ? "border-yellow-500"
+                      : "border-white/30 hover:border-yellow-500/60"
+                  }`}
+                  onClick={() => handleImageClick(image)}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.name}
+                    width={48}
+                    height={48}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <button
+                    onClick={(e) => removeImage(image.id, e)}
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -90,16 +163,16 @@ export default function DualImageEditor() {
                 </div>
               ))}
             </div>
-          ) : selectedImages.length > 0 ? (
+          ) : uploadedImages.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 h-full">
-              {selectedImages.map((img, index) => (
+              {uploadedImages.map((img, index) => (
                 <div key={index} className="flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-white text-sm mb-2">
                       Image {index + 1}
                     </div>
                     <Image
-                      src={URL.createObjectURL(img)}
+                      src={img.url}
                       alt={`Selected image ${index + 1}`}
                       width={400}
                       height={400}
@@ -125,18 +198,14 @@ export default function DualImageEditor() {
 
         <div className="absolute flex justify-between p-2 bottom-5 left-14 right-14 bg-dark-blue border border-white/50 rounded-full h-fit">
           <div className="flex gap-4">
-            <label className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
-              {selectedImages.length > 0
-                ? `Change Images (${selectedImages.length})`
+            <button
+              onClick={handleAddImage}
+              className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500"
+            >
+              {uploadedImages.length > 0
+                ? `Change Images (${uploadedImages.length})`
                 : "Add Images"}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
+            </button>
             <div className="bg-white w-0.5 h-full"></div>
             <input
               value={prompt}
@@ -149,7 +218,7 @@ export default function DualImageEditor() {
           <button
             onClick={handleGenerate}
             disabled={
-              isGenerating || selectedImages.length === 0 || !prompt.trim()
+              isGenerating || uploadedImages.length === 0 || !prompt.trim()
             }
             className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >

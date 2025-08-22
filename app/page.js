@@ -6,7 +6,6 @@ import Carousel4 from "@/components/carousel/carousel4";
 import Footer from "@/components/Footer";
 import Gallery from "@/components/Gallery";
 import Hero from "@/components/Hero";
-import InnovationCard from "@/components/InnovationCard";
 import Navigationbar from "@/components/navigationbar";
 import Signup from "@/components/Signup";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -14,6 +13,7 @@ import UsersCard from "@/components/UsersCard";
 import Image from "next/image";
 import { useState } from "react";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
+import ExploreInnovation from "@/components/ExploreInnovation";
 
 export default function Home() {
   const [activeCarousel, setActiveCarousel] = useState(1);
@@ -37,45 +37,6 @@ export default function Home() {
       id: "3",
       title: "For Dreamers",
       body: "Visualize a sanctuary where aspirations take flight, filled with inspiration and the energy of countless possibilities.",
-    },
-  ];
-
-  const Innvoations = [
-    {
-      id: "1",
-      image1: "/images/image-2.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "2",
-      image1: "/images/image-11.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "3",
-      image1: "/images/image-12.jpg",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
-    },
-    {
-      id: "4",
-      image1: "/images/image-13.png",
-      image2: "/images/image-14.jpg",
-      title: "Style Transfer",
-      body: "Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click.",
-      date: "13 August 2025",
-      author: "Rishad Ahamed",
     },
   ];
 
@@ -112,9 +73,9 @@ export default function Home() {
       </div>
       {/* </div> */}
 
-      <div className="w-full h-[20vh] md:h-[85vh]"></div>
+      <div className="w-full h-[20vh] md:h-[15vh] lg:h-[85vh]"></div>
 
-      <div className="p-5 md:p-20">
+      <div className="p-5 md:p-10 lg:p-20">
         <h3 className="text-3xl font-semibold text-center bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
           Unleash Your Creativity
         </h3>
@@ -147,28 +108,28 @@ export default function Home() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 lg:px-20 py-20">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 md:px-10 lg:px-20 py-20">
         {Users.map((user) => (
           <UsersCard key={user.id} title={user.title} body={user.body} />
         ))}
       </div>
 
       {/* Testimonials */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 px-4 pb-72 md:p-20">
-        <div className="flex justify-center items-center backdrop-blur-xs border border-white/20 rounded-[2.5rem] w-full md:w-[30rem] md:h-[28rem]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 px-4 pb-72 md:px-10 lg:p-20">
+        <div className="flex justify-center items-center backdrop-blur-xs border border-white/20 rounded-[2.5rem] md:rounded-[3rem] lg:rounded-[2.5rem] w-full lg:w-[30rem] lg:h-[28rem]">
           <Image
             src="/images/image-10.png"
             alt="Testimonials"
             width={500}
             height={500}
-            className="w-full md:w-[29rem] md:h-[27rem]"
+            className="w-full lg:w-[29rem] lg:h-[27rem]"
           />
           {/* <div className="w-80 h-80 rounded-4xl bg-red-200"></div> */}
         </div>
 
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           <div className="flex flex-col relative w-full">
-            <div className="absolute -left-5 md:-left-20 -top-8 z-10">
+            <div className="absolute -left-5 lg:-left-20 -top-8 z-10">
               <Image
                 src="/images/avatar-1.png"
                 alt="Fun Avatar"
@@ -179,7 +140,7 @@ export default function Home() {
             </div>
 
             <div className="py-10 flex justify-between h-fit items-end-safe">
-              <h3 className="ml-36 text-2xl md:text-5xl font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
+              <h3 className="ml-36 md:ml-52 lg:ml-36 text-2xl md:text-5xl font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
                 The <br />
                 <span>Creators Says!</span>
               </h3>
@@ -195,7 +156,7 @@ export default function Home() {
             </div>
 
             <div className="w-full -mt-3 md:mt-[4.15rem] relative">
-              <div className="absolute md:-left-10 w-full">
+              <div className="absolute lg:-left-10 w-full">
                 <div className="flex gap-2 w-full overflow-hidden overflow-x-auto scrollbar-hide">
                   <TestimonialCard />
                   <TestimonialCard />
@@ -209,51 +170,20 @@ export default function Home() {
       </div>
 
       {/* Explore innvoations */}
-      <div className="p-4 md:px-20 md:py-10">
-        {/* Title */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <h3 className="text-2xl md:text-5xl font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
-            Explore Innovative Possibilities with Enhanced Models
-          </h3>
-
-          <div className="hidden md:flex justify-end mt-auto">
-            <div className="md:flex gap-2">
-              <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-                <MdOutlineArrowLeft className="w-7 h-7 text-white group-hover:hidden transition-all duration-300" />
-              </div>
-              <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-                <MdOutlineArrowRight className="w-7 h-7 text-white group-hover:hidden transition-all duration-300" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grids */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6 md:py-20">
-          {Innvoations.map((innovation) => (
-            <InnovationCard
-              key={innovation.id}
-              image1={innovation.image1}
-              image2={innovation.image2}
-              title={innovation.title}
-              body={innovation.body}
-              date={innovation.date}
-              author={innovation.author}
-            />
-          ))}
-        </div>
+      <div className="p-4 md:px-10 lg:px-20 md:py-10">
+        <ExploreInnovation />
       </div>
 
       {/* Partners */}
-      <div className="p-4 md:px-20 md:py-10">
+      <div className="p-4 md:px-10 lg:px-20 md:py-10">
         {/* Title */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
           <h3 className="text-2xl md:text-5xl font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
             Our Partners
           </h3>
 
-          <div className="hidden md:flex justify-end mt-auto">
-            <div className="md:flex gap-2">
+          <div className="hidden lg:flex justify-end mt-auto">
+            <div className="lg:flex gap-2">
               <div className="flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
                 <MdOutlineArrowLeft className="w-7 h-7 text-white group-hover:hidden transition-all duration-300" />
               </div>
@@ -265,7 +195,7 @@ export default function Home() {
         </div>
 
         {/* Description */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 py-10">
           <div className="flex items-center">
             <p className="text-off-white text-base py-2 leading-relaxed line-clamp-6 overflow-y-auto">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -316,7 +246,7 @@ export default function Home() {
       </div>
 
       {/* Platform Gallery */}
-      <div className="p-4 md:px-20 md:py-20">
+      <div className="p-4 md:px-10 lg:px-20 md:py-20">
         {/* Title */}
         <h3 className="text-2xl md:text-4xl mb-10 text-center font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
           Platform Gallery

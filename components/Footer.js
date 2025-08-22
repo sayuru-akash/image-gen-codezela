@@ -5,10 +5,10 @@ import { FaXTwitter } from "react-icons/fa6";
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <div className="px-10 md:px-20 py-10 bg-black">
+    <div className="px-10 lg:px-20 py-10 bg-black">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Column 1 */}
-        <div className="col-span-2 md:pr-20 mb-14 md:mb-0">
+        <div className="md:col-span-4 lg:col-span-2 lg:pr-20 mb-14 lg:mb-0">
           <div className="flex items-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-r from-white from-20% to-gold to-80% rounded-full mr-3"></div>
             <span className="text-3xl font-semibold text-white tracking-wider">
@@ -21,7 +21,7 @@ export default function Footer() {
             erat maecenas. Aliquet in consectetur.
           </p>
 
-          <div className="mt-10 md:mt-20">
+          <div className="mt-10 lg:mt-20">
             <h3 className="text-xl text-white font-semibold mb-4">
               Stay Tuned
             </h3>
@@ -36,7 +36,7 @@ export default function Footer() {
         </div>
 
         {/* Column 2 */}
-        <div>
+        <div className="md:col-span-2 lg:col-span-1 mb-14 lg:mb-0">
           <h3 className="text-2xl text-white font-medium mb-8">Solutions</h3>
 
           <div className="flex flex-col gap-8">
@@ -56,15 +56,15 @@ export default function Footer() {
         </div>
 
         {/* Column 3 */}
-        <div>
+        <div className="md:col-span-2 lg:col-span-1 mb-14 lg:mb-0">
           <h3 className="text-2xl text-white font-medium mb-8">About</h3>
 
           <div className="flex flex-col gap-8">
-            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link href="/faq" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               FAQ
             </Link>
-            <Link href="/blog" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
-              Blog
+            <Link href="/blogs" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+              Blogs
             </Link>
             <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
               Contact Us

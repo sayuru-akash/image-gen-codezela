@@ -23,7 +23,7 @@ export default function NavigationBar() {
           </Link>
 
           {/* Desktop Menu Items */}
-          <div className="hidden md:flex items-center space-x-20">
+          <div className="hidden lg:flex items-center space-x-20">
             <Link
               href="#features"
               className="hover:text-amber-400 transition-colors duration-200"
@@ -53,7 +53,7 @@ export default function NavigationBar() {
           {/* Desktop Sign Up Button */}
           <Link
             href="/signup"
-            className="hidden md:block bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000"
+            className="hidden lg:block bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000"
           >
             Sign Up →
           </Link>
@@ -61,7 +61,7 @@ export default function NavigationBar() {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-md hover:bg-gray-800 transition-colors duration-200"
+            className="lg:hidden p-2 rounded-md hover:bg-gray-800 transition-colors duration-200"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -69,7 +69,7 @@ export default function NavigationBar() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
+          <div className="lg:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-4">
               <Link
                 href="#features"
