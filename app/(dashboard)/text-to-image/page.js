@@ -182,20 +182,47 @@ export default function TexttoImage() {
     }
   };
   return (
-    <div className="grid grid-cols-12 gap-4 h-screen bg-foundation-blue">
+    <div className="grid grid-cols-12 gap-2 lg:gap-4 h-screen bg-foundation-blue">
       {/* Enhanced Sidebar */}
       <div
         className={`${
-          sidebarExpanded ? "col-span-3" : "col-span-1"
-        } p-4 transition-all duration-300`}
+          sidebarExpanded
+            ? "col-span-12 md:col-span-4 lg:col-span-3"
+            : "hidden md:block md:col-span-1"
+        } p-2 md:p-4 transition-all duration-300 ${
+          sidebarExpanded
+            ? "fixed md:relative inset-0 z-50 md:z-auto bg-foundation-blue md:bg-transparent"
+            : ""
+        }`}
       >
         <div
-          className={`relative px-4 py-8 flex flex-col bg-dark-blue border border-white/50 rounded-2xl h-full ${
-            sidebarExpanded ? "w-full" : "w-20"
+          className={`relative px-2 md:px-4 py-4 md:py-8 flex flex-col bg-dark-blue border border-white/50 rounded-2xl h-full ${
+            sidebarExpanded ? "w-full" : "w-full md:w-20"
           }`}
         >
+          {/* Mobile close button */}
+          {sidebarExpanded && (
+            <div className="md:hidden absolute top-4 right-4 z-10">
+              <IconButton
+                onClick={() => setSidebarExpanded(false)}
+                sx={{
+                  bgcolor: "rgba(0, 0, 0, 0.7)",
+                  border: "1px solid #D4AF37",
+                  color: "#D4AF37",
+                  width: "32px",
+                  height: "32px",
+                  "&:hover": {
+                    bgcolor: "rgba(212, 175, 55, 0.2)",
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+          )}
+
           <div
-            className="absolute -right-4 top-18 flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500"
+            className={`absolute -right-4 top-18 hidden md:flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500`}
             onClick={() => setSidebarExpanded(!sidebarExpanded)}
           >
             <BiSolidRightArrow
@@ -207,7 +234,7 @@ export default function TexttoImage() {
 
           {/* Collapsed Sidebar Indicator */}
           {!sidebarExpanded && (
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="hidden md:flex flex-col items-center justify-center h-full">
               <div className="relative">
                 {/* History Icon with pulse animation */}
                 <div className="mb-4 p-3 bg-gradient-to-r from-gold/20 to-gold/10 rounded-lg border border-gold/30 animate-pulse">
@@ -263,8 +290,8 @@ export default function TexttoImage() {
               mountOnEnter
               unmountOnExit
             >
-              <div className="mt-8 flex-1 overflow-hidden">
-                <div className="flex items-center gap-3 mb-6 p-3 bg-gradient-to-r from-gray-800/50 to-gray-700/30 rounded-lg border border-white/10">
+              <div className="mt-4 md:mt-8 flex-1 overflow-hidden">
+                <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6 p-2 md:p-3 bg-gradient-to-r from-gray-800/50 to-gray-700/30 rounded-lg border border-white/10">
                   <div className="p-2 bg-gradient-to-r from-gold/20 to-gold/10 rounded-lg">
                     <HistoryIcon
                       sx={{
@@ -279,7 +306,7 @@ export default function TexttoImage() {
                       sx={{
                         color: "white",
                         fontWeight: 600,
-                        fontSize: "16px",
+                        fontSize: { xs: "14px", md: "16px" },
                         marginBottom: "2px",
                       }}
                     >
@@ -289,7 +316,7 @@ export default function TexttoImage() {
                       variant="caption"
                       sx={{
                         color: "rgba(255, 255, 255, 0.6)",
-                        fontSize: "12px",
+                        fontSize: { xs: "10px", md: "12px" },
                       }}
                     >
                       {imageHistory.length} of 10 images
@@ -297,7 +324,7 @@ export default function TexttoImage() {
                   </div>
                 </div>
 
-                <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+                <div className="space-y-2 md:space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                   {imageHistory.map((item) => (
                     <Card
                       key={item.id}
@@ -322,7 +349,7 @@ export default function TexttoImage() {
                           image={item.image}
                           alt={item.prompt}
                           sx={{
-                            height: "100px",
+                            height: { xs: "80px", md: "100px" },
                             objectFit: "cover",
                             borderRadius: "12px 12px 0 0",
                           }}
@@ -332,7 +359,7 @@ export default function TexttoImage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200" />
 
                         {/* Delete button */}
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="absolute top-1 md:top-2 right-1 md:right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <IconButton
                             size="small"
                             onClick={(e) => {
@@ -343,8 +370,8 @@ export default function TexttoImage() {
                               bgcolor: "rgba(0, 0, 0, 0.7)",
                               border: "1px solid #D4AF37",
                               color: "#D4AF37",
-                              width: "28px",
-                              height: "28px",
+                              width: { xs: "24px", md: "28px" },
+                              height: { xs: "24px", md: "28px" },
                               "&:hover": {
                                 bgcolor: "rgba(212, 175, 55, 0.2)",
                                 borderColor: "#D4AF37",
@@ -363,7 +390,7 @@ export default function TexttoImage() {
                             <FullscreenIcon
                               sx={{
                                 color: "#D4AF37",
-                                fontSize: "20px",
+                                fontSize: { xs: "16px", md: "20px" },
                               }}
                             />
                           </div>
@@ -371,7 +398,7 @@ export default function TexttoImage() {
                       </div>
 
                       <Box
-                        className="p-3"
+                        className="p-2 md:p-3"
                         sx={{ bgcolor: "rgba(30, 41, 59, 0.9)" }}
                       >
                         <Typography
@@ -382,14 +409,15 @@ export default function TexttoImage() {
                             marginBottom: "4px",
                             lineHeight: 1.3,
                             display: "-webkit-box",
-                            WebkitLineClamp: 2,
+                            WebkitLineClamp: { xs: 1, md: 2 },
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
+                            fontSize: { xs: "12px", md: "14px" },
                           }}
                           title={item.prompt}
                         >
-                          {item.prompt.length > 50
-                            ? `${item.prompt.substring(0, 50)}...`
+                          {item.prompt.length > 40
+                            ? `${item.prompt.substring(0, 40)}...`
                             : item.prompt}
                         </Typography>
 
@@ -398,7 +426,7 @@ export default function TexttoImage() {
                             variant="caption"
                             sx={{
                               color: "rgba(212, 175, 55, 0.8)",
-                              fontSize: "11px",
+                              fontSize: { xs: "9px", md: "11px" },
                               fontWeight: 500,
                             }}
                           >
@@ -409,7 +437,7 @@ export default function TexttoImage() {
                             variant="caption"
                             sx={{
                               color: "rgba(255, 255, 255, 0.6)",
-                              fontSize: "11px",
+                              fontSize: { xs: "9px", md: "11px" },
                             }}
                           >
                             {new Date(item.timestamp).toLocaleTimeString([], {
@@ -424,10 +452,10 @@ export default function TexttoImage() {
 
                   {imageHistory.length === 0 && (
                     <div className="text-center py-12">
-                      <div className="mb-4">
+                      <div className="mb-3 md:mb-4">
                         <HistoryIcon
                           sx={{
-                            fontSize: "48px",
+                            fontSize: { xs: "36px", md: "48px" },
                             color: "rgba(212, 175, 55, 0.3)",
                           }}
                         />
@@ -438,6 +466,7 @@ export default function TexttoImage() {
                           color: "rgba(255, 255, 255, 0.6)",
                           fontWeight: 500,
                           marginBottom: "8px",
+                          fontSize: { xs: "14px", md: "16px" },
                         }}
                       >
                         No images yet
@@ -446,7 +475,7 @@ export default function TexttoImage() {
                         variant="body2"
                         sx={{
                           color: "rgba(255, 255, 255, 0.4)",
-                          fontSize: "13px",
+                          fontSize: { xs: "11px", md: "13px" },
                         }}
                       >
                         Generated images will appear here
@@ -463,19 +492,39 @@ export default function TexttoImage() {
       {/* Main Content */}
       <div
         className={`relative ${
-          sidebarExpanded ? "col-span-9" : "col-span-11"
-        } py-5 px-14 transition-all duration-300`}
+          sidebarExpanded
+            ? "col-span-12 md:col-span-8 lg:col-span-9"
+            : "col-span-12 md:col-span-11"
+        } py-2 md:py-5 px-4 md:px-14 transition-all duration-300`}
       >
-        <div className="mb-4">
+        {/* Mobile menu button */}
+        <div className="md:hidden fixed top-4 left-4 z-40">
+          <IconButton
+            onClick={() => setSidebarExpanded(true)}
+            sx={{
+              bgcolor: "rgba(30, 41, 59, 0.9)",
+              border: "1px solid #D4AF37",
+              color: "#D4AF37",
+              "&:hover": {
+                bgcolor: "rgba(212, 175, 55, 0.2)",
+              },
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <HiMenu size={20} />
+          </IconButton>
+        </div>
+
+        <div className="mb-2 md:mb-4 mt-12 md:mt-0">
           <TitleBar />
         </div>
 
         {/* Enhanced Image Display Area */}
-        <div className="flex-grow h-9/12 bg-gray-800 mt-2 rounded-lg flex items-center justify-center relative overflow-hidden">
+        <div className="flex-grow h-96 md:h-9/12 bg-gray-800 mt-2 rounded-lg flex items-center justify-center relative overflow-hidden">
           {error ? (
-            <div className="text-red-400 text-center p-4">
-              <div className="text-lg mb-2">Error</div>
-              <div className="text-sm">{error}</div>
+            <div className="text-red-400 text-center p-2 md:p-4">
+              <div className="text-base md:text-lg mb-2">Error</div>
+              <div className="text-xs md:text-sm">{error}</div>
             </div>
           ) : generatedImage ? (
             <div className="relative w-full h-full flex items-center justify-center">
@@ -498,7 +547,7 @@ export default function TexttoImage() {
                 />
 
                 {/* Floating Action Buttons */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                <div className="absolute top-2 md:top-4 right-2 md:right-4 flex flex-col gap-1 md:gap-2">
                   {!isFullscreen && (
                     <>
                       <Tooltip title="Download Image" placement="left">
@@ -509,6 +558,8 @@ export default function TexttoImage() {
                             bgcolor: "#D4AF3700",
                             border: "1px solid #D4AF37",
                             color: "#D4AF37",
+                            width: { xs: "36px", md: "40px" },
+                            height: { xs: "36px", md: "40px" },
                             "&:hover": {
                               bgcolor: "#D4AF3720",
                               borderColor: "#D4AF37",
@@ -516,7 +567,9 @@ export default function TexttoImage() {
                             backdropFilter: "blur(4px)",
                           }}
                         >
-                          <DownloadIcon />
+                          <DownloadIcon
+                            sx={{ fontSize: { xs: "18px", md: "24px" } }}
+                          />
                         </Fab>
                       </Tooltip>
 
@@ -528,6 +581,8 @@ export default function TexttoImage() {
                             bgcolor: "#D4AF3700",
                             border: "1px solid #D4AF37",
                             color: "#D4AF37",
+                            width: { xs: "36px", md: "40px" },
+                            height: { xs: "36px", md: "40px" },
                             "&:hover": {
                               bgcolor: "#D4AF3720",
                               borderColor: "#D4AF37",
@@ -535,7 +590,9 @@ export default function TexttoImage() {
                             backdropFilter: "blur(4px)",
                           }}
                         >
-                          <FullscreenIcon />
+                          <FullscreenIcon
+                            sx={{ fontSize: { xs: "18px", md: "24px" } }}
+                          />
                         </Fab>
                       </Tooltip>
                     </>
@@ -569,30 +626,42 @@ export default function TexttoImage() {
               </div>
             </div>
           ) : (
-            <div className="text-white/60 text-center">
-              <div className="text-xl mb-2">
+            <div className="text-white/60 text-center px-4">
+              <div className="text-lg md:text-xl mb-2">
                 Generated image will appear here
               </div>
-              <div className="text-sm">Enter a prompt and click Generate</div>
+              <div className="text-xs md:text-sm">
+                Enter a prompt and click Generate
+              </div>
             </div>
           )}
 
           {/* Loading Overlay */}
           {isGenerating && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm">
-              <div className="text-center text-white">
+              <div className="text-center text-white px-4">
                 <CircularProgress
-                  size={60}
+                  size={50}
                   thickness={4}
                   sx={{
                     color: "#FFD700",
                     marginBottom: 2,
+                    width: { xs: "40px", md: "60px" },
+                    height: { xs: "40px", md: "60px" },
                   }}
                 />
-                <Typography variant="h6" className="mb-2">
+                <Typography
+                  variant="h6"
+                  className="mb-2"
+                  sx={{ fontSize: { xs: "16px", md: "20px" } }}
+                >
                   Generating Image...
                 </Typography>
-                <Typography variant="body2" className="text-white/80">
+                <Typography
+                  variant="body2"
+                  className="text-white/80"
+                  sx={{ fontSize: { xs: "12px", md: "14px" } }}
+                >
                   This may take a few moments
                 </Typography>
               </div>
@@ -601,7 +670,7 @@ export default function TexttoImage() {
         </div>
 
         {/* Enhanced Input Area */}
-        <div className="absolute bottom-5 left-14 right-14">
+        <div className="absolute bottom-2 md:bottom-5 left-2 md:left-14 right-2 md:right-14">
           <div className="relative">
             <input
               value={prompt}
@@ -613,18 +682,21 @@ export default function TexttoImage() {
                 e.key === "Enter" && !isGenerating && handleGenerate()
               }
               placeholder="Describe the image you want to generate..."
-              className="text-white px-10 py-4 pr-32 outline-none bg-dark-blue border border-white/50 rounded-full w-full h-fit focus:border-gold transition-all duration-300 placeholder-white/50"
+              className="text-white px-4 md:px-10 py-3 md:py-4 pr-24 md:pr-32 outline-none bg-dark-blue border border-white/50 rounded-full w-full h-fit focus:border-gold transition-all duration-300 placeholder-white/50 text-sm md:text-base"
               disabled={isGenerating}
             />
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim()}
-              className="absolute right-3 top-2.5 bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="absolute right-2 md:right-3 top-1.5 md:top-2.5 bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs md:text-sm font-medium px-4 md:px-8 py-1.5 md:py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2"
             >
               {isGenerating && (
-                <CircularProgress size={16} sx={{ color: "white" }} />
+                <CircularProgress size={14} sx={{ color: "white" }} />
               )}
-              {isGenerating ? "Generating..." : "Generate"}
+              <span className="hidden sm:inline">
+                {isGenerating ? "Generating..." : "Generate"}
+              </span>
+              <span className="sm:hidden">{isGenerating ? "..." : "Go"}</span>
             </button>
           </div>
         </div>
