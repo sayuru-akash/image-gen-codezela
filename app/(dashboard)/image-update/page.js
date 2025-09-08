@@ -4,6 +4,7 @@ import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import TitleBar from "../titlebar";
 import { useRef, useState } from "react";
+import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 
 export default function ImageUpdate() {
   const [prompt, setPrompt] = useState("");
@@ -64,7 +65,7 @@ export default function ImageUpdate() {
       formData.append("image", selectedImage.file);
       formData.append("prompt", prompt);
 
-      const res = await fetch("http://4.194.251.51:8000/edit-image", {
+      const res = await apiCall("/edit-image", {
         method: "POST",
         body: formData,
       });

@@ -4,6 +4,7 @@ import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import TitleBar from "../titlebar";
 import { useRef, useState } from "react";
+import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 
 export default function DualImageEditor() {
   const [prompt, setPrompt] = useState("");
@@ -64,13 +65,10 @@ export default function DualImageEditor() {
       formData.append("prompt", prompt);
       formData.append("batch_size", uploadedImages.length.toString());
 
-      const res = await fetch(
-        "http://4.194.251.51:8000/create-from-references",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const res = await apiCall("/create-from-references", {
+        method: "POST",
+        body: formData,
+      });
 
       if (res.ok) {
         const data = await res.json();

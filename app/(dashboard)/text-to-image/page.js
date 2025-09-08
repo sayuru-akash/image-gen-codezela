@@ -5,6 +5,7 @@ import TitleBar from "../titlebar";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import { useState, useEffect } from "react";
+import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 import {
   IconButton,
   Tooltip,
@@ -105,7 +106,7 @@ export default function TexttoImage() {
     setIsGenerating(true);
     setError(null);
     try {
-      const res = await fetch("http://4.194.251.51:8000/im-gen", {
+      const res = await apiCall("/im-gen", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
