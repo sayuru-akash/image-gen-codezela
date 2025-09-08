@@ -1,20 +1,25 @@
-// Temporary fix for mixed content - Option 3: Quick Fix
-// This should be replaced with proper HTTPS setup in production
+// Temporary fix for mixed content - Option 3: Quick Fix using Proxy
+// This uses Next.js API routes to proxy requests and avoid mixed content
 
-// API configuration - using same endpoint for both environments
-// CSP header will automatically upgrade HTTP to HTTPS in production
-const API_BASE_URL = "http://4.194.251.51:8000";
+// API configuration - use proxy in production, direct in development
+const API_BASE_URL =
+  process.env.NODE_ENV === "development" ? "http://4.194.251.51:8000" : "/api"; // Use internal API routes in production
 
 // Utility function for API calls with mixed content handling
 export const apiCall = async (endpoint, options = {}) => {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      // Add headers to handle mixed content
-      headers: {
-        ...options.headers,
-      },
-    });
+    let url;
+    let requestOptions = { ...options };
+
+    if (process.env.NODE_ENV === "development") {
+      // Direct call in development
+      url = `${API_BASE_URL}${endpoint}`;
+    } else {
+      // Use specific API routes in production
+      url = `${API_BASE_URL}${endpoint}`;
+    }
+
+    const response = await fetch(url, requestOptions);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -29,9 +34,7 @@ export const apiCall = async (endpoint, options = {}) => {
       error.message.includes("Mixed Content") ||
       error.message.includes("ERR_INSECURE_RESPONSE")
     ) {
-      console.warn(
-        "Mixed content error detected. Ensure your backend supports HTTPS in production."
-      );
+      console.warn("Mixed content error detected. Using proxy fallback.");
     }
 
     throw error;
