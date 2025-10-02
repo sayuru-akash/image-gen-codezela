@@ -169,8 +169,10 @@ export default function ImageUpdate() {
     <div className="flex h-screen" style={{ backgroundColor: "#181D28" }}>
       {/* Collapsible Left Sidebar */}
       <div
-        className={`${
-          sidebarCollapsed ? "w-16" : "w-80"
+        className={`${sidebarCollapsed ? "w-16 md:w-16" : "w-80 md:w-80"} ${
+          !sidebarCollapsed
+            ? "fixed md:relative inset-0 z-50 md:z-auto"
+            : "hidden md:block"
         } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
       >
         <div className="h-full flex flex-col p-4">
@@ -195,6 +197,14 @@ export default function ImageUpdate() {
               />
             </button>
           </div>
+
+          {/* Mobile Overlay */}
+          {!sidebarCollapsed && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarCollapsed(true)}
+            />
+          )}
 
           {/* Upload Button */}
           <button
@@ -340,19 +350,29 @@ export default function ImageUpdate() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
+        {/* Mobile menu button */}
+        <div className="md:hidden fixed top-4 left-4 z-40">
+          <button
+            onClick={() => setSidebarCollapsed(false)}
+            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
+          >
+            <HiMenu className="w-5 h-5 text-gold" />
+          </button>
+        </div>
+
         {/* Title Bar */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-3 md:p-6 border-b border-white/10">
           <TitleBar />
         </div>
 
         {/* Central Workspace */}
         <div className="flex-1 flex">
           {/* Prompt Input Area */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-3 md:p-6">
             <div className="max-w-4xl mx-auto">
               {/* Modern Input Box */}
-              <div className="mb-8">
-                <label className="block text-white font-medium mb-3">
+              <div className="mb-6 md:mb-8">
+                <label className="block text-white font-medium mb-2 md:mb-3 text-sm md:text-base">
                   Describe your image modifications
                 </label>
                 <div className="relative">
@@ -360,43 +380,36 @@ export default function ImageUpdate() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Describe how you want to modify the image... (e.g., 'Add sunglasses to the person', 'Change background to beach', 'Make it more colorful')"
-                    className="w-full h-32 px-4 py-3 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm"
+                    className="w-full h-24 md:h-32 px-3 md:px-4 py-2 md:py-3 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm text-sm md:text-base"
                     disabled={isGenerating}
                   />
-                  <div className="absolute bottom-3 right-3">
-                    <FiEdit3 className="w-4 h-4 text-gray-400" />
+                  <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3">
+                    <FiEdit3 className="w-3 md:w-4 h-3 md:h-4 text-gray-400" />
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || !selectedImage || !prompt.trim()}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100"
+                  className="flex items-center gap-1 md:gap-2 px-4 md:px-8 py-2 md:py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100 text-sm md:text-base"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Generating...
+                      <div className="w-3 md:w-4 h-3 md:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="hidden sm:inline">Generating...</span>
+                      <span className="sm:hidden">...</span>
                     </>
                   ) : (
                     <>
-                      <HiOutlineAdjustments className="w-5 h-5" />
-                      Generate
+                      <HiOutlineAdjustments className="w-4 md:w-5 h-4 md:h-5" />
+                      <span className="hidden sm:inline">Generate</span>
+                      <span className="sm:hidden">Go</span>
                     </>
                   )}
                 </button>
-
-                {/* <button
-                  onClick={handleResize}
-                  disabled={!selectedImage}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20"
-                >
-                  <RiExpandDiagonalLine className="w-5 h-5" />
-                  Resize
-                </button> */}
 
                 <button
                   onClick={() =>
@@ -410,10 +423,10 @@ export default function ImageUpdate() {
                     )
                   }
                   disabled={!selectedImage}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20"
+                  className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20 text-sm md:text-base"
                 >
-                  <BiDownload className="w-5 h-5" />
-                  Download
+                  <BiDownload className="w-4 md:w-5 h-4 md:h-5" />
+                  <span className="hidden sm:inline">Download</span>
                 </button>
               </div>
             </div>
@@ -422,7 +435,7 @@ export default function ImageUpdate() {
       </div>
 
       {/* Right Side - Image Comparison */}
-      <div className="w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
+      <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
         <div className="h-full flex flex-col">
           <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
             <MdCompareArrows className="w-5 h-5 text-gold" />

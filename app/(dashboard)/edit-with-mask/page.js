@@ -2,7 +2,11 @@
 import { useState, useCallback, useRef, useEffect, useId } from "react";
 import Image from "next/image";
 import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
-import { HiOutlinePhotograph, HiOutlineAdjustments } from "react-icons/hi";
+import {
+  HiOutlinePhotograph,
+  HiOutlineAdjustments,
+  HiMenu,
+} from "react-icons/hi";
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
@@ -547,8 +551,10 @@ export default function ImageInpaintingEditor() {
     <div className="flex h-screen" style={{ backgroundColor: "#181D28" }}>
       {/* Collapsible Left Sidebar */}
       <div
-        className={`${
-          sidebarCollapsed ? "w-16" : "w-80"
+        className={`${sidebarCollapsed ? "w-16 md:w-16" : "w-80 md:w-80"} ${
+          !sidebarCollapsed
+            ? "fixed md:relative inset-0 z-50 md:z-auto"
+            : "hidden md:block"
         } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
       >
         <div className="h-full flex flex-col p-4">
@@ -573,6 +579,14 @@ export default function ImageInpaintingEditor() {
               />
             </button>
           </div>
+
+          {/* Mobile Overlay */}
+          {!sidebarCollapsed && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarCollapsed(true)}
+            />
+          )}
 
           {/* Upload Button */}
           <button
@@ -764,13 +778,23 @@ export default function ImageInpaintingEditor() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
+        {/* Mobile menu button */}
+        <div className="md:hidden fixed top-4 left-4 z-40">
+          <button
+            onClick={() => setSidebarCollapsed(false)}
+            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
+          >
+            <HiMenu className="w-5 h-5 text-gold" />
+          </button>
+        </div>
+
         {/* Title Bar */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-3 md:p-6 border-b border-white/10">
           <TitleBar />
         </div>
 
         {/* Central Canvas Workspace */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-3 md:p-6">
           <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
             {!originalImage ? (
               <div className="flex items-center justify-center h-full">
@@ -899,49 +923,42 @@ export default function ImageInpaintingEditor() {
         </div>
 
         {/* Bottom Prompt Input */}
-        <div className="p-6 border-t border-white/10">
+        <div className="p-3 md:p-6 border-t border-white/10">
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Describe what to generate in the masked area... (e.g., 'Add a sunset sky', 'Replace with a garden', 'Change to winter scene')"
-                className="w-full h-24 px-4 py-3 pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm"
+                className="w-full h-20 md:h-24 px-3 md:px-4 py-2 md:py-3 pr-28 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm text-sm md:text-base"
                 disabled={isLoading}
               />
-              <div className="absolute bottom-3 right-3">
-                <FiEdit3 className="w-4 h-4 text-gray-400" />
+              <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3">
+                <FiEdit3 className="w-3 md:w-4 h-3 md:h-4 text-gray-400" />
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 justify-center mt-6">
+            <div className="flex flex-wrap gap-2 md:gap-4 justify-center mt-4 md:mt-6">
               <button
                 onClick={handleGenerate}
                 disabled={!canSubmit}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100"
+                className="flex items-center gap-1 md:gap-2 px-4 md:px-8 py-2 md:py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100 text-sm md:text-base"
               >
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Generating...
+                    <div className="w-3 md:w-4 h-3 md:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="hidden sm:inline">Generating...</span>
+                    <span className="sm:hidden">...</span>
                   </>
                 ) : (
                   <>
-                    <HiOutlineAdjustments className="w-5 h-5" />
-                    Generate
+                    <HiOutlineAdjustments className="w-4 md:w-5 h-4 md:h-5" />
+                    <span className="hidden sm:inline">Generate</span>
+                    <span className="sm:hidden">Go</span>
                   </>
                 )}
               </button>
-
-              {/* <button
-                onClick={handleResize}
-                disabled={!originalImage}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20"
-              >
-                <RiExpandDiagonalLine className="w-5 h-5" />
-                Resize
-              </button> */}
 
               <button
                 onClick={() =>
@@ -951,10 +968,10 @@ export default function ImageInpaintingEditor() {
                   )
                 }
                 disabled={!originalImage}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20"
+                className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20 text-sm md:text-base"
               >
-                <BiDownload className="w-5 h-5" />
-                Download
+                <BiDownload className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Download</span>
               </button>
             </div>
           </div>
@@ -962,7 +979,7 @@ export default function ImageInpaintingEditor() {
       </div>
 
       {/* Right Side - Image Comparison */}
-      <div className="w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
+      <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
         <div className="h-full flex flex-col">
           <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
             <MdCompareArrows className="w-5 h-5 text-gold" />

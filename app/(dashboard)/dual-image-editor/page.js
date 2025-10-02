@@ -346,8 +346,10 @@ export default function DualImageEditor() {
     <div className="flex h-screen" style={{ backgroundColor: "#181D28" }}>
       {/* Collapsible Left Sidebar */}
       <div
-        className={`${
-          sidebarExpanded ? "w-80" : "w-16"
+        className={`${sidebarExpanded ? "w-80 md:w-80" : "w-16 md:w-16"} ${
+          sidebarExpanded
+            ? "fixed md:relative inset-0 z-50 md:z-auto"
+            : "hidden md:block"
         } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
       >
         <div className="h-full flex flex-col p-4">
@@ -372,6 +374,14 @@ export default function DualImageEditor() {
               />
             </button>
           </div>
+
+          {/* Mobile Overlay */}
+          {sidebarExpanded && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarExpanded(false)}
+            />
+          )}
 
           {/* Collapsed Sidebar Indicator */}
           {!sidebarExpanded && (
@@ -861,14 +871,14 @@ export default function DualImageEditor() {
         </div>
 
         {/* Title Bar */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-3 md:p-6 border-b border-white/10">
           <TitleBar />
         </div>
 
         {/* Main Workspace - Improved Layout */}
-        <div className="flex-1 p-6 flex flex-col">
+        <div className="flex-1 p-3 md:p-6 flex flex-col">
           {/* Content Area with Uploaded and Generated Images */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
             {/* Uploaded Images - Compact Size */}
             <div className="lg:col-span-1">
               <div className="mb-4 flex items-center gap-3">
@@ -1320,7 +1330,7 @@ export default function DualImageEditor() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     {generatedImages.map((img, index) => (
                       <Card
                         key={index}
@@ -1461,7 +1471,7 @@ export default function DualImageEditor() {
           </div>
 
           {/* Input Section - Bottom placement */}
-          <div className="mt-6 border-t border-white/10 pt-6">
+          <div className="mt-3 md:mt-6 border-t border-white/10 pt-3 md:pt-6">
             <div className="max-w-4xl mx-auto">
               <div className="relative">
                 <input
@@ -1475,12 +1485,12 @@ export default function DualImageEditor() {
                     handleGenerate()
                   }
                   placeholder="Describe what you want to generate from these images..."
-                  className="w-full px-6 py-4 pr-40 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 backdrop-blur-sm text-base shadow-lg"
+                  className="w-full px-4 md:px-6 py-3 md:py-4 pr-32 md:pr-40 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 backdrop-blur-sm text-sm md:text-base shadow-lg"
                   disabled={isGenerating}
                 />
 
                 {/* Action buttons */}
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex gap-2">
+                <div className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 flex gap-1 md:gap-2">
                   <button
                     onClick={handleGenerate}
                     disabled={
@@ -1488,18 +1498,23 @@ export default function DualImageEditor() {
                       uploadedImages.length === 0 ||
                       !prompt.trim()
                     }
-                    className="bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
+                    className="bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium px-3 md:px-6 py-1.5 md:py-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2 shadow-lg text-xs md:text-sm"
                   >
                     {isGenerating && (
-                      <CircularProgress size={16} sx={{ color: "white" }} />
+                      <CircularProgress size={12} sx={{ color: "white" }} />
                     )}
-                    <span>{isGenerating ? "Generating..." : "Generate"}</span>
+                    <span className="hidden sm:inline">
+                      {isGenerating ? "Generating..." : "Generate"}
+                    </span>
+                    <span className="sm:hidden">
+                      {isGenerating ? "..." : "Go"}
+                    </span>
                   </button>
                 </div>
               </div>
 
               {/* Status indicator */}
-              <div className="flex items-center justify-center mt-4 gap-4 text-sm">
+              <div className="flex items-center justify-center mt-3 md:mt-4 gap-2 md:gap-4 text-xs md:text-sm flex-wrap">
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${

@@ -186,8 +186,10 @@ export default function TexttoImage() {
     <div className="flex h-screen" style={{ backgroundColor: "#181D28" }}>
       {/* Collapsible Left Sidebar */}
       <div
-        className={`${
-          sidebarExpanded ? "w-80" : "w-16"
+        className={`${sidebarExpanded ? "w-80 md:w-80" : "w-16 md:w-16"} ${
+          sidebarExpanded
+            ? "fixed md:relative inset-0 z-50 md:z-auto"
+            : "hidden md:block"
         } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
       >
         <div className="h-full flex flex-col p-4">
@@ -212,6 +214,14 @@ export default function TexttoImage() {
               />
             </button>
           </div>
+
+          {/* Mobile Overlay */}
+          {sidebarExpanded && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarExpanded(false)}
+            />
+          )}
 
           {/* Collapsed Sidebar Indicator */}
           {!sidebarExpanded && (
@@ -491,12 +501,12 @@ export default function TexttoImage() {
         </div>
 
         {/* Title Bar */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-3 md:p-6 border-b border-white/10">
           <TitleBar />
         </div>
 
         {/* Central Workspace */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-3 md:p-6">
           <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
             {error ? (
               <div className="flex items-center justify-center h-full">
@@ -526,7 +536,7 @@ export default function TexttoImage() {
                   />
 
                   {/* Floating Action Buttons */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  <div className="absolute top-2 md:top-4 right-2 md:right-4 flex flex-col gap-1 md:gap-2">
                     {!isFullscreen && (
                       <>
                         <Tooltip title="Download Image" placement="left">
@@ -646,7 +656,7 @@ export default function TexttoImage() {
         </div>
 
         {/* Bottom Prompt Input */}
-        <div className="p-6 border-t border-white/10">
+        <div className="p-3 md:p-6 border-t border-white/10">
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <input
@@ -659,18 +669,21 @@ export default function TexttoImage() {
                   e.key === "Enter" && !isGenerating && handleGenerate()
                 }
                 placeholder="Describe the image you want to generate..."
-                className="w-full px-6 py-4 pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 backdrop-blur-sm text-base"
+                className="w-full px-4 md:px-6 py-3 md:py-4 pr-24 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 backdrop-blur-sm text-sm md:text-base"
                 disabled={isGenerating}
               />
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating || !prompt.trim()}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium px-8 py-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium px-4 md:px-8 py-1.5 md:py-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2 text-xs md:text-sm"
               >
                 {isGenerating && (
-                  <CircularProgress size={16} sx={{ color: "white" }} />
+                  <CircularProgress size={12} sx={{ color: "white" }} />
                 )}
-                <span>{isGenerating ? "Generating..." : "Generate"}</span>
+                <span className="hidden sm:inline">
+                  {isGenerating ? "Generating..." : "Generate"}
+                </span>
+                <span className="sm:hidden">{isGenerating ? "..." : "Go"}</span>
               </button>
             </div>
           </div>
