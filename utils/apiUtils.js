@@ -19,10 +19,28 @@ export const apiCall = async (endpoint, options = {}) => {
       url = `${API_BASE_URL}${endpoint}`;
     }
 
+    console.log("Making API call to:", url, "with options:", {
+      method: requestOptions.method || "GET",
+      hasBody: !!requestOptions.body,
+      bodyType: requestOptions.body?.constructor?.name || "none",
+    });
+
     const response = await fetch(url, requestOptions);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to get error details from response
+      let errorDetails;
+      try {
+        errorDetails = await response.text();
+        console.error("API Error Details:", errorDetails);
+      } catch (e) {
+        errorDetails = "No error details available";
+      }
+
+      const error = new Error(`HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      error.details = errorDetails;
+      throw error;
     }
 
     return response;
