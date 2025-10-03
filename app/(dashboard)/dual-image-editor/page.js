@@ -82,6 +82,23 @@ export default function DualImageEditor() {
     }
   }, [imageHistory]);
 
+  // Handle mobile view initialization and responsive behavior
+  useEffect(() => {
+    const checkMobileView = () => {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        setSidebarExpanded(false);
+      }
+    };
+
+    // Check on mount
+    checkMobileView();
+
+    // Add resize listener
+    window.addEventListener("resize", checkMobileView);
+    return () => window.removeEventListener("resize", checkMobileView);
+  }, []);
+
   const saveToHistory = (uploadedImgs, generatedImgs, promptText) => {
     const newItem = {
       id: Date.now(),
