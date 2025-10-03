@@ -67,6 +67,8 @@ export default function ImageInpaintingEditor() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
+  const [lastDrawPoint, setLastDrawPoint] = useState({ x: 0, y: 0 });
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0, visible: false });
 
   const canvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
@@ -165,7 +167,7 @@ export default function ImageInpaintingEditor() {
       reader.onloadend = () => {
         const img = new window.Image(); // Use window.Image to avoid conflicts
         img.onload = () => {
-          console.log("Image loaded:", img.width, img.height); // Debug log
+          console.log("Image loaded:", img.width, img.height);
 
           // Store original dimensions
           const originalWidth = img.width;
@@ -197,7 +199,7 @@ export default function ImageInpaintingEditor() {
             height: Math.round(displayHeight),
           };
 
-          console.log("Canvas size set to:", finalCanvasSize); // Debug log
+          console.log("Canvas size set to:", finalCanvasSize);
           setCanvasSize(finalCanvasSize);
 
           const imageData = {
@@ -282,16 +284,20 @@ export default function ImageInpaintingEditor() {
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
+    // Handle both mouse and touch events
+    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   };
 
   const drawBrush = (ctx, x, y, isErasing = false) => {
     ctx.save();
 
-    if (isErasing) {
+    if (isErasing || brushType.type === "eraser") {
       ctx.globalCompositeOperation = "destination-out";
     } else {
       ctx.globalCompositeOperation = "source-over";
@@ -338,42 +344,102 @@ export default function ImageInpaintingEditor() {
     ctx.restore();
   };
 
+  // Smooth line drawing between two points
+  const drawLine = (ctx, x1, y1, x2, y2, isErasing = false) => {
+    const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const steps = Math.ceil(distance / (brushSize * 0.1)); // Interpolate based on brush size
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = x1 + (x2 - x1) * t;
+      const y = y1 + (y2 - y1) * t;
+      drawBrush(ctx, x, y, isErasing);
+    }
+  };
+
+  const updateCursor = (e) => {
+    if (!maskCanvasRef.current || !maskEnabled) return;
+
+    const pos = getMousePos(maskCanvasRef.current, e);
+    setCursorPos({
+      x: pos.x,
+      y: pos.y,
+      visible: true,
+    });
+  };
+
+  const hideCursor = () => {
+    setCursorPos((prev) => ({ ...prev, visible: false }));
+  };
+
   const startDrawing = (e) => {
-    if (!maskCanvas) return;
+    if (!maskCanvas || !maskEnabled) return;
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault();
 
     // Check if it's a right click for panning
     if (e.button === 2) {
       setIsPanning(true);
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+      const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+      setLastPanPoint({ x: clientX, y: clientY });
       return;
     }
 
     setIsDrawing(true);
     const pos = getMousePos(maskCanvasRef.current, e);
+    setLastDrawPoint({ x: pos.x, y: pos.y });
+
     const ctx = maskCanvas.getContext("2d");
     drawBrush(ctx, pos.x, pos.y, brushType.type === "eraser");
   };
 
   const draw = (e) => {
+    if (!maskCanvas || !maskEnabled) return;
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault();
+
+    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+
     if (isPanning) {
-      const deltaX = e.clientX - lastPanPoint.x;
-      const deltaY = e.clientY - lastPanPoint.y;
+      const deltaX = clientX - lastPanPoint.x;
+      const deltaY = clientY - lastPanPoint.y;
       setPanOffset((prev) => ({
         x: prev.x + deltaX,
         y: prev.y + deltaY,
       }));
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      setLastPanPoint({ x: clientX, y: clientY });
       return;
     }
 
-    if (!isDrawing || !maskCanvas) return;
+    // Update cursor position
+    updateCursor(e);
+
+    if (!isDrawing) return;
 
     const pos = getMousePos(maskCanvasRef.current, e);
     const ctx = maskCanvas.getContext("2d");
-    drawBrush(ctx, pos.x, pos.y, brushType.type === "eraser");
+
+    // Draw smooth line from last point to current point
+    drawLine(
+      ctx,
+      lastDrawPoint.x,
+      lastDrawPoint.y,
+      pos.x,
+      pos.y,
+      brushType.type === "eraser"
+    );
+
+    setLastDrawPoint({ x: pos.x, y: pos.y });
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e) => {
+    if (e) {
+      e.preventDefault();
+    }
     setIsDrawing(false);
     setIsPanning(false);
   };
@@ -1257,6 +1323,9 @@ export default function ImageInpaintingEditor() {
                       onMouseMove={maskEnabled ? draw : undefined}
                       onMouseUp={maskEnabled ? stopDrawing : undefined}
                       onMouseLeave={maskEnabled ? stopDrawing : undefined}
+                      onTouchStart={maskEnabled ? startDrawing : undefined}
+                      onTouchMove={maskEnabled ? draw : undefined}
+                      onTouchEnd={maskEnabled ? stopDrawing : undefined}
                       onContextMenu={(e) => e.preventDefault()}
                     />
                   </div>
