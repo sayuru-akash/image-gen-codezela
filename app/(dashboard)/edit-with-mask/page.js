@@ -1,6 +1,16 @@
 "use client";
 import { useState, useCallback, useRef, useEffect, useId } from "react";
 import Image from "next/image";
+import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
+import {
+  HiOutlinePhotograph,
+  HiOutlineAdjustments,
+  HiMenu,
+} from "react-icons/hi";
+import { MdCompareArrows } from "react-icons/md";
+import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
+import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
+import { TbMask } from "react-icons/tb";
 import TitleBar from "../titlebar";
 import styles from "./slider.module.css";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
@@ -35,6 +45,12 @@ export default function ImageInpaintingEditor() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedForEdit, setSelectedForEdit] = useState("original");
+  const [showMessage, setShowMessage] = useState(null);
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [imageHistory, setImageHistory] = useState([]);
+  const [maskEnabled, setMaskEnabled] = useState(false);
 
   // Enhanced masking states
   const [isDrawing, setIsDrawing] = useState(false);
@@ -62,6 +78,40 @@ export default function ImageInpaintingEditor() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Show message notification
+  const displayMessage = (message) => {
+    setShowMessage(message);
+    setTimeout(() => setShowMessage(null), 3000);
+  };
+
+  const downloadImage = (imageUrl, filename = "image") => {
+    if (imageUrl) {
+      try {
+        const link = document.createElement("a");
+        link.href = imageUrl;
+        link.download = `${filename}-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        displayMessage("Image downloaded successfully!");
+      } catch (error) {
+        displayMessage("Failed to download image");
+      }
+    }
+  };
+
+  const handleResize = () => {
+    displayMessage("Resize feature coming soon!");
+  };
+
+  const handleRegenerate = () => {
+    if (originalImage && prompt.trim()) {
+      handleGenerate();
+    } else {
+      displayMessage("Please select an image and enter a prompt");
+    }
+  };
 
   const resetResults = () => {
     setResultUrl("");
@@ -451,8 +501,34 @@ export default function ImageInpaintingEditor() {
         throw new Error(errorData.error || "Inpainting failed");
       }
 
-      const { image_url } = await response.json();
-      setResultUrl(image_url || originalImage.preview);
+      const data = await response.json();
+      let imageUrl = null;
+
+      // Handle different response formats
+      if (data.image_url) {
+        imageUrl = data.image_url;
+      } else if (data.image) {
+        if (data.image.startsWith("data:image/")) {
+          imageUrl = data.image;
+        } else if (data.image.length > 1000) {
+          imageUrl = `data:image/png;base64,${data.image}`;
+        } else {
+          imageUrl = data.image;
+        }
+      } else if (data.base64_image) {
+        imageUrl = `data:image/png;base64,${data.base64_image}`;
+      } else if (data.generated_images && data.generated_images.length > 0) {
+        const firstImage = data.generated_images[0];
+        if (firstImage.startsWith("data:image/")) {
+          imageUrl = firstImage;
+        } else {
+          imageUrl = `data:image/png;base64,${firstImage}`;
+        }
+      }
+
+      setResultUrl(imageUrl || originalImage.preview);
+      setGeneratedImage(imageUrl);
+      displayMessage("Image generated successfully!");
     } catch (err) {
       console.error("Inpainting failed:", err);
       setError(
@@ -464,355 +540,616 @@ export default function ImageInpaintingEditor() {
   };
 
   if (!isClient) {
-    return <div className="h-screen bg-foundation-blue">Loading...</div>;
+    return (
+      <div className="h-screen" style={{ backgroundColor: "#181D28" }}>
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4 h-screen bg-foundation-blue">
-      <div className="col-span-1 p-4">
-        <div className="relative px-4 py-8 flex flex-col bg-dark-blue border border-white/50 rounded-2xl h-full w-20">
-          <div className="absolute -right-4 top-18 flex justify-center items-center w-8 h-8 bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500">
-            <svg
-              className="w-3 h-3 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+    <div className="flex h-screen" style={{ backgroundColor: "#181D28" }}>
+      {/* Collapsible Left Sidebar */}
+      <div
+        className={`${sidebarCollapsed ? "w-16 md:w-16" : "w-80 md:w-80"} ${
+          !sidebarCollapsed
+            ? "fixed md:relative inset-0 z-50 md:z-auto"
+            : "hidden md:block"
+        } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
+      >
+        <div className="h-full flex flex-col p-4">
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div
+              className={`${
+                sidebarCollapsed ? "hidden" : "block"
+              } transition-all duration-300`}
             >
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
+              <h2 className="text-white font-semibold text-lg">Mask Editor</h2>
+              <p className="text-gray-400 text-sm">Tools & History</p>
+            </div>
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
+            >
+              <BiSolidRightArrow
+                className={`w-4 h-4 text-gold transition-transform duration-300 ${
+                  sidebarCollapsed ? "" : "rotate-180"
+                }`}
               />
-            </svg>
+            </button>
           </div>
 
-          <div className="grid justify-items-center w-fit mx-auto">
-            <div className="bg-white rounded w-6 h-6 flex items-center mb-8">
-              <svg
-                className="w-6 h-6 text-dark-blue"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
+          {/* Mobile Overlay */}
+          {!sidebarCollapsed && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
+              onClick={() => setSidebarCollapsed(true)}
+            />
+          )}
 
-            <button
-              onClick={() => document.getElementById("imageInput").click()}
-            >
-              <div className="rounded w-10 h-10 p-2 border-2 border-dashed border-gold mt-8 cursor-pointer">
-                <input
-                  id="imageInput"
-                  type="file"
-                  onChange={handleOriginalImageChange}
-                  accept="image/*"
-                  className="hidden"
-                />
-                <svg
-                  className="w-6 h-6 text-gold"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          {/* Upload Button */}
+          <button
+            onClick={() => document.getElementById("imageInput").click()}
+            className={`${
+              sidebarCollapsed ? "w-8 h-8 p-1" : "w-full py-3 px-4"
+            } mb-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group`}
+          >
+            <FiUpload className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
+            {!sidebarCollapsed && (
+              <span className="text-gold font-medium">Upload Image</span>
+            )}
+            <input
+              id="imageInput"
+              type="file"
+              onChange={handleOriginalImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+          </button>
+
+          {/* Masking Tools */}
+          {!sidebarCollapsed && originalImage && (
+            <div className="mb-6 p-4 bg-gray-700/30 rounded-xl border border-white/10">
+              <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+                <TbMask className="w-4 h-4 text-gold" />
+                Masking Tools
+              </h3>
+
+              {/* Mask Toggle */}
+              <div className="mb-4">
+                <button
+                  onClick={() => setMaskEnabled(!maskEnabled)}
+                  className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                    maskEnabled
+                      ? "bg-gold text-gray-900"
+                      : "bg-gray-600/50 text-gray-300 hover:bg-gray-600"
+                  }`}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                  <RiBrushLine className="w-4 h-4" />
+                  {maskEnabled ? "Mask Tool Active" : "Enable Mask Tool"}
+                </button>
               </div>
-            </button>
 
-            {/* Brush Tools */}
-            {originalImage && (
-              <div className="mt-6 space-y-3 w-full">
-                <div className="text-white text-xs text-center">Tools</div>
-                {BRUSH_TYPES.map((brush, index) => (
-                  <div
-                    key={brush.type}
-                    className={`rounded-lg w-12 h-12 cursor-pointer border-2 transition-all duration-200 flex items-center justify-center ${
-                      brushType.type === brush.type
-                        ? "border-yellow-500 bg-yellow-500/20"
-                        : "border-white/30 hover:border-yellow-500/60"
-                    }`}
-                    onClick={() => setBrushType(brush)}
-                    title={brush.name}
-                  >
-                    <span className="text-lg">{brush.icon}</span>
-                  </div>
-                ))}
+              {/* Brush Size Slider */}
+              <div className="mb-4">
+                <label className="block text-white text-sm font-medium mb-2">
+                  Brush Size
+                </label>
+                <input
+                  type="range"
+                  min="5"
+                  max="50"
+                  value={brushSize}
+                  onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>5px</span>
+                  <span className="text-gold font-medium">{brushSize}px</span>
+                  <span>50px</span>
+                </div>
+              </div>
 
-                {/* Brush Size Control */}
-                <div className="mt-4">
-                  <div className="text-white text-xs text-center mb-2">
-                    Size
-                  </div>
-                  <input
-                    type="range"
-                    min="5"
-                    max="50"
-                    value={brushSize}
-                    onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                    className={`w-full h-1 bg-gray-700 rounded-lg cursor-pointer ${styles.rangeSlider}`}
+              {/* Opacity Slider */}
+              <div className="mb-4">
+                <label className="block text-white text-sm font-medium mb-2">
+                  Opacity
+                </label>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1"
+                  step="0.1"
+                  value={brushOpacity}
+                  onChange={(e) => setBrushOpacity(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>10%</span>
+                  <span className="text-gold font-medium">
+                    {Math.round(brushOpacity * 100)}%
+                  </span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              {/* Clear Mask Button */}
+              <button
+                onClick={clearMask}
+                className="w-full py-2 px-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg text-sm font-medium transition-all duration-200"
+              >
+                Clear Mask
+              </button>
+            </div>
+          )}
+
+          {/* Image Thumbnails */}
+          <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+            {originalImage && !sidebarCollapsed && (
+              <div className="relative group cursor-pointer">
+                <div className="w-full h-20 rounded-lg overflow-hidden ring-1 ring-white/20 hover:ring-gold/50 transition-all duration-200">
+                  <Image
+                    src={originalImage.preview}
+                    alt="Original"
+                    width={320}
+                    height={80}
+                    className="w-full h-full object-cover"
                   />
-                  <div className="text-white text-xs text-center mt-1">
-                    {brushSize}px
+                </div>
+                <div className="absolute bottom-1 left-1 right-1">
+                  <div className="bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                    <p className="text-white text-xs truncate">
+                      {originalImage.name}
+                    </p>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Brush Opacity Control */}
-                <div className="mt-3">
-                  <div className="text-white text-xs text-center mb-2">
-                    Opacity
+            {/* Generated Image Thumbnail */}
+            {generatedImage && !sidebarCollapsed && (
+              <div className="border-t border-white/10 pt-3 mt-6">
+                <p className="text-gray-400 text-sm mb-3 font-medium">
+                  Generated Result
+                </p>
+                <div className="relative group cursor-pointer">
+                  <div className="w-full h-20 rounded-lg overflow-hidden ring-1 ring-green-500/50 hover:ring-green-400 transition-all duration-200">
+                    <Image
+                      src={generatedImage}
+                      alt="Generated"
+                      width={320}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min="0.1"
-                    max="1"
-                    step="0.1"
-                    value={brushOpacity}
-                    onChange={(e) =>
-                      setBrushOpacity(parseFloat(e.target.value))
-                    }
-                    className={`w-full h-1 bg-gray-700 rounded-lg cursor-pointer ${styles.rangeSlider}`}
-                  />
-                  <div className="text-white text-xs text-center mt-1">
-                    {Math.round(brushOpacity * 100)}%
+                  <div className="absolute top-2 right-2">
+                    <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      NEW
+                    </div>
                   </div>
                 </div>
               </div>
             )}
           </div>
+
+          {/* Action Widgets */}
+          {!sidebarCollapsed && originalImage && (
+            <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
+              <p className="text-gray-400 text-sm font-medium mb-3">
+                Quick Actions
+              </p>
+
+              <button
+                onClick={() =>
+                  downloadImage(
+                    generatedImage || originalImage.preview,
+                    generatedImage ? "generated" : originalImage.name
+                  )
+                }
+                className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
+              >
+                <BiDownload className="w-4 h-4" />
+                <span className="text-sm">Download</span>
+              </button>
+
+              <button
+                onClick={handleResize}
+                className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
+              >
+                <RiExpandDiagonalLine className="w-4 h-4" />
+                {/* <span className="text-sm">Resize</span> */}
+              </button>
+
+              <button
+                onClick={handleRegenerate}
+                disabled={isLoading || !prompt.trim()}
+                className="w-full flex items-center gap-3 px-3 py-2 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500"
+              >
+                <BiRefresh
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+                <span className="text-sm">Re-generate</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="relative col-span-11 py-5 px-14">
-        <TitleBar />
-
-        {/* Main Canvas Area */}
-        <div className="flex-grow h-9/12 bg-gray-800 mt-6 rounded-lg relative overflow-hidden">
-          {!originalImage ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-white/60 text-center">
-                <div className="text-xl mb-2">
-                  Upload an image to start editing
-                </div>
-                <div className="text-sm">
-                  Click the image icon on the left to begin
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Canvas Container */}
-              <div
-                className="absolute inset-4 flex items-center justify-center"
-                style={{
-                  transform: `scale(${zoomLevel}) translate(${
-                    panOffset.x / zoomLevel
-                  }px, ${panOffset.y / zoomLevel}px)`,
-                  transformOrigin: "center center",
-                }}
-              >
-                <div className="relative">
-                  {/* Original Image Canvas */}
-                  {showOriginal && (
-                    <canvas
-                      ref={canvasRef}
-                      className="block rounded border border-gray-500"
-                      style={{
-                        maxWidth: "100%",
-                        height: "auto",
-                        display: "block",
-                      }}
-                    />
-                  )}
-                  {/* Mask Canvas */}
-                  <canvas
-                    ref={maskCanvasRef}
-                    className="absolute top-0 left-0 rounded border border-gray-500"
-                    style={{
-                      maxWidth: "100%",
-                      height: "auto",
-                      opacity: showMask ? 1 : 0,
-                      cursor: brushType.cursor,
-                      display: "block",
-                      pointerEvents: "auto",
-                    }}
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-                </div>
-              </div>
-
-              {/* Zoom Controls */}
-              <div className="absolute top-3 right-3 flex flex-col gap-1 bg-black/50 rounded p-1">
-                <button
-                  onClick={() => handleZoom(0.1)}
-                  className="p-1 text-white hover:bg-gray-600 rounded text-xs"
-                  title="Zoom In"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleZoom(-0.1)}
-                  className="p-1 text-white hover:bg-gray-600 rounded text-xs"
-                  title="Zoom Out"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={resetView}
-                  className="p-1 text-white hover:bg-gray-600 rounded text-xs"
-                  title="Reset View"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Canvas Controls */}
-              <div className="absolute top-3 left-3 flex gap-2">
-                <button
-                  onClick={() => setShowOriginal(!showOriginal)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                    showOriginal
-                      ? "bg-blue-600 text-white"
-                      : "bg-black/50 text-gray-300 hover:bg-gray-600"
-                  }`}
-                >
-                  Original
-                </button>
-                <button
-                  onClick={() => setShowMask(!showMask)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                    showMask
-                      ? "bg-green-600 text-white"
-                      : "bg-black/50 text-gray-300 hover:bg-gray-600"
-                  }`}
-                >
-                  Mask
-                </button>
-                <button
-                  onClick={clearMask}
-                  className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-colors"
-                >
-                  Clear
-                </button>
-              </div>
-
-              {/* Zoom Level Display */}
-              <div className="absolute bottom-3 right-3 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                {Math.round(zoomLevel * 100)}%
-              </div>
-
-              {/* Generated Result Overlay */}
-              {resultUrl && (
-                <div className="absolute inset-4 bg-gray-900/95 flex items-center justify-center rounded">
-                  <div className="text-center">
-                    <Image
-                      src={resultUrl}
-                      alt="Generated result"
-                      width={400}
-                      height={400}
-                      className="max-w-full max-h-full object-contain rounded border border-gray-600"
-                      unoptimized={true}
-                    />
-                    <button
-                      onClick={() => setResultUrl("")}
-                      className="mt-3 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm mr-2"
-                    >
-                      Back to Edit
-                    </button>
-                    <button className="mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded text-sm">
-                      Download
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Bottom Control Bar */}
-        <div className="absolute flex justify-between p-2 bottom-5 left-14 right-14 bg-dark-blue border border-white/50 rounded-full h-fit">
-          <div className="flex gap-4 items-center">
-            <button
-              onClick={() => document.getElementById("imageInput").click()}
-              className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500"
-            >
-              {originalImage ? "Change Image" : "Add Image"}
-            </button>
-
-            <div className="bg-white w-0.5 h-full"></div>
-
-            <input
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what to generate in the masked area..."
-              className="text-white outline-none transition-all bg-transparent flex-1"
-            />
-          </div>
-
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile menu button */}
+        <div className="md:hidden fixed top-4 left-4 z-40">
           <button
-            onClick={handleGenerate}
-            disabled={!canSubmit}
-            className="w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-2 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setSidebarCollapsed(false)}
+            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
           >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                Processing...
-              </div>
-            ) : (
-              "Generate"
-            )}
+            <HiMenu className="w-5 h-5 text-gold" />
           </button>
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="absolute bottom-20 left-14 right-14 bg-red-600/90 text-white px-4 py-2 rounded text-sm text-center">
-            {error}
+        {/* Title Bar */}
+        <div className="p-3 md:p-6 border-b border-white/10">
+          <TitleBar />
+        </div>
+
+        {/* Central Canvas Workspace */}
+        <div className="flex-1 p-3 md:p-6">
+          <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
+            {!originalImage ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-white/60 text-center">
+                  <HiOutlinePhotograph className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+                  <div className="text-xl mb-2">
+                    Upload an image to start editing
+                  </div>
+                  <div className="text-sm">
+                    Click the upload button to begin masking and editing
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Canvas Container */}
+                <div
+                  className="absolute inset-4 flex items-center justify-center"
+                  style={{
+                    transform: `scale(${zoomLevel}) translate(${
+                      panOffset.x / zoomLevel
+                    }px, ${panOffset.y / zoomLevel}px)`,
+                    transformOrigin: "center center",
+                  }}
+                >
+                  <div className="relative">
+                    {/* Original Image Canvas */}
+                    {showOriginal && (
+                      <canvas
+                        ref={canvasRef}
+                        className="block rounded-lg border border-gray-500 shadow-lg"
+                        style={{
+                          maxWidth: "100%",
+                          height: "auto",
+                          display: "block",
+                        }}
+                      />
+                    )}
+                    {/* Mask Canvas */}
+                    <canvas
+                      ref={maskCanvasRef}
+                      className="absolute top-0 left-0 rounded-lg border border-gray-500"
+                      style={{
+                        maxWidth: "100%",
+                        height: "auto",
+                        opacity: showMask ? 1 : 0,
+                        cursor: maskEnabled ? brushType.cursor : "default",
+                        display: "block",
+                        pointerEvents: maskEnabled ? "auto" : "none",
+                      }}
+                      onMouseDown={maskEnabled ? startDrawing : undefined}
+                      onMouseMove={maskEnabled ? draw : undefined}
+                      onMouseUp={maskEnabled ? stopDrawing : undefined}
+                      onMouseLeave={maskEnabled ? stopDrawing : undefined}
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                  </div>
+                </div>
+
+                {/* Zoom Controls */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2 bg-gray-800/70 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                  <button
+                    onClick={() => handleZoom(0.1)}
+                    className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                    title="Zoom In"
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => handleZoom(-0.1)}
+                    className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                    title="Zoom Out"
+                  >
+                    −
+                  </button>
+                  <button
+                    onClick={resetView}
+                    className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                    title="Reset View"
+                  >
+                    ⌂
+                  </button>
+                </div>
+
+                {/* Zoom Level Display */}
+                <div className="absolute bottom-4 right-4 bg-gray-800/70 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-sm border border-white/10">
+                  {Math.round(zoomLevel * 100)}%
+                </div>
+
+                {/* Generated Result Overlay */}
+                {resultUrl && (
+                  <div className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm flex items-center justify-center rounded-xl">
+                    <div className="text-center max-w-2xl p-6">
+                      <div className="mb-4">
+                        <Image
+                          src={resultUrl}
+                          alt="Generated result"
+                          width={600}
+                          height={600}
+                          className="max-w-full max-h-96 object-contain rounded-lg border border-gray-600 shadow-2xl"
+                          unoptimized={true}
+                        />
+                      </div>
+                      <div className="flex gap-3 justify-center">
+                        <button
+                          onClick={() => setResultUrl("")}
+                          className="px-6 py-2 bg-gray-600/50 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
+                        >
+                          Back to Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            downloadImage(resultUrl, "generated-mask-edit")
+                          }
+                          className="px-6 py-2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white rounded-lg text-sm font-medium transition-all duration-200"
+                        >
+                          Download Result
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Bottom Prompt Input */}
+        <div className="p-3 md:p-6 border-t border-white/10">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe what to generate in the masked area... (e.g., 'Add a sunset sky', 'Replace with a garden', 'Change to winter scene')"
+                className="w-full h-20 md:h-24 px-3 md:px-4 py-2 md:py-3 pr-28 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm text-sm md:text-base"
+                disabled={isLoading}
+              />
+              <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3">
+                <FiEdit3 className="w-3 md:w-4 h-3 md:h-4 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-2 md:gap-4 justify-center mt-4 md:mt-6">
+              <button
+                onClick={handleGenerate}
+                disabled={!canSubmit}
+                className="flex items-center gap-1 md:gap-2 px-4 md:px-8 py-2 md:py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100 text-sm md:text-base"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-3 md:w-4 h-3 md:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span className="hidden sm:inline">Generating...</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : (
+                  <>
+                    <HiOutlineAdjustments className="w-4 md:w-5 h-4 md:h-5" />
+                    <span className="hidden sm:inline">Generate</span>
+                    <span className="sm:hidden">Go</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() =>
+                  downloadImage(
+                    generatedImage || originalImage?.preview,
+                    generatedImage ? "generated" : originalImage?.name
+                  )
+                }
+                disabled={!originalImage}
+                className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20 text-sm md:text-base"
+              >
+                <BiDownload className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Download</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Right Side - Image Comparison */}
+      <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
+        <div className="h-full flex flex-col">
+          <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+            <MdCompareArrows className="w-5 h-5 text-gold" />
+            Image Comparison
+          </h3>
+
+          {/* Image Selection Tabs */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setSelectedForEdit("original")}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                selectedForEdit === "original"
+                  ? "bg-gold text-gray-900"
+                  : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
+              }`}
+            >
+              Original
+            </button>
+            <button
+              onClick={() => setSelectedForEdit("generated")}
+              disabled={!generatedImage}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                selectedForEdit === "generated"
+                  ? "bg-gold text-gray-900"
+                  : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 disabled:bg-gray-800/50 disabled:text-gray-600"
+              }`}
+            >
+              Generated
+            </button>
+          </div>
+
+          {/* Image Display Cards */}
+          <div className="flex-1 space-y-4">
+            {/* Original Image Card */}
+            <div
+              className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+                selectedForEdit === "original"
+                  ? "border-gold shadow-lg shadow-gold/20"
+                  : "border-white/10"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-white font-medium">Original Image</h4>
+                {selectedForEdit === "original" && (
+                  <FiCheck className="w-4 h-4 text-gold" />
+                )}
+              </div>
+              <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                {originalImage ? (
+                  <Image
+                    src={originalImage.preview}
+                    alt="Original"
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-500">
+                    <HiOutlinePhotograph className="w-12 h-12" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Generated Image Card */}
+            <div
+              className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+                selectedForEdit === "generated"
+                  ? "border-gold shadow-lg shadow-gold/20"
+                  : "border-white/10"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-white font-medium">Generated Image</h4>
+                {selectedForEdit === "generated" && (
+                  <FiCheck className="w-4 h-4 text-gold" />
+                )}
+              </div>
+              <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                {generatedImage ? (
+                  <Image
+                    src={generatedImage}
+                    alt="Generated"
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-500">
+                    <div className="text-center">
+                      <HiOutlineAdjustments className="w-12 h-12 mx-auto mb-2" />
+                      <p className="text-sm">
+                        Generated image will appear here
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Comparison Info */}
+          {originalImage && generatedImage && (
+            <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-white/10">
+              <p className="text-gray-300 text-sm">
+                <span className="text-gold font-medium">
+                  Selected for editing:
+                </span>{" "}
+                {selectedForEdit === "original"
+                  ? "Original Image"
+                  : "Generated Image"}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Message Notification */}
+      {showMessage && (
+        <div className="fixed top-6 right-6 bg-gray-800 border border-gold/50 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
+          {showMessage}
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-red-600/90 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          {error}
+        </div>
+      )}
+
+      {/* Custom Styles */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(
+            180deg,
+            #d4af37 0%,
+            rgba(212, 175, 55, 0.7) 100%
+          );
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
+        }
+        .slider-thumb::-webkit-slider-thumb {
+          appearance: none;
+          height: 16px;
+          width: 16px;
+          background: linear-gradient(45deg, #d4af37, #f4d03f);
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4);
+        }
+        .slider-thumb::-moz-range-thumb {
+          height: 16px;
+          width: 16px;
+          background: linear-gradient(45deg, #d4af37, #f4d03f);
+          border-radius: 50%;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4);
+        }
+      `}</style>
     </div>
   );
 }
