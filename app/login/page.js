@@ -4,81 +4,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaApple, FaGoogle } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
 
-async function signupUser(name, email, password, confirmPassword) {
-  const response = await fetch("/api/auth/signup", {
-    method: "POST",
-    body: JSON.stringify({ name, email, password, confirmPassword }),
-    headers: { "Content-Type": "application/json" },
-  });
-
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Something went wrong!");
-  return data;
-}
-
-export default function SignupForm() {
+export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
 
-  function validate() {
-    const e = {};
-    if (!formData.name.trim()) e.name = "Name is required";
-    if (!formData.email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      e.email = "Enter a valid email";
-    if (!formData.password) e.password = "Password is required";
-    else if (formData.password.length < 6)
-      e.password = "Password should be at least 6 characters";
-    if (!formData.confirmPassword) e.confirmPassword = "Please confirm";
-    else if (formData.password !== formData.confirmPassword)
-      e.confirmPassword = "Passwords do not match";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
-
   async function submitHandler(event) {
     event.preventDefault();
-    setMessage(null);
-    if (!validate()) return;
+    setIsLoading(true);
 
-    setIsSubmitting(true);
-    try {
-      const result = await signupUser(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.confirmPassword
-      );
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: formData.email,
+      password: formData.password,
+    });
 
-      setMessage({
-        type: "success",
-        text: result.message || "Account created",
-      });
-      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+    if (result && result.ok) {
+      const session = await getSession(); // Get session to access user role
+      const userRole = session.user.role;
 
-      // small delay so user sees success then redirect to login
-      setTimeout(() => {
-        router.push(
-          `/signup/success?email=${encodeURIComponent(
-            result.email || formData.email
-          )}`
-        );
-      }, 900);
-    } catch (err) {
-      setMessage({ type: "error", text: err.message || "Signup failed" });
-      setIsSubmitting(false);
+      if (session) {
+        router.push("/dual-image-editor");
+      }
+    } else {
+      alert("Login failed. Please check your email and password.");
     }
   }
 
@@ -104,23 +60,8 @@ export default function SignupForm() {
             Create your own masterpiece with AI
           </h3>
 
-          <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Full name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className={`px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition`}
-                placeholder="Your name"
-              />
-              {errors.name && (
-                <p className="text-xs text-red-400">{errors.name}</p>
-              )}
-            </div>
-
+          {/* <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-6"> */}
+          <form className="flex flex-col gap-4 mb-6">
             <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
               <label className="text-sm text-white/90">Email</label>
               <input
@@ -146,26 +87,10 @@ export default function SignupForm() {
                   setFormData({ ...formData, password: e.target.value })
                 }
                 className="px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition"
-                placeholder="At least 6 characters"
+                placeholder="Enter Password"
               />
               {errors.password && (
                 <p className="text-xs text-red-400">{errors.password}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Confirm password</label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-                className="px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition"
-                placeholder="Repeat your password"
-              />
-              {errors.confirmPassword && (
-                <p className="text-xs text-red-400">{errors.confirmPassword}</p>
               )}
             </div>
 
@@ -187,21 +112,35 @@ export default function SignupForm() {
                 disabled={isSubmitting}
                 className="w-full bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-3 rounded-full hover:opacity-95 transition"
               >
-                {isSubmitting ? "Creating account..." : "Create account"}
+                {isSubmitting ? "Login..." : "Login"}
               </button>
             </div>
 
-            <p className="text-sm text-white/90 text-center mt-5">Have an account?</p>
+            <p className="text-sm text-white/90 text-center mt-5">
+              Don&apos;t have an account?
+            </p>
 
             <div className="w-full md:w-96 mx-auto">
               <Link
-                href="/login"
+                href="/signup/form"
                 className="w-full inline-flex items-center justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-3 rounded-full hover:opacity-95 transition"
               >
-                Log in
+                Create Account
               </Link>
             </div>
           </form>
+
+          {/* <div className="flex flex-col gap-4 mb-14">
+            <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
+              <FaGoogle className="w-5 h-5" /> Sign in with Google
+            </button>
+            <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
+              <FaApple className="w-5 h-5" /> Sign in with Apple
+            </button>
+            <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
+              <MdEmail className="w-5 h-5" /> Continue with Email
+            </button>
+          </div> */}
 
           <p className="text-white text-sm text-center md:mb-14">
             By continuing, you agree to kAIro&apos;s{" "}
