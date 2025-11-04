@@ -2,23 +2,35 @@
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    try {
+      const emailParam = searchParams?.get("email");
+      if (emailParam) {
+        const decoded = decodeURIComponent(emailParam);
+        setFormData((prev) => ({ ...prev, email: decoded }));
+      }
+    } catch (e) {}
+  }, [searchParams]);
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
 
   async function submitHandler(event) {
     event.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -27,14 +39,15 @@ export default function LoginPage() {
     });
 
     if (result && result.ok) {
-      const session = await getSession(); // Get session to access user role
-      const userRole = session.user.role;
+      const session = await getSession();
 
       if (session) {
         router.push("/dual-image-editor");
+        setIsSubmitting(false);
       }
     } else {
       alert("Login failed. Please check your email and password.");
+      setIsSubmitting(false);
     }
   }
 
@@ -60,8 +73,7 @@ export default function LoginPage() {
             Create your own masterpiece with AI
           </h3>
 
-          {/* <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-6"> */}
-          <form className="flex flex-col gap-4 mb-6">
+          <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-6">
             <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
               <label className="text-sm text-white/90">Email</label>
               <input

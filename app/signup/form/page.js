@@ -71,9 +71,7 @@ export default function SignupForm() {
       // small delay so user sees success then redirect to login
       setTimeout(() => {
         router.push(
-          `/signup/success?email=${encodeURIComponent(
-            result.email || formData.email
-          )}`
+          `/login?email=${encodeURIComponent(result.email || formData.email)}`
         );
       }, 900);
     } catch (err) {
@@ -191,7 +189,9 @@ export default function SignupForm() {
               </button>
             </div>
 
-            <p className="text-sm text-white/90 text-center mt-5">Have an account?</p>
+            <p className="text-sm text-white/90 text-center mt-5">
+              Have an account?
+            </p>
 
             <div className="w-full md:w-96 mx-auto">
               <Link
