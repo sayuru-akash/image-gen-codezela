@@ -44,10 +44,13 @@ export default function SignUp() {
             <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
               <FaGoogle className="w-5 h-5" /> Sign in with Google
             </button>
-            <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
+            {/* <button className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
               <FaApple className="w-5 h-5" /> Sign in with Apple
-            </button>
-            <button onClick={handleEmailSignup} className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96">
+            </button> */}
+            <button
+              onClick={handleEmailSignup}
+              className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% cursor-pointer transition-all duration-300 ease-in-out w-full md:w-96"
+            >
               <MdEmail className="w-5 h-5" /> Continue with Email
             </button>
           </div>
