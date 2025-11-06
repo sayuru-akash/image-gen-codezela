@@ -4,7 +4,7 @@ import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
 import { HiMenu, HiOutlinePhotograph } from "react-icons/hi";
 import { FiUpload, FiCheck, FiEdit3 } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-import TitleBar from "../titlebar";
+import TitleBar from "@/components/dashboard/TitleBar";
 import { useRef, useState, useEffect } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 import {

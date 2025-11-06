@@ -10,7 +10,7 @@ import {
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-import TitleBar from "../titlebar";
+import TitleBar from "@/components/dashboard/TitleBar";
 import { useRef, useState, useEffect } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 

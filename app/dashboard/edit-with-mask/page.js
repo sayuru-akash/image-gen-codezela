@@ -12,7 +12,7 @@ import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
 import { TbMask } from "react-icons/tb";
-import TitleBar from "../titlebar";
+import TitleBar from "@/components/dashboard/TitleBar";
 import styles from "./slider.module.css";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 

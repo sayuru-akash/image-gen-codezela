@@ -5,7 +5,7 @@ export default function Carousel3({ activeCarousel, onTabChange }) {
   const router = useRouter();
 
   const handleTryNow = () => {
-    router.push("/edit-with-mask");
+    router.push("/dashboard/edit-with-mask");
   };
 
   return (

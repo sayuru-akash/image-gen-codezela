@@ -1,7 +1,7 @@
-// app/(dashboard)/text-to-image/page.js
+// app/dashboard/text-to-image/page.js
 "use client";
 import Image from "next/image";
-import TitleBar from "../titlebar";
+import TitleBar from "@/components/dashboard/TitleBar";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import { useState, useEffect, useCallback } from "react";

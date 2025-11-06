@@ -5,7 +5,7 @@ export default function Carousel1({ activeCarousel, onTabChange }) {
   const router = useRouter();
 
   const handleTryNow = () => {
-    router.push("/text-to-image");
+    router.push("/dashboard/text-to-image");
   };
   return (
     <div>

@@ -5,7 +5,7 @@ export default function Carousel4({ activeCarousel, onTabChange }) {
   const router = useRouter();
 
   const handleTryNow = () => {
-    router.push("/dual-image-editor");
+    router.push("/dashboard/dual-image-editor");
   };
 
   return (

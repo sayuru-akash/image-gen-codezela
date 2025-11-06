@@ -28,28 +28,28 @@ function DashboardHomeContent() {
       title: "Text to Image",
       description: "Generate stunning images from text descriptions using AI",
       icon: <Wand2 className="w-8 h-8" />,
-      href: "/text-to-image",
+      href: "/dashboard/text-to-image",
       color: "from-purple-500 to-pink-500",
     },
     {
       title: "Dual Image Editor",
       description: "Edit and enhance images with advanced AI tools",
       icon: <Edit3 className="w-8 h-8" />,
-      href: "/dual-image-editor",
+      href: "/dashboard/dual-image-editor",
       color: "from-blue-500 to-cyan-500",
     },
     {
       title: "Edit with Mask",
       description: "Precise image editing with intelligent masking",
       icon: <Palette className="w-8 h-8" />,
-      href: "/edit-with-mask",
+      href: "/dashboard/edit-with-mask",
       color: "from-green-500 to-emerald-500",
     },
     {
       title: "Image Update",
       description: "Update and modify existing images seamlessly",
       icon: <ImageIcon className="w-8 h-8" />,
-      href: "/image-update",
+      href: "/dashboard/image-update",
       color: "from-orange-500 to-red-500",
     },
   ];
@@ -174,7 +174,7 @@ function DashboardHomeContent() {
             of AI.
           </p>
           <Link
-            href="/text-to-image"
+            href="/dashboard/text-to-image"
             className="inline-flex items-center bg-gradient-to-r from-gold to-yellow-500 text-dark-blue font-semibold px-8 py-3 rounded-full hover:from-yellow-500 hover:to-gold transition-all duration-300"
           >
             Start Creating

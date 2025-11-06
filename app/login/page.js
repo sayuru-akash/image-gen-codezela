@@ -19,7 +19,7 @@ function LoginPageContent() {
   // Redirect if already authenticated
   useEffect(() => {
     if (status === "authenticated" && session) {
-      router.replace("/text-to-image");
+      router.replace("/dashboard");
     }
   }, [session, status, router]);
 
@@ -50,7 +50,7 @@ function LoginPageContent() {
       const session = await getSession();
 
       if (session) {
-        router.push("/"); // Redirect to home page
+        router.push("/dashboard");
         setIsSubmitting(false);
       }
     } else {

@@ -5,7 +5,7 @@ export default function Carousel2({ activeCarousel, onTabChange }) {
   const router = useRouter();
 
   const handleTryNow = () => {
-    router.push("/image-update");
+    router.push("/dashboard/image-update");
   };
 
   return (

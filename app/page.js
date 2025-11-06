@@ -1,7 +1,5 @@
 "use client";
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Carousel1 from "@/components/carousel/carousel1";
 import Carousel2 from "@/components/carousel/carousel2";
 import Carousel3 from "@/components/carousel/carousel3";
@@ -20,29 +18,9 @@ import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
 import ExploreInnovation from "@/components/ExploreInnovation";
 
 export default function Home() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { data: session } = useSession();
   const [activeCarousel, setActiveCarousel] = useState(1);
-
-  useEffect(() => {
-    // If user is not authenticated, redirect to login
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-  }, [status, router]);
-
-  // Show loading while checking authentication
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-dark-blue flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
-
-  // If user is authenticated, show the home page with dashboard access
-  // If user is not authenticated, they will be redirected to login
+  // Authenticated users see dashboard shortcuts; guests see marketing content
   const handleCarousel = (tab) => {
     setActiveCarousel(tab);
   };
@@ -83,7 +61,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row gap-4 lg:gap-8 w-full md:w-fit">
               {session ? (
                 <Link
-                  href="/text-to-image"
+                  href="/dashboard"
                   className="w-full md:w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-700 text-center"
                 >
                   Go to Dashboard
