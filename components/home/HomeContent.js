@@ -121,7 +121,7 @@ export default function HomeContent() {
             </div>
           </div>
 
-          <div className="absolute top-70 w-full">
+          <div className="pointer-events-none absolute top-70 w-full">
             <Hero />
           </div>
         </div>
