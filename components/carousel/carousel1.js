@@ -62,9 +62,10 @@ export default function Carousel1({ activeCarousel, onTabChange }) {
             Narrative text-to-image built for brand storytelling.
           </h3>
           <p className="text-sm mt-8 mb-10 text-white/80">
-            Describe your campaign concept, tone, or product hero and kAIro AI creates ready-to-use
-            imagery in seconds. Save prompt recipes, control negative prompts, and keep every render aligned
-            with your visual identity.
+            Describe your campaign concept, tone, or product hero and kAIro AI
+            creates ready-to-use imagery in seconds. Save prompt recipes,
+            control negative prompts, and keep every render aligned with your
+            visual identity.
           </p>
           <button
             onClick={handleTryNow}

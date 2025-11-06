@@ -4,10 +4,14 @@ import Link from "next/link";
 export default function Signup() {
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-r from-dark-blue via-[#1A2334] to-black px-4 py-16 md:px-10 lg:px-20">
-      <div className="absolute inset-0 -skew-x-6 bg-gradient-to-tr from-gold/15 via-white/5 to-transparent opacity-80" />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-dark-blue/40 opacity-60" />
+        <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-gold/20 blur-3xl opacity-80" />
+        <div className="absolute -bottom-20 right-0 h-64 w-64 translate-x-1/3 rounded-full bg-gold/10 blur-3xl opacity-70" />
+      </div>
       <div className="relative z-10 grid grid-cols-1 items-center gap-10 md:grid-cols-5">
         <div className="md:col-span-2 lg:col-span-2">
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-4xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-4xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_40px_120px_-45px_rgba(15,22,34,0.9)]">
             <Image
               alt="Codezela crafts immersive AI experiences for bold brands."
               src="/images/hero-img.jpg"

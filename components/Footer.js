@@ -6,7 +6,7 @@ import { FaXTwitter } from "react-icons/fa6";
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <div className="px-10 lg:px-20 py-10 bg-black">
+    <div className="bg-black px-4 py-12 sm:px-8 lg:px-20">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Column 1 */}
         <div className="md:col-span-4 lg:col-span-2 lg:pr-20 mb-14 lg:mb-0">
