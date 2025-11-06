@@ -1,15 +1,8 @@
-"use client";
 import Articles from "@/data/articles.json";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
 import BlogCard from "./BlogCard";
-import { useRouter } from "next/navigation";
 
 export default function ExploreInnovation() {
-  const router = useRouter();
-
-  const handleSelectBlog = (id) => {
-    router.push(`/blogs/${id}`);
-  };
   return (
     <div>
       <div className="flex justify-between">
@@ -19,10 +12,10 @@ export default function ExploreInnovation() {
         <div className="hidden lg:flex justify-end mt-auto">
           <div className="md:flex gap-2">
             <div className="flex justify-center items-center w-12 h-12 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-              <MdOutlineArrowLeft className="w-10 h-10 text-white group-hover:hidden transition-all duration-300" />
+              <MdOutlineArrowLeft className="w-10 h-10 text-white transition-all duration-300" />
             </div>
             <div className="flex justify-center items-center w-12 h-12 bg-gradient-to-r from-gold from-20% to-white/50 to-80% rounded-full hover:from-dark-blue hover:to-gold border border-gold transition-all cursor-pointer">
-              <MdOutlineArrowRight className="w-10 h-10 text-white group-hover:hidden transition-all duration-300" />
+              <MdOutlineArrowRight className="w-10 h-10 text-white transition-all duration-300" />
             </div>
           </div>
         </div>
@@ -32,7 +25,7 @@ export default function ExploreInnovation() {
         {Articles.slice(0, 4).map((article) => (
           <BlogCard
             key={article.id}
-            onViewBlog={handleSelectBlog}
+            href={`/blogs/${article.id}`}
             image1={article.image1}
             image2={article.image2}
             title={article.title}

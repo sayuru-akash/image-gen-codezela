@@ -1,18 +1,9 @@
-"use client";
 import Footer from "@/components/Footer";
 import BlogCard from "@/components/BlogCard";
 import NavigationBar from "@/components/navigationbar";
 import Articles from "@/data/articles.json";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function Blogs() {
-  const router = useRouter();
-
-  const handleSelectBlog = (id) => {
-    router.push(`/blogs/${id}`);
-  };
-
   return (
     <>
       <div className="bg-black mb-10">
@@ -27,7 +18,6 @@ export default function Blogs() {
               </h3>
             </div>
 
-            {/* Images */}
             <div className="hidden lg:block lg:col-span-1">
               <div className="relative w-full h-full overflow-hidden">
                 <div className="absolute z-10 h-50 w-50 -bottom-10 left-35">
@@ -50,26 +40,6 @@ export default function Blogs() {
                     author="Rishad Ahamed"
                   />
                 </div>
-                {/* <BlogCard
-                  image1="/images/image-2.jpg"
-                  image2="/images/image-14.jpg"
-                  title="Style Transfer"
-                  body="Transform your photos by applying artistic styles from renowned paintings and artworks. Give your images a unique flair with just one click."
-                  date="13 August 2025"
-                  author="Rishad Ahamed"
-                /> */}
-
-                {/* {Innvoations.map((innovation) => (
-                  <BlogCard
-                    key={innovation.id}
-                    image1={innovation.image1}
-                    image2={innovation.image2}
-                    title={innovation.title}
-                    body={innovation.body}
-                    date={innovation.date}
-                    author={innovation.author}
-                  />
-                ))} */}
               </div>
             </div>
           </div>
@@ -79,8 +49,8 @@ export default function Blogs() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:px-10 lg:px-20 mb-10">
         {Articles.map((article) => (
           <BlogCard
-            onViewBlog={() => handleSelectBlog(article.id)}
             key={article.id}
+            href={`/blogs/${article.id}`}
             image1={article.image1}
             image2={article.image2}
             title={article.title}

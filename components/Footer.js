@@ -47,16 +47,28 @@ export default function Footer() {
           <h3 className="text-2xl text-white font-medium mb-8">Solutions</h3>
 
           <div className="flex flex-col gap-8">
-            <Link href="/" className="text-white text-sm underline">
+            <Link
+              href="/dashboard/text-to-image"
+              className="text-white text-sm hover:text-gold transition-colors duration-200"
+            >
               Text to Image
             </Link>
-            <Link href="/" className="text-white text-sm underline">
+            <Link
+              href="/dashboard/image-update"
+              className="text-white text-sm hover:text-gold transition-colors duration-200"
+            >
               Image Update
             </Link>
-            <Link href="/" className="text-white text-sm underline">
+            <Link
+              href="/dashboard/edit-with-mask"
+              className="text-white text-sm hover:text-gold transition-colors duration-200"
+            >
               Edit with Mask
             </Link>
-            <Link href="/" className="text-white text-sm underline">
+            <Link
+              href="/dashboard/dual-image-editor"
+              className="text-white text-sm hover:text-gold transition-colors duration-200"
+            >
               AI Dual Image Editor
             </Link>
           </div>
@@ -80,7 +92,7 @@ export default function Footer() {
               Blogs
             </Link>
             <Link
-              href="/"
+              href="#contact"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
               Contact Us
@@ -92,7 +104,7 @@ export default function Footer() {
               Privacy Policy
             </Link>
             <Link
-              href="/"
+              href="#"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
               Terms of Service
@@ -104,7 +116,16 @@ export default function Footer() {
       <hr className="border-white my-8" />
 
       <p className="text-white text-center text-sm">
-        © {year} All Rights Reserved. Codezela Technologies
+        © {year}{" "}
+        <Link
+          href="https://codezela.com"
+          target="_blank"
+          rel="noreferrer"
+          className="font-medium hover:text-gold transition-colors duration-200"
+        >
+          Codezela Technologies
+        </Link>
+        . All rights reserved.
       </p>
     </div>
   );
