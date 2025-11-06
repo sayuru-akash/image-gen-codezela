@@ -38,7 +38,7 @@ export default function NavigationBar() {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: "/" });
   };
 
   useEffect(() => {
