@@ -33,23 +33,24 @@ export const metadata = {
     template: "%s | kAIro AI by Codezela Technologies",
   },
   description:
-    "kAIro AI by Codezela Technologies is the enterprise-ready creative suite for AI image generation, editing, and delivery.",
+    "kAIro AI from Codezela Technologies is Sri Lanka’s AI image design studio for marketers, agencies, and product teams to generate, localise, and refine campaign visuals.",
   keywords: [
     "kAIro AI",
     "Codezela Technologies",
-    "AI image generator",
-    "creative automation",
+    "AI image generator Sri Lanka",
+    "AI design software Colombo",
+    "AI marketing visuals",
+    "Sri Lanka AI content studio",
     "AI branding platform",
-    "marketing design automation",
   ],
   authors: [{ name: "Codezela Technologies", url: "https://codezela.com" }],
   icons: {
     icon: "/images/logo.ico",
   },
   openGraph: {
-    title: "kAIro AI | Creative Automation by Codezela Technologies",
+    title: "kAIro AI | AI Image Studio by Codezela Technologies",
     description:
-      "Design, iterate, and deploy AI-powered imagery faster with kAIro AI, the creative suite built by Codezela Technologies.",
+      "Design, iterate, and deploy AI-powered imagery faster with kAIro AI, the Sri Lankan-built studio for campaign visuals, product renders, and localisation.",
     url: "https://kairo.codezela.com",
     siteName: "kAIro AI",
     images: [
@@ -64,9 +65,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "kAIro AI | Creative Automation by Codezela Technologies",
+    title: "kAIro AI | AI Image Studio by Codezela Technologies",
     description:
-      "AI-first imagery, intelligent editing, and enterprise governance from Codezela Technologies.",
+      "AI-first imagery, intelligent editing, and enterprise governance from Codezela Technologies in Sri Lanka.",
     images: ["/images/hero-img.jpg"],
   },
   other: {

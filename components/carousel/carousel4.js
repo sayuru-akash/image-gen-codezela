@@ -1,6 +1,7 @@
 import { BsArrowUpRightCircleFill } from "react-icons/bs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import CapabilitySwitcher from "./CapabilitySwitcher";
 
 export default function Carousel4({ activeCarousel, onTabChange }) {
   const router = useRouter();
@@ -13,48 +14,7 @@ export default function Carousel4({ activeCarousel, onTabChange }) {
     <div>
       <div className="grid grid-cols-7 gap-4 lg:py-10">
         <div className="col-span-full lg:col-span-4 text-white py-14">
-          <div className="grid grid-cols-2 lg:grid-cols-4 lg:space-x-12 text-base mb-14">
-            <button
-              onClick={() => onTabChange(1)}
-              className={`text-left mb-4 transition-all underline cursor-pointer ${
-                activeCarousel === 1
-                  ? "bg-gradient-to-r from-gold from-10% to-white to-95% bg-clip-text text-transparent"
-                  : "text-white hover:bg-gradient-to-r hover:from-gold hover:from-10% hover:to-white hover:to-95% hover:bg-clip-text hover:text-transparent"
-              }`}
-            >
-              Text to Image
-            </button>
-            <button
-              onClick={() => onTabChange(2)}
-              className={`text-left mb-4 transition-all underline cursor-pointer ${
-                activeCarousel === 2
-                  ? "bg-gradient-to-r from-gold from-10% to-white to-95% bg-clip-text text-transparent"
-                  : "text-white hover:bg-gradient-to-r hover:from-gold hover:from-10% hover:to-white hover:to-95% hover:bg-clip-text hover:text-transparent"
-              }`}
-            >
-              Image Update
-            </button>
-            <button
-              onClick={() => onTabChange(3)}
-              className={`text-left mb-4 transition-all underline cursor-pointer ${
-                activeCarousel === 3
-                  ? "bg-gradient-to-r from-gold from-10% to-white to-95% bg-clip-text text-transparent"
-                  : "text-white hover:bg-gradient-to-r hover:from-gold hover:from-10% hover:to-white hover:to-95% hover:bg-clip-text hover:text-transparent"
-              }`}
-            >
-              Edit with Mask
-            </button>
-            <button
-              onClick={() => onTabChange(4)}
-              className={`text-left mb-4 transition-all underline cursor-pointer ${
-                activeCarousel === 4
-                  ? "bg-gradient-to-r from-gold from-10% to-white to-95% bg-clip-text text-transparent"
-                  : "text-white hover:bg-gradient-to-r hover:from-gold hover:from-10% hover:to-white hover:to-95% hover:bg-clip-text hover:text-transparent"
-              }`}
-            >
-              AI Dual Image Editor
-            </button>
-          </div>
+          <CapabilitySwitcher active={activeCarousel} onChange={onTabChange} />
 
           <p className="text-base uppercase tracking-[0.25em] text-gold/80">
             Concept blending

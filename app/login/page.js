@@ -4,12 +4,13 @@ import { Suspense } from "react";
 export const metadata = {
   title: "Login | kAIro AI by Codezela Technologies",
   description:
-    "Securely access the kAIro AI creative suite delivered by Codezela Technologies to manage AI generated imagery and collaborate with your team.",
+    "Securely access kAIro AI from Codezela Technologies to manage AI-generated imagery, localised campaigns, and collaborative reviews.",
   keywords: [
     "kAIro AI login",
     "Codezela Technologies",
+    "AI image generator Sri Lanka",
     "AI design platform access",
-    "creative automation login",
+    "Colombo tech login",
   ],
 };
 

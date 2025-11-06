@@ -90,9 +90,15 @@ export default function SignupForm() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-dark-blue">
+      <Link
+        href="/"
+        className="group absolute left-6 top-6 z-20 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/70 transition-all duration-300 hover:border-gold/70 hover:bg-gold/10 hover:text-white"
+      >
+        <span aria-hidden="true">←</span> Home
+      </Link>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.35),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(41,76,152,0.4),_transparent_60%)]" />
       <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <div className="relative hidden flex-1 flex-col justify-between overflow-hidden border-r border-white/10 bg-gradient-to-b from-white/5 via-transparent to-white/10 px-12 py-16 lg:flex">
+        <div className="relative hidden flex-1 flex-col justify-center gap-12 overflow-hidden border-r border-white/10 bg-gradient-to-b from-white/5 via-transparent to-white/10 px-12 py-16 lg:flex">
           <div className="flex items-center gap-3 text-white/70">
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-gold to-white/60 text-xs font-semibold text-dark-blue">
               New
@@ -106,12 +112,12 @@ export default function SignupForm() {
               Start shaping intelligent visuals with{" "}
               <span className="text-gold">kAIro AI</span>
             </h2>
-            <p className="mt-6 max-w-sm text-base text-white/70">
+            <p className="mt-6 max-w-md text-base text-white/70">
               Provision secure access for your team and collaborate on Codezela
               Technologies’ suite of AI artistry tools built for production-grade launches.
             </p>
           </div>
-          <div className="relative mt-16 aspect-square w-full max-w-sm self-end overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+          <div className="relative mx-auto mt-6 aspect-square w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
             <Image
               alt="Creative team signing up for kAIro AI"
               src="/images/image-16.jpg"
@@ -123,7 +129,7 @@ export default function SignupForm() {
           </div>
         </div>
 
-        <div className="flex-1 px-6 py-10 sm:px-8 md:px-12 lg:px-16">
+        <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-8 md:px-12 lg:px-16">
           <div className="mx-auto flex w-full max-w-xl flex-col justify-center rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-md sm:p-10">
             <div className="mb-8 text-center">
               <p className="text-xs uppercase tracking-[0.4em] text-gold/80">

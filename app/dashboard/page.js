@@ -87,16 +87,29 @@ function DashboardHomeContent() {
     <div className="min-h-screen bg-gradient-to-br from-[#0F1622] via-[#141D2A] to-[#0C121B] text-white">
       <header className="border-b border-white/10 bg-black/30 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-          <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-gold/70">
-              kAIro AI workspace
-            </p>
-            <h1 className="mt-2 text-2xl font-semibold text-white">
-              Welcome back, {session?.user?.name || session?.user?.email}
-            </h1>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/70 transition-all duration-300 hover:border-gold/70 hover:bg-gold/10 hover:text-white"
+            >
+              <span aria-hidden="true">←</span> Home
+            </Link>
+            <div>
+              <p className="text-xs uppercase tracking-[0.4em] text-gold/70">
+                kAIro AI workspace
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold text-white">
+                Welcome back, {session?.user?.name || session?.user?.email}
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2">
-            <span className="text-xs text-white/70">Signed in as</span>
+            <span className="text-xs text-white/70">
+              Signed in as{" "}
+              <span className="font-medium text-white">
+                {session?.user?.name || session?.user?.email}
+              </span>
+            </span>
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-gold to-white/70 text-sm font-semibold text-dark-blue">
               {initials.toUpperCase()}
             </span>

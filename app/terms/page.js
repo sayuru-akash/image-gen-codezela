@@ -6,7 +6,7 @@ import Image from "next/image";
 export const metadata = {
   title: "Terms of Service | kAIro AI by Codezela Technologies",
   description:
-    "Review the terms of service governing access to kAIro AI, the creative automation platform delivered by Codezela Technologies.",
+    "Review the terms of service governing access to kAIro AI, the AI image studio delivered by Codezela Technologies.",
 };
 
 const termsSections = [
@@ -81,9 +81,9 @@ export default function TermsOfService() {
         <NavigationBar />
       </div>
 
-      <section className="px-4 pb-12 pt-14 md:px-10 lg:px-20">
-        <div className="rounded-4xl border border-white/20 bg-white/5 p-3 backdrop-blur">
-          <div className="relative overflow-hidden rounded-[2.5rem]">
+      <section className="px-4 pb-14 pt-14 md:px-10 lg:px-20">
+        <div className="mx-auto max-w-6xl rounded-[2.5rem] border border-white/15 bg-white/[0.05] p-3 shadow-[0_40px_120px_rgba(6,8,20,0.55)] backdrop-blur">
+          <div className="relative overflow-hidden rounded-[2.3rem]">
             <Image
               alt="Terms of service cover imagery"
               src="/images/image-18.jpg"
@@ -92,21 +92,21 @@ export default function TermsOfService() {
               quality={60}
               priority
             />
-            <div className="relative grid h-full grid-cols-1 gap-6 bg-gradient-to-r from-dark-blue/95 via-dark-blue/90 to-dark-blue/70 p-10 lg:grid-cols-5">
-              <div className="lg:col-span-3 flex flex-col justify-center">
+            <div className="relative grid h-full grid-cols-1 gap-6 bg-gradient-to-r from-[#05070D]/95 via-[#05070D]/90 to-[#05070D]/70 px-8 py-12 lg:grid-cols-5 lg:px-12">
+              <div className="flex flex-col justify-center lg:col-span-3">
                 <p className="text-xs uppercase tracking-[0.35em] text-gold/70">
                   Terms of service
                 </p>
                 <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
                   Your agreement with Codezela Technologies.
                 </h1>
-                <p className="mt-4 text-sm text-white/70">
+                <p className="mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
                   These terms outline your organisation’s rights and responsibilities when using kAIro AI. Please read them carefully before accessing the platform.
                 </p>
               </div>
-              <div className="hidden lg:block lg:col-span-2">
-                <div className="relative h-full">
-                  <div className="absolute top-12 right-16 h-32 w-32 overflow-hidden rounded-3xl border border-white/20 bg-white/5">
+              <div className="relative hidden h-full lg:col-span-2 lg:block">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative h-52 w-52 overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 backdrop-blur">
                     <Image
                       alt="Legal compliance illustration"
                       src="/images/image-5.png"
@@ -115,7 +115,7 @@ export default function TermsOfService() {
                       quality={70}
                     />
                   </div>
-                  <div className="absolute bottom-10 left-10 h-40 w-40 overflow-hidden rounded-3xl border border-white/20 bg-white/5">
+                  <div className="absolute -bottom-8 right-10 h-44 w-44 overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 backdrop-blur">
                     <Image
                       alt="Contract collaboration illustration"
                       src="/images/image-14.jpg"
@@ -132,17 +132,55 @@ export default function TermsOfService() {
       </section>
 
       <section className="px-4 pb-16 md:px-10 lg:px-20">
-        <div className="rounded-4xl border border-white/20 bg-dark-blue p-8 text-white">
-          {termsSections.map((section) => (
-            <div key={section.heading} className="mb-10 last:mb-0">
-              <h2 className="text-2xl font-semibold">{section.heading}</h2>
-              {section.paragraphs.map((paragraph, index) => (
-                <p key={index} className="mt-4 text-sm text-white/75">
-                  {paragraph}
-                </p>
-              ))}
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+          <div className="rounded-4xl border border-white/15 bg-dark-blue/95 p-8 text-white shadow-[0_30px_90px_rgba(6,8,20,0.45)] sm:p-10">
+            {termsSections.map((section) => (
+              <div key={section.heading} className="mb-10 last:mb-0">
+                <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+                  {section.heading}
+                </h2>
+                {section.paragraphs.map((paragraph, index) => (
+                  <p key={index} className="mt-4 text-sm leading-relaxed text-white/75 sm:text-base">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+          <aside className="flex flex-col gap-6 rounded-4xl border border-white/15 bg-white/[0.04] p-6 text-white shadow-[0_30px_90px_rgba(6,8,20,0.35)] sm:p-8">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-gold/70">
+                Legal support
+              </p>
+              <h3 className="mt-3 text-xl font-semibold text-white">
+                Custom agreements for enterprise teams.
+              </h3>
+              <p className="mt-2 text-sm text-white/70">
+                Codezela Technologies partners with legal, procurement, and security stakeholders to configure kAIro AI contracts that match your governance model.
+              </p>
             </div>
-          ))}
+            <div className="rounded-3xl border border-white/15 bg-white/[0.05] px-5 py-4 text-sm text-white/70">
+              <p className="font-semibold text-white">Questions about usage?</p>
+              <p className="mt-1">
+                Email{" "}
+                <a
+                  href="mailto:legal@codezela.com"
+                  className="text-gold transition-colors duration-200 hover:text-white"
+                >
+                  legal@codezela.com
+                </a>{" "}
+                for contract changes, DPAs, or compliance requests.
+              </p>
+            </div>
+            <a
+              href="https://codezela.com/contact"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-full border border-gold/70 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gold transition-all duration-300 hover:border-gold hover:bg-gold/10"
+            >
+              Speak with legal
+            </a>
+          </aside>
         </div>
       </section>
 

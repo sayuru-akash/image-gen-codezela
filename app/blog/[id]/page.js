@@ -5,14 +5,17 @@ import Signup from "@/components/Signup";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import articles from "@/data/articles";
+import { getAllArticles, getArticleBySlug } from "@/lib/articles";
 
-export function generateStaticParams() {
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const articles = await getAllArticles();
   return articles.map((article) => ({ id: article.id }));
 }
 
-export function generateMetadata({ params }) {
-  const article = articles.find((item) => item.id === params.id);
+export async function generateMetadata({ params }) {
+  const article = await getArticleBySlug(params.id);
   if (!article) {
     return {
       title: "kAIro AI Insights | Codezela Technologies",
@@ -37,8 +40,8 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function BlogArticle({ params }) {
-  const article = articles.find((item) => item.id === params.id);
+export default async function BlogArticle({ params }) {
+  const article = await getArticleBySlug(params.id);
 
   if (!article) {
     notFound();

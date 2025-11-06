@@ -1,103 +1,130 @@
 import Footer from "@/components/Footer";
+import NavigationBar from "@/components/navigationbar";
 import Image from "next/image";
 import Link from "next/link";
 import { MdEmail } from "react-icons/md";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 
 export const metadata = {
-  title: "Join kAIro AI | Creative Suite by Codezela Technologies",
+  title: "Join kAIro AI | AI Image Studio by Codezela Technologies",
   description:
-    "Create a kAIro AI workspace to collaborate with Codezela Technologies on AI powered storytelling, governed workflows, and enterprise-ready imagery.",
+    "Launch your kAIro AI workspace and collaborate with Codezela Technologies on AI-driven visuals, localisation, and campaign delivery built for Sri Lankan brands.",
   keywords: [
     "kAIro AI signup",
     "Codezela Technologies",
-    "AI creative suite",
-    "enterprise ai imagery",
+    "AI image studio Sri Lanka",
+    "AI design platform",
+    "Sri Lanka marketing tech",
   ],
 };
 
+const HIGHLIGHTS = [
+  {
+    title: "Brand-safe templates",
+    body: "Bring your palettes, tone, and prompt guardrails so every render ships on-brand.",
+  },
+  {
+    title: "Sri Lanka-first localisation",
+    body: "Adapt visuals for Sinhala, Tamil, and English campaigns in a single workspace.",
+  },
+  {
+    title: "Collaborative reviews",
+    body: "Share boards, collect annotations, and approve final assets with stakeholders.",
+  },
+];
+
 export default function SignUp() {
   return (
-    <div>
-      <section className="relative grid grid-cols-1 gap-6 bg-dark-blue px-8 py-20 md:grid-cols-3 md:p-20">
-        <div className="absolute inset-0 opacity-40 md:hidden">
-          <Image
-            alt="Abstract signup background"
-            src="/images/signup-bg.png"
-            fill
-            className="object-contain object-center"
-            quality={70}
-            sizes="100vw"
-            priority
-          />
-        </div>
+    <>
+      <div className="bg-black">
+        <NavigationBar />
+      </div>
 
-        <div className="relative hidden h-full items-center justify-center px-10 md:col-span-2 md:flex">
-          <div className="relative h-full w-full">
-            <Image
-              alt="kAIro AI brand illustration"
-              src="/images/signup-bg.png"
-              fill
-              className="object-contain"
-              quality={70}
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              priority
-            />
-            <Image
-              alt="Codezela Technologies awards icon"
-              src="/images/awards-icon.svg"
-              width={220}
-              height={220}
-              className="relative z-10 mx-auto"
-            />
+      <main className="bg-[#05070d]">
+        <section className="px-4 pb-14 pt-14 md:px-10 lg:px-20">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 overflow-hidden rounded-[2.5rem] border border-white/15 bg-white/[0.05] p-6 shadow-[0_40px_120px_rgba(6,8,20,0.55)] backdrop-blur md:grid-cols-2 md:p-10">
+            <div className="flex flex-col justify-between gap-8">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-gold/70">
+                  Get started
+                </p>
+                <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
+                  Create your kAIro AI workspace with Codezela Technologies.
+                </h1>
+                <p className="mt-4 max-w-xl text-sm text-white/70 sm:text-base">
+                  Build campaign visuals, product renders, and localisation flows in one studio engineered in Sri Lanka. Choose how you onboard your team below.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <GoogleAuthButton
+                  label="Continue with Google"
+                  className="w-full rounded-full bg-gradient-to-r from-gold/90 via-gold to-white/70 px-6 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:from-white/30 hover:via-gold hover:to-gold/80 hover:text-white focus-visible:ring-2 focus-visible:ring-gold/70 md:w-96"
+                />
+                <Link
+                  href="/signup/form"
+                  className="flex w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-6 py-4 text-sm font-semibold text-white transition-all duration-300 hover:border-gold hover:bg-gold/15 focus-visible:ring-2 focus-visible:ring-gold/70 md:w-96"
+                >
+                  <MdEmail className="h-5 w-5" />
+                  Continue with Email
+                </Link>
+                <p className="text-xs text-white/60">
+                  By continuing, you agree to the{" "}
+                  <Link
+                    href="https://codezela.com/privacy-policy"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-gold transition-colors duration-200 hover:text-white"
+                  >
+                    Codezela Technologies terms
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy-policy"
+                    className="text-gold transition-colors duration-200 hover:text-white"
+                  >
+                    privacy policy
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+
+            <div className="relative flex min-h-[26rem] items-center justify-center rounded-[2rem] border border-white/15 bg-gradient-to-br from-white/10 via-white/0 to-gold/10 p-6">
+              <Image
+                src="/images/signup-bg.png"
+                alt="kAIro AI collaborative workspace preview"
+                width={680}
+                height={520}
+                className="w-full max-w-xl object-contain"
+                priority
+              />
+              <Image
+                src="/images/awards-icon.svg"
+                alt="Codezela accolade"
+                width={160}
+                height={160}
+                className="absolute -bottom-10 right-6 hidden rounded-3xl border border-white/20 bg-white/10 p-4 shadow-[0_20px_60px_rgba(6,8,20,0.45)] sm:block"
+              />
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div className="relative z-10">
-          <h3 className="text-center text-3xl font-semibold text-white">
-            Create your kAIro AI workspace
-          </h3>
-          <p className="mt-4 text-center text-sm text-white/80">
-            Bring your marketing, product, and creative stakeholders together with an AI platform engineered by Codezela Technologies.
-          </p>
-
-          <div className="mt-12 flex flex-col gap-4">
-            <GoogleAuthButton
-              label="Continue with Google"
-              className="md:w-96 md:self-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue hover:text-white hover:from-white/30 hover:to-gold"
-            />
-            <Link
-              href="/signup/form"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold from-10% to-white to-70% px-8 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:text-white hover:from-white/30 hover:to-gold md:w-96 md:self-center"
-            >
-              <MdEmail className="h-5 w-5" />
-              Continue with Email
-            </Link>
+        <section className="px-4 pb-20 md:px-10 lg:px-20">
+          <div className="mx-auto grid max-w-6xl gap-6 rounded-3xl border border-white/15 bg-white/[0.04] p-8 shadow-[0_30px_100px_rgba(6,8,20,0.45)] sm:grid-cols-3 sm:p-10">
+            {HIGHLIGHTS.map((item) => (
+              <div key={item.title} className="space-y-3">
+                <p className="text-xs uppercase tracking-[0.32em] text-gold/70">
+                  {item.title}
+                </p>
+                <p className="text-sm text-white/70">{item.body}</p>
+              </div>
+            ))}
           </div>
-
-          <p className="mt-10 text-center text-xs text-white/70">
-            By continuing, you agree to the{" "}
-            <Link
-              href="https://codezela.com/privacy-policy"
-              target="_blank"
-              rel="noreferrer"
-              className="text-gold hover:text-white"
-            >
-              Codezela Technologies terms
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy-policy"
-              className="text-gold hover:text-white"
-            >
-              privacy policy
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
-    </div>
+    </>
   );
 }

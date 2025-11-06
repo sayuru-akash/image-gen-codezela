@@ -1,6 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+} from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
@@ -23,7 +27,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-off-white text-sm">
-            kAIro AI is the creative automation suite engineered by Codezela Technologies.
+            kAIro AI is the AI image studio engineered by Codezela Technologies in Sri Lanka.
             We help ambitious brands generate, edit, and deliver intelligent imagery with governance built in.
           </p>
 
@@ -32,11 +36,42 @@ export default function Footer() {
               Stay Tuned
             </h3>
             <div className="flex gap-4 items-center">
-              <FaFacebook className="w-6 h-6 text-off-white hover:text-white cursor-pointer transition-all" />
-              <FaInstagram className="w-6 h-6 text-off-white hover:text-white cursor-pointer transition-all" />
-              <FaLinkedin className="w-6 h-6 text-off-white hover:text-white cursor-pointer transition-all" />
-              <FaYoutube className="w-6 h-6 text-off-white hover:text-white cursor-pointer transition-all" />
-              <FaXTwitter className="w-6 h-6 text-off-white hover:text-white cursor-pointer transition-all" />
+              <Link
+                href="https://facebook.com/codezelatechnologies"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Codezela Technologies on Facebook"
+                className="text-off-white transition-colors duration-200 hover:text-white"
+              >
+                <FaFacebook className="h-6 w-6" />
+              </Link>
+              <Link
+                href="https://www.instagram.com/codezela.t"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Codezela Technologies on Instagram"
+                className="text-off-white transition-colors duration-200 hover:text-white"
+              >
+                <FaInstagram className="h-6 w-6" />
+              </Link>
+              <Link
+                href="http://linkedin.com/company/codezela-technologies"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Codezela Technologies on LinkedIn"
+                className="text-off-white transition-colors duration-200 hover:text-white"
+              >
+                <FaLinkedin className="h-6 w-6" />
+              </Link>
+              <Link
+                href="http://x.com/codezelat"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Codezela Technologies on X"
+                className="text-off-white transition-colors duration-200 hover:text-white"
+              >
+                <FaXTwitter className="h-6 w-6" />
+              </Link>
             </div>
           </div>
         </div>

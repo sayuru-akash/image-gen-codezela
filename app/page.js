@@ -1,15 +1,16 @@
 import HomeContent from "@/components/home/HomeContent";
 
 export const metadata = {
-  title: "kAIro AI | Creative Automation Platform by Codezela Technologies",
+  title: "kAIro AI | AI Image Studio by Codezela Technologies",
   description:
-    "kAIro AI by Codezela Technologies helps marketing, product, and creative teams generate, edit, and deploy on-brand imagery with enterprise-ready governance.",
+    "Build Sri Lanka-first marketing visuals with kAIro AI—Codezela Technologies’ studio for text-to-image generation, intelligent mask editing, and dual-image storytelling.",
   keywords: [
     "kAIro AI",
-    "Codezela Technologies",
-    "AI image generation",
-    "creative automation",
-    "marketing design platform",
+    "AI image studio Sri Lanka",
+    "Codezela Technologies Colombo",
+    "AI marketing visuals",
+    "AI image generator",
+    "Sri Lanka creative tech",
   ],
 };
 
