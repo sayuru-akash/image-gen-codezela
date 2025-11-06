@@ -1,8 +1,8 @@
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
-import { FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 
 export const metadata = {
   title: "Join kAIro AI | Creative Suite by Codezela Technologies",
@@ -62,13 +62,10 @@ export default function SignUp() {
           </p>
 
           <div className="mt-12 flex flex-col gap-4">
-            <button
-              type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold from-10% to-white to-70% px-8 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:text-white hover:from-white/30 hover:to-gold md:w-96 md:self-center"
-            >
-              <FaGoogle className="h-5 w-5" />
-              Continue with Google
-            </button>
+            <GoogleAuthButton
+              label="Continue with Google"
+              className="md:w-96 md:self-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue hover:text-white hover:from-white/30 hover:to-gold"
+            />
             <Link
               href="/signup/form"
               className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold from-10% to-white to-70% px-8 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:text-white hover:from-white/30 hover:to-gold md:w-96 md:self-center"

@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUpRight, LogOut, Menu, X } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -88,8 +88,8 @@ export default function NavigationBar() {
 
           {/* Desktop Sign Up/Login Button */}
           {isAuthenticated ? (
-            <div className="hidden lg:flex items-center gap-5">
-              <div className="flex items-center gap-3 rounded-full border border-white/12 bg-white/[0.05] px-4 py-2 pr-5 shadow-inner shadow-white/[0.04]">
+            <div className="hidden lg:flex items-center gap-4">
+              <div className="flex h-12 items-center gap-3 rounded-full border border-white/12 bg-white/[0.05] px-5 shadow-inner shadow-white/[0.04]">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-gradient-to-br from-gold/60 to-white/35 text-sm font-semibold uppercase tracking-wide text-dark-blue shadow-[0_10px_30px_rgba(212,175,55,0.35)]">
                   {userInitials}
                 </div>
@@ -102,25 +102,33 @@ export default function NavigationBar() {
                   </span>
                 </div>
               </div>
+              <Link
+                href="/dashboard"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white/80 transition-all duration-300 hover:border-gold/80 hover:bg-gold/15 hover:text-white"
+                aria-label="Go to dashboard"
+              >
+                <LayoutDashboard className="h-5 w-5" />
+              </Link>
               <button
                 onClick={handleSignOut}
-                className="group flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-5 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/80 transition-all duration-300 hover:border-red-400/80 hover:bg-red-500/10 hover:text-red-200"
+                className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white/80 transition-all duration-300 hover:border-red-400/80 hover:bg-red-500/10 hover:text-red-200"
+                aria-label="Sign out"
               >
-                <LogOut className="h-4 w-4 text-white/50 transition-colors duration-300 group-hover:text-red-300" />
-                Sign Out
+                <LogOut className="h-5 w-5 text-white/50 transition-colors duration-300 group-hover:text-red-300" />
+                <span className="sr-only">Sign out</span>
               </button>
             </div>
           ) : (
-            <div className="hidden lg:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center gap-4">
               <Link
                 href="/login"
-                className="text-white text-xs font-semibold px-6 py-2 rounded-full border border-white/30 hover:border-gold hover:text-gold cursor-pointer transition-all duration-300"
+                className="flex h-12 items-center justify-center rounded-full border border-white/30 px-6 text-xs font-semibold uppercase tracking-[0.28em] text-white transition-all duration-300 hover:border-gold hover:text-gold"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-300"
+                className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-gold from-50% to-white/60 to-95% px-7 text-xs font-semibold uppercase tracking-[0.28em] text-white transition-all duration-300 hover:from-white/20 hover:to-gold"
               >
                 Sign Up →
               </Link>

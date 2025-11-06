@@ -1,17 +1,24 @@
 import { hashPassword } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
-import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
+
+const RESPONSES = {
+  INVALID_INPUT: { status: 422, message: "Please provide a name, valid email, and matching passwords with at least 7 characters." },
+  PASSWORD_MISMATCH: { status: 422, message: "Passwords do not match." },
+  EXISTS_CREDENTIALS: {
+    status: 422,
+    message: "An account with this email already exists. Sign in using your password instead.",
+  },
+  EXISTS_GOOGLE: {
+    status: 409,
+    message: "This email is linked to Google sign-in. Continue with Google to access your workspace.",
+  },
+};
 
 export async function POST(req) {
   try {
     const data = await req.json();
-    const {
-      name,
-      email,
-      password,
-      confirmPassword,
-    } = data;
+    const { name, email, password, confirmPassword } = data;
 
     if (
       !name ||
@@ -22,42 +29,63 @@ export async function POST(req) {
       !confirmPassword ||
       confirmPassword.trim().length < 7
     ) {
-      return NextResponse.json({ message: "Invalid input." }, { status: 422 });
+      const { message, status } = RESPONSES.INVALID_INPUT;
+      return NextResponse.json({ message }, { status });
     }
 
     if (password !== confirmPassword) {
-      return NextResponse.json(
-        { message: "Password does not match" },
-        { status: 422 }
-      );
+      const { message, status } = RESPONSES.PASSWORD_MISMATCH;
+      return NextResponse.json({ message }, { status });
     }
 
+    const normalisedEmail = email.trim().toLowerCase();
     const client = await connectToDatabase();
-    const db = client.db();
 
-    const existingUser = await db.collection("users").findOne({ email });
-    if (existingUser) {
+    try {
+      const db = client.db();
+
+      const existingUser = await db.collection("users").findOne({
+        email: normalisedEmail,
+      });
+
+      if (existingUser) {
+        const response =
+          existingUser.authProvider === "google"
+            ? RESPONSES.EXISTS_GOOGLE
+            : RESPONSES.EXISTS_CREDENTIALS;
+
+        return NextResponse.json(
+          { message: response.message },
+          { status: response.status }
+        );
+      }
+
+      const hashedPassword = await hashPassword(password);
+
+      await db.collection("users").insertOne({
+        name: name.trim(),
+        email: normalisedEmail,
+        password: hashedPassword,
+        authProvider: "credentials",
+        profileImage: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
       return NextResponse.json(
-        { message: "User exists already!" },
-        { status: 422 }
+        {
+          message: "Account created. Sign in to access your workspace.",
+          email: normalisedEmail,
+        },
+        { status: 201 }
       );
+    } finally {
+      await client.close();
     }
-
-    const hashedPassword = await hashPassword(password);
-
-    const result = await db.collection("users").insertOne({
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: new Date(),
-    });
-
-    client.close();
-
-    return NextResponse.json({ message: "User created!" }, { status: 201 });
   } catch (error) {
+    console.error("Signup error:", error);
     return NextResponse.json(
-      { message: "Something went wrong.", error: error.message },
+      { message: "Unable to create account right now. Please try again shortly." },
       { status: 500 }
     );
   }

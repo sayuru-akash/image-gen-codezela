@@ -1,9 +1,85 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import LinkedInProvider from "next-auth/providers/linkedin";
 import { connectToDatabase } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth";
+
+const AUTH_ERROR_CODES = {
+  NO_USER: "NO_USER",
+  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+  GOOGLE_ACCOUNT: "GOOGLE_ACCOUNT",
+  PASSWORD_SIGNIN_REQUIRED: "PASSWORD_SIGNIN_REQUIRED",
+};
+
+const googleProviderConfigured =
+  Boolean(process.env.GOOGLE_CLIENT_ID) && Boolean(process.env.GOOGLE_CLIENT_SECRET);
+
+const providers = [
+  CredentialsProvider({
+    async authorize(credentials) {
+      const client = await connectToDatabase();
+      try {
+        const userCollection = client.db().collection("users");
+        const email = credentials?.email?.trim().toLowerCase();
+        const password = credentials?.password;
+
+        if (!email || !password) {
+          throw new Error(AUTH_ERROR_CODES.INVALID_CREDENTIALS);
+        }
+
+        const user = await userCollection.findOne({ email });
+
+        if (!user) {
+          throw new Error(AUTH_ERROR_CODES.NO_USER);
+        }
+
+        if (user.authProvider && user.authProvider !== "credentials") {
+          throw new Error(AUTH_ERROR_CODES.GOOGLE_ACCOUNT);
+        }
+
+        if (!user.password) {
+          throw new Error(AUTH_ERROR_CODES.GOOGLE_ACCOUNT);
+        }
+
+        const isValid = await verifyPassword(password, user.password);
+        if (!isValid) {
+          throw new Error(AUTH_ERROR_CODES.INVALID_CREDENTIALS);
+        }
+
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role ?? null,
+          profileImage: user.profileImage ?? null,
+          authProvider: user.authProvider ?? "credentials",
+        };
+      } finally {
+        await client.close();
+      }
+    },
+  }),
+];
+
+if (googleProviderConfigured) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
+    })
+  );
+} else {
+  console.warn(
+    "Google OAuth credentials are not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable Google sign-in."
+  );
+}
 
 // Define authentication options
 export const authOptions = {
@@ -12,101 +88,72 @@ export const authOptions = {
     strategy: "jwt",
   },
 
-  providers: [
-    CredentialsProvider({
-      async authorize(credentials) {
-        const client = await connectToDatabase();
-        const userCollection = client.db().collection("users");
-
-        // Check if user exists in jobseekers collection
-        let user = await userCollection.findOne({
-          email: credentials.email,
-        });
-
-        if (user) {
-          // Verify password for jobseeker
-          const isValid = await verifyPassword(
-            credentials.password,
-            user.password
-          );
-          if (!isValid) {
-            client.close();
-            throw new Error("Could not log you in!");
-          }
-          client.close();
-          return {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            profileImage: user.profileImage,
-          };
-        }
-
-        // If no user is found in either collection
-        client.close();
-        throw new Error("No user found");
-      },
-    }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    //   authorization: {
-    //     params: {
-    //       prompt: "consent",
-    //       access_type: "offline",
-    //       response_type: "code",
-    //     },
-    //   },
-    // }),
-    // LinkedInProvider({
-    //   clientId: process.env.LINKEDIN_CLIENT_ID,
-    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-    // }),
-  ],
+  providers,
 
   callbacks: {
     async signIn({ user, account }) {
-      // Only process for Google sign-in
-      if (account?.provider === "google") {
-        const { email } = user;
-
-        try {
-          const client = await connectToDatabase();
-          const db = client.db();
-
-          // Check if user exists in jobseekers collection
-          const existingUser = await db.collection("users").findOne({ email });
-
-          if (existingUser) {
-            user.id = existingUser._id;
-            user.name = existingUser.name;
-            user.email = existingUser.email;
-
-            client.close();
-            return true; // Allow sign-in
-          }
-
-          // If user doesn't exist, redirect to signup
-          if (!existingUser) {
-            alert("Not Account Found, Please Sign Up ...");
-          }
-          // await db.collection("jobseekers").insertOne({
-          //   email,
-          //   firstName: user.name?.split(" ")[0] || "",
-          //   lastName: user.name?.split(" ")[1] || "",
-          //   profileImage: user.image || "",
-          //   password: null,
-          // });
-
-          client.close();
-          return true;
-        } catch (error) {
-          console.error("Database error:", error);
-          return false;
-        }
+      if (account?.provider !== "google") {
+        return true;
       }
-      return true; // Allow sign-in for other providers
+
+      if (!user?.email) {
+        throw new Error(AUTH_ERROR_CODES.GOOGLE_ACCOUNT);
+      }
+
+      const normalisedEmail = user.email.toLowerCase();
+      const client = await connectToDatabase();
+
+      try {
+        const db = client.db();
+        const usersCollection = db.collection("users");
+
+        const existingUser = await usersCollection.findOne({
+          email: normalisedEmail,
+        });
+
+        if (existingUser) {
+          if (existingUser.authProvider && existingUser.authProvider !== "google") {
+            throw new Error(AUTH_ERROR_CODES.PASSWORD_SIGNIN_REQUIRED);
+          }
+
+          await usersCollection.updateOne(
+            { _id: existingUser._id },
+            {
+              $set: {
+                name: user.name ?? existingUser.name ?? "",
+                profileImage: user.image ?? existingUser.profileImage ?? null,
+                authProvider: "google",
+                updatedAt: new Date(),
+              },
+            }
+          );
+
+          user.id = existingUser._id.toString();
+          user.name = user.name ?? existingUser.name;
+          user.email = existingUser.email;
+          user.image = user.image ?? existingUser.profileImage;
+          return true;
+        }
+
+        const insertResult = await usersCollection.insertOne({
+          name: user.name ?? "",
+          email: normalisedEmail,
+          authProvider: "google",
+          profileImage: user.image ?? null,
+          password: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        user.id = insertResult.insertedId.toString();
+        user.email = normalisedEmail;
+        return true;
+      } catch (error) {
+        console.error("Google sign-in error:", error);
+        throw error;
+      } finally {
+        await client.close();
+      }
     },
 
     async session({ session, token }) {
@@ -114,28 +161,29 @@ export const authOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
+        session.user.profileImage = token.profileImage ?? null;
+        session.user.authProvider = token.authProvider ?? null;
       }
       return session;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.profileImage = user.profileImage ?? token.profileImage ?? null;
+        token.authProvider = user.authProvider ?? token.authProvider ?? null;
       }
       return token;
     },
 
     async redirect({ url, baseUrl }) {
-      // After successful login, redirect to home page
       if (url === baseUrl) {
         return baseUrl;
       }
-      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
+      if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
   },

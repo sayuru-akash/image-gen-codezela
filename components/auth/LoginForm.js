@@ -5,6 +5,19 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signIn, getSession, useSession } from "next-auth/react";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
+
+const ERROR_MESSAGES = {
+  NO_USER:
+    "We couldn’t find an account with that email. Check the spelling or create a new workspace.",
+  INVALID_CREDENTIALS:
+    "That password didn’t match our records. Try again or request access support.",
+  GOOGLE_ACCOUNT:
+    "This workspace is linked to Google. Choose “Sign in with Google” to continue.",
+  PASSWORD_SIGNIN_REQUIRED:
+    "This workspace was created with email and password. Use your password to sign in.",
+  default: "Unable to sign you in right now. Please try again in a moment.",
+};
 
 export default function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +46,15 @@ export default function LoginForm() {
     } catch (error) {
       console.warn("Unable to decode email query param", error);
     }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const errorCode = searchParams?.get("error");
+    if (!errorCode) return;
+    setMessage({
+      type: "error",
+      text: ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.default,
+    });
   }, [searchParams]);
 
   const handleChange = (field) => (event) => {
@@ -70,17 +92,26 @@ export default function LoginForm() {
         password: formData.password,
       });
 
+      if (result?.error) {
+        setMessage({
+          type: "error",
+          text: ERROR_MESSAGES[result.error] ?? ERROR_MESSAGES.default,
+        });
+        return;
+      }
+
       if (result?.ok) {
         const activeSession = await getSession();
         if (activeSession) {
           router.push("/dashboard");
         }
-      } else {
-        setMessage({
-          type: "error",
-          text: "Login failed. Please verify your credentials.",
-        });
+        return;
       }
+
+      setMessage({
+        type: "error",
+        text: ERROR_MESSAGES.default,
+      });
     } catch (error) {
       setMessage({
         type: "error",
@@ -140,6 +171,21 @@ export default function LoginForm() {
                 Access the complete suite of kAIro AI tools delivered by Codezela
                 Technologies.
               </p>
+            </div>
+
+            <div className="space-y-4">
+              <GoogleAuthButton
+                label="Sign in with Google"
+                className="border border-white/15 bg-white/[0.08] text-white hover:bg-white/[0.12]"
+                iconClassName="text-white"
+              />
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-white/15" />
+                <span className="text-[11px] uppercase tracking-[0.4em] text-white/40">
+                  or use email
+                </span>
+                <span className="h-px flex-1 bg-white/15" />
+              </div>
             </div>
 
             <form onSubmit={submitHandler} className="space-y-6">
