@@ -1,9 +1,10 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
+import useEmblaCarousel from "embla-carousel-react";
 import Carousel1 from "@/components/carousel/carousel1";
 import Carousel2 from "@/components/carousel/carousel2";
 import Carousel3 from "@/components/carousel/carousel3";
@@ -21,6 +22,86 @@ export default function HomeContent() {
   const { data: session } = useSession();
   const [activeCarousel, setActiveCarousel] = useState(1);
   const sectionSpacing = "px-4 py-12 md:px-10 lg:px-20 lg:py-16";
+  const [testimonialViewportRef, testimonialEmbla] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+  });
+  const [logoViewportRef, logoEmbla] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+  });
+  const testimonialAutoplayRef = useRef(null);
+  const stopTestimonialAutoplay = useCallback(() => {
+    if (testimonialAutoplayRef.current) {
+      window.clearInterval(testimonialAutoplayRef.current);
+      testimonialAutoplayRef.current = null;
+    }
+  }, []);
+  const startTestimonialAutoplay = useCallback(() => {
+    if (testimonialAutoplayRef.current) return;
+    testimonialAutoplayRef.current = window.setInterval(() => {
+      testimonialEmbla?.scrollNext();
+    }, 6000);
+  }, [testimonialEmbla]);
+  useEffect(() => {
+    if (!testimonialEmbla) return undefined;
+    startTestimonialAutoplay();
+    testimonialEmbla.on("pointerDown", stopTestimonialAutoplay);
+    testimonialEmbla.on("pointerUp", startTestimonialAutoplay);
+    testimonialEmbla.on("pointerLeave", startTestimonialAutoplay);
+    return () => {
+      stopTestimonialAutoplay();
+      testimonialEmbla.off("pointerDown", stopTestimonialAutoplay);
+      testimonialEmbla.off("pointerUp", startTestimonialAutoplay);
+      testimonialEmbla.off("pointerLeave", startTestimonialAutoplay);
+    };
+  }, [testimonialEmbla, startTestimonialAutoplay, stopTestimonialAutoplay]);
+  const testimonialPrev = useCallback(() => {
+    stopTestimonialAutoplay();
+    testimonialEmbla?.scrollPrev();
+    startTestimonialAutoplay();
+  }, [testimonialEmbla, startTestimonialAutoplay, stopTestimonialAutoplay]);
+  const testimonialNext = useCallback(() => {
+    stopTestimonialAutoplay();
+    testimonialEmbla?.scrollNext();
+    startTestimonialAutoplay();
+  }, [testimonialEmbla, startTestimonialAutoplay, stopTestimonialAutoplay]);
+  const logoAutoplayRef = useRef(null);
+  const stopLogoAutoplay = useCallback(() => {
+    if (logoAutoplayRef.current) {
+      window.clearInterval(logoAutoplayRef.current);
+      logoAutoplayRef.current = null;
+    }
+  }, []);
+  const startLogoAutoplay = useCallback(() => {
+    if (logoAutoplayRef.current) return;
+    logoAutoplayRef.current = window.setInterval(() => {
+      logoEmbla?.scrollNext();
+    }, 4500);
+  }, [logoEmbla]);
+  useEffect(() => {
+    if (!logoEmbla) return undefined;
+    startLogoAutoplay();
+    logoEmbla.on("pointerDown", stopLogoAutoplay);
+    logoEmbla.on("pointerUp", startLogoAutoplay);
+    logoEmbla.on("pointerLeave", startLogoAutoplay);
+    return () => {
+      stopLogoAutoplay();
+      logoEmbla.off("pointerDown", stopLogoAutoplay);
+      logoEmbla.off("pointerUp", startLogoAutoplay);
+      logoEmbla.off("pointerLeave", startLogoAutoplay);
+    };
+  }, [logoEmbla, startLogoAutoplay, stopLogoAutoplay]);
+  const logoPrev = useCallback(() => {
+    stopLogoAutoplay();
+    logoEmbla?.scrollPrev();
+    startLogoAutoplay();
+  }, [logoEmbla, startLogoAutoplay, stopLogoAutoplay]);
+  const logoNext = useCallback(() => {
+    stopLogoAutoplay();
+    logoEmbla?.scrollNext();
+    startLogoAutoplay();
+  }, [logoEmbla, startLogoAutoplay, stopLogoAutoplay]);
 
   const personaCards = useMemo(
     () => [
@@ -76,6 +157,10 @@ export default function HomeContent() {
     ],
     []
   );
+  const partnerLogos = useMemo(() => {
+    const baseLogos = ["logo-1.svg", "logo-2.svg", "logo-3.svg", "logo-4.svg"];
+    return [...baseLogos, ...baseLogos];
+  }, []);
 
   const handleCarousel = (tab) => setActiveCarousel(tab);
 
@@ -132,7 +217,7 @@ export default function HomeContent() {
       <main>
         <section
           id="features"
-          className={`${sectionSpacing} scroll-mt-24 pt-16 lg:pt-[36rem]`}
+          className={`${sectionSpacing} scroll-mt-24 pt-36 md:pt-[36rem]`}
         >
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-gold/80">
@@ -205,24 +290,42 @@ export default function HomeContent() {
                   Leaders shipping with{" "}
                   <span className="text-gold">kAIro AI</span>
                 </h3>
-                <div className="hidden md:flex gap-2 text-white/70">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30">
+                <div className="hidden gap-2 text-white/70 md:flex">
+                  <button
+                    type="button"
+                    onClick={testimonialPrev}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30 transition-colors duration-300 hover:from-gold/60 hover:to-white/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                    aria-label="View previous testimonial"
+                  >
                     <MdOutlineArrowLeft />
-                  </div>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={testimonialNext}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30 transition-colors duration-300 hover:from-gold/60 hover:to-white/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                    aria-label="View next testimonial"
+                  >
                     <MdOutlineArrowRight />
-                  </div>
+                  </button>
                 </div>
               </div>
 
               <div className="relative mt-12 w-full">
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                  {testimonials.map((testimonial) => (
-                    <TestimonialCard
-                      key={testimonial.author}
-                      {...testimonial}
-                    />
-                  ))}
+                <div
+                  className="overflow-hidden"
+                  ref={testimonialViewportRef}
+                  aria-label="Testimonials"
+                >
+                  <div className="flex pb-4">
+                    {testimonials.map((testimonial) => (
+                      <div
+                        key={testimonial.author}
+                        className="flex-[0_0_100%] px-3 sm:flex-[0_0_70%] sm:px-4 lg:flex-[0_0_45%] lg:px-4"
+                      >
+                        <TestimonialCard {...testimonial} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -249,14 +352,22 @@ export default function HomeContent() {
               </p>
             </div>
             <div className="hidden items-end justify-end gap-2 text-white/70 lg:flex">
-              <div className="flex gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30">
-                  <MdOutlineArrowLeft />
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30">
-                  <MdOutlineArrowRight />
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={logoPrev}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30 transition-colors duration-300 hover:from-gold/60 hover:to-white/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                aria-label="View previous partner logo"
+              >
+                <MdOutlineArrowLeft />
+              </button>
+              <button
+                type="button"
+                onClick={logoNext}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-gold bg-gradient-to-r from-gold/30 to-white/30 transition-colors duration-300 hover:from-gold/60 hover:to-white/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                aria-label="View next partner logo"
+              >
+                <MdOutlineArrowRight />
+              </button>
             </div>
           </div>
 
@@ -269,22 +380,28 @@ export default function HomeContent() {
               </p>
             </div>
             <div className="lg:col-span-2">
-              <div className="flex h-32 gap-2 overflow-x-auto rounded-2xl border border-secondary-accent/40 bg-white/5 px-3 py-2 backdrop-blur">
-                {["logo-1.svg", "logo-2.svg", "logo-3.svg", "logo-4.svg"].map(
-                  (logo, index) => (
+              <div
+                className="overflow-hidden rounded-2xl border border-secondary-accent/40 bg-white/5 px-1 py-2 backdrop-blur"
+                ref={logoViewportRef}
+                aria-label="Strategic partner logos"
+              >
+                <div className="flex px-2">
+                  {partnerLogos.map((logo, index) => (
                     <div
-                      key={logo}
-                      className="flex h-full w-56 flex-shrink-0 items-center justify-center rounded-2xl border border-secondary-accent/30 bg-dark-blue/40"
+                      key={`${logo}-${index}`}
+                      className="flex-[0_0_60%] px-3 sm:flex-[0_0_40%] sm:px-4 md:flex-[0_0_30%] lg:flex-[0_0_24%] lg:px-4 xl:flex-[0_0_20%]"
                     >
-                      <Image
-                        src={`/images/${logo}`}
-                        alt={`Partner ${index + 1}`}
-                        width={200}
-                        height={200}
-                      />
+                      <div className="flex h-32 items-center justify-center rounded-2xl border border-secondary-accent/30 bg-dark-blue/40">
+                        <Image
+                          src={`/images/${logo}`}
+                          alt={`Partner ${index + 1}`}
+                          width={200}
+                          height={200}
+                        />
+                      </div>
                     </div>
-                  )
-                )}
+                  ))}
+                </div>
               </div>
             </div>
           </div>

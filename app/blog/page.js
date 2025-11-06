@@ -50,6 +50,7 @@ export default function BlogIndex() {
               excerpt={article.excerpt}
               date={article.date}
               author={`${article.author} · ${article.readTime}`}
+              maxExcerptLength={160}
             />
           ))}
         </div>
