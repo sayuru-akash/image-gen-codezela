@@ -4,13 +4,25 @@ import Link from "next/link";
 import { FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
+export const metadata = {
+  title: "Join kAIro AI | Creative Suite by Codezela Technologies",
+  description:
+    "Create a kAIro AI workspace to collaborate with Codezela Technologies on AI powered storytelling, governed workflows, and enterprise-ready imagery.",
+  keywords: [
+    "kAIro AI signup",
+    "Codezela Technologies",
+    "AI creative suite",
+    "enterprise ai imagery",
+  ],
+};
+
 export default function SignUp() {
   return (
     <div>
-      <div className="relative bg-dark-blue grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-20 md:p-20">
-        <div className="absolute inset-0 opacity-50 md:hidden">
+      <section className="relative grid grid-cols-1 gap-6 bg-dark-blue px-8 py-20 md:grid-cols-3 md:p-20">
+        <div className="absolute inset-0 opacity-40 md:hidden">
           <Image
-            alt="Decorative signup background"
+            alt="Abstract signup background"
             src="/images/signup-bg.png"
             fill
             className="object-contain object-center"
@@ -20,10 +32,10 @@ export default function SignUp() {
           />
         </div>
 
-        <div className="hidden md:block col-span-2 px-10 relative z-10">
-          <div className="relative w-full h-full flex justify-center items-center">
+        <div className="relative hidden h-full items-center justify-center px-10 md:col-span-2 md:flex">
+          <div className="relative h-full w-full">
             <Image
-              alt="Signup background illustration"
+              alt="kAIro AI brand illustration"
               src="/images/signup-bg.png"
               fill
               className="object-contain"
@@ -32,57 +44,61 @@ export default function SignUp() {
               priority
             />
             <Image
-              alt="kAIro awards icon"
+              alt="Codezela Technologies awards icon"
               src="/images/awards-icon.svg"
-              width={200}
-              height={200}
-              className="relative z-10"
+              width={220}
+              height={220}
+              className="relative z-10 mx-auto"
             />
           </div>
         </div>
 
         <div className="relative z-10">
-          <h3 className="text-3xl text-white font-semibold text-center mb-8">
-            Create your own masterpiece with AI
+          <h3 className="text-center text-3xl font-semibold text-white">
+            Create your kAIro AI workspace
           </h3>
-          <p className="text-white text-sm text-center mb-14">
-            Transform your creative ideas into stunning AI-powered paintings in
-            just seconds, bringing your vision to life with advanced technology.
+          <p className="mt-4 text-center text-sm text-white/80">
+            Bring your marketing, product, and creative stakeholders together with an AI platform engineered by Codezela Technologies.
           </p>
 
-          <div className="flex flex-col gap-4 mb-14">
+          <div className="mt-12 flex flex-col gap-4">
             <button
               type="button"
-              className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% transition-all duration-300 ease-in-out w-full md:w-96"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold from-10% to-white to-70% px-8 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:text-white hover:from-white/30 hover:to-gold md:w-96 md:self-center"
             >
-              <FaGoogle className="w-5 h-5" /> Sign in with Google
+              <FaGoogle className="h-5 w-5" />
+              Continue with Google
             </button>
             <Link
               href="/signup/form"
-              className="flex mx-auto items-center gap-2 justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-4 rounded-full hover:text-white hover:from-white/20 hover:from-5% hover:to-gold hover:to-40% transition-all duration-300 ease-in-out w-full md:w-96 text-center"
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold from-10% to-white to-70% px-8 py-4 text-sm font-semibold text-dark-blue transition-all duration-300 hover:text-white hover:from-white/30 hover:to-gold md:w-96 md:self-center"
             >
-              <MdEmail className="w-5 h-5" /> Continue with Email
+              <MdEmail className="h-5 w-5" />
+              Continue with Email
             </Link>
           </div>
 
-          <p className="text-white text-sm text-center md:mb-14">
-            By continuing, you agree to kAIro&apos;s{" "}
+          <p className="mt-10 text-center text-xs text-white/70">
+            By continuing, you agree to the{" "}
             <Link
-              href="#"
-              className="hover:text-gold transition-colors duration-200"
+              href="https://codezela.com/privacy-policy"
+              target="_blank"
+              rel="noreferrer"
+              className="text-gold hover:text-white"
             >
-              Terms of Use
-            </Link>
-            . Read our{" "}
+              Codezela Technologies terms
+            </Link>{" "}
+            and{" "}
             <Link
               href="/privacy-policy"
-              className="hover:text-gold transition-colors duration-200"
+              className="text-gold hover:text-white"
             >
-              Privacy Policy
+              privacy policy
             </Link>
+            .
           </p>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </div>

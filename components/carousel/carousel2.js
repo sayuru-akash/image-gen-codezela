@@ -56,15 +56,16 @@ export default function Carousel2({ activeCarousel, onTabChange }) {
             </button>
           </div>
 
-          <p className="text-base">Editing Suite</p>
-          <h3 className="text-2xl font-semibold py-2">
-            AI Background Replacement
+          <p className="text-base uppercase tracking-[0.25em] text-gold/80">
+            Editing suite
+          </p>
+          <h3 className="text-2xl font-semibold py-2 text-white">
+            Intelligent background and lighting replacement.
           </h3>
-          <p className="text-sm mt-10 mb-10">
-            Effortlessly change or enhance the background of any image. Upload
-            your photo, describe your desired new setting – from a serene
-            Egyptian oasis to a bustling Cairo street – and our AI will
-            seamlessly integrate it, refreshing your visuals instantly.
+          <p className="text-sm mt-8 mb-10 text-white/80">
+            Swap environments, adjust lighting, and rebuild reflections without recreating an entire render.
+            kAIro AI understands depth and perspective so lifestyle photography, product stills, and architectural
+            mockups stay believable after every change.
           </p>
           <button
             onClick={handleTryNow}

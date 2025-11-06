@@ -1,152 +1,111 @@
 import ExploreInnovation from "@/components/ExploreInnovation";
 import Footer from "@/components/Footer";
 import NavigationBar from "@/components/navigationbar";
+import Signup from "@/components/Signup";
 import Image from "next/image";
-import { LiaShareAltSolid } from "react-icons/lia";
-import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import articles from "@/data/articles";
 
-export default function Blog() {
+export function generateStaticParams() {
+  return articles.map((article) => ({ id: article.id }));
+}
+
+export function generateMetadata({ params }) {
+  const article = articles.find((item) => item.id === params.id);
+  if (!article) {
+    return {
+      title: "kAIro AI Insights | Codezela Technologies",
+    };
+  }
+
+  return {
+    title: `${article.title} | kAIro AI Insights`,
+    description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      images: [
+        {
+          url: article.heroImage || article.image1,
+          width: 1200,
+          height: 630,
+          alt: `${article.title} hero image`,
+        },
+      ],
+    },
+  };
+}
+
+export default function BlogArticle({ params }) {
+  const article = articles.find((item) => item.id === params.id);
+
+  if (!article) {
+    notFound();
+  }
+
   return (
     <>
-      <div className="bg-black mb-10">
+      <div className="bg-black">
         <NavigationBar />
       </div>
 
-      <div className="w-11/12 lg:w-3/5 mx-auto my-20">
-        <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 mb-10">
-          <div className="relative w-full h-full rounded-2xl overflow-hidden">
-            <Image
-              alt="Blog Image"
-              src="/images/image-11.jpg"
-              width={1080}
-              height={1080}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          </div>
+      <article className="mx-auto my-16 w-11/12 max-w-4xl">
+        <div className="relative mb-10 h-80 overflow-hidden rounded-4xl border border-white/20">
+          <Image
+            alt={article.title}
+            src={article.heroImage || article.image1}
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
 
-        <h3 className="text-5xl text-white font-semibold leading-12 md:leading-14">
-          Discover New Horizons with Advanced Models
-        </h3>
+        <h1 className="text-4xl font-semibold text-white sm:text-5xl">
+          {article.title}
+        </h1>
 
-        <div className="flex justify-between items-center my-4">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-white/70">
           <div>
-            <p className="text-xs text-off-white">
-              written by{" "}
-              <span className="text-sm text-white">Rishad Ahamed</span>
+            <p>
+              By <span className="text-white">{article.author}</span>
             </p>
-            <p className="text-xs text-off-white">13th August 2025</p>
+            <p>
+              {article.date} · {article.readTime}
+            </p>
           </div>
-
-          <div className="flex items-center gap-1 text-white text-sm hover:text-gold cursor-pointer transition-all">
-            <LiaShareAltSolid className="w-6 h-6" />
-            <p>Share</p>
-          </div>
+          <Link
+            href="https://codezela.com/contact"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/30 px-4 py-2 text-white transition-colors duration-200 hover:border-gold hover:text-gold"
+          >
+            Talk to Codezela Technologies
+          </Link>
         </div>
 
-        <h3 className="text-2xl text-white font-semibold py-4">Sub Heading</h3>
+        <p className="mt-6 text-base text-white/75">{article.excerpt}</p>
 
-        <p className="text-off-white text-base text-justify">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum
-          dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-          commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-          velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-          mollit anim id est laborum.
-        </p>
+        {article.sections.map((section) => (
+          <section key={section.heading} className="mt-10">
+            <h2 className="text-2xl font-semibold text-white">
+              {section.heading}
+            </h2>
+            {section.paragraphs.map((paragraph, index) => (
+              <p key={index} className="mt-4 text-base leading-relaxed text-white/75">
+                {paragraph}
+              </p>
+            ))}
+          </section>
+        ))}
+      </article>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-8 my-8">
-          <p className="md:col-span-1 lg:col-span-2 text-off-white text-base text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-            veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat. Duis aute irure dolor in reprehenderit in
-            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-            officia deserunt mollit anim id est laborum.
-          </p>
-
-          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 my-4 md:my-0">
-            <div className="relative w-full h-full rounded-2xl overflow-hidden">
-              <Image
-                alt="Blog Image"
-                src="/images/image-1.png"
-                width={1080}
-                height={1080}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-
-        <h3 className="text-2xl text-white font-semibold py-4">Sub Heading</h3>
-
-        <p className="text-off-white text-base text-justify">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum
-          dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-          commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-          velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-          mollit anim id est laborum.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-8 my-8">
-          <div className="bg-white/10 backdrop-blur-xs w-full h-96 rounded-4xl border border-white/30 p-3 my-4 md:my-0">
-            <div className="relative w-full h-full rounded-2xl overflow-hidden">
-              <Image
-                alt="Blog Image"
-                src="/images/image-11.jpg"
-                width={1080}
-                height={1080}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            </div>
-          </div>
-          <p className="lg:col-span-2 text-off-white text-base text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-            veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat. Duis aute irure dolor in reprehenderit in
-            voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-            officia deserunt mollit anim id est laborum.
-          </p>
-        </div>
-      </div>
-
-      <div className="p-4 md:px-10 lg:px-20 md:py-10 bg-black">
+      <section className="bg-black px-4 py-16 md:px-10 lg:px-20">
         <ExploreInnovation />
-        <hr className="border border-off-white"/>
+        <hr className="mt-10 border border-off-white/20" />
+      </section>
+      <div id="contact" className="scroll-mt-24">
+        <Signup />
       </div>
       <Footer />
     </>

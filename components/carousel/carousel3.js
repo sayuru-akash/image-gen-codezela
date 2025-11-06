@@ -56,15 +56,16 @@ export default function Carousel3({ activeCarousel, onTabChange }) {
             </button>
           </div>
 
-          <p className="text-base">Precision Control</p>
-          <h3 className="text-2xl font-semibold py-2">
-            Targeted Image Editing with AI Masking
+          <p className="text-base uppercase tracking-[0.25em] text-gold/80">
+            Precision control
+          </p>
+          <h3 className="text-2xl font-semibold py-2 text-white">
+            Target exactly what changes with AI masking.
           </h3>
-          <p className="text-sm mt-10 mb-10">
-            Achieve precise edits by painting over specific areas of your image.
-            Define exactly what you want to change, and our AI will
-            intelligently regenerate only those masked sections, allowing for
-            unparalleled control and transformative results.
+          <p className="text-sm mt-8 mb-10 text-white/80">
+            Paint over packaging, lighting, clothing, or UI elements and let kAIro AI regenerate
+            only those pixels. Product teams explore variations without rebuilding the entire render,
+            keeping every iteration review-ready.
           </p>
           <button
             onClick={handleTryNow}

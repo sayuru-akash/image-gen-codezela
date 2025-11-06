@@ -7,7 +7,7 @@ export default function Gallery() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated fashion editorial scene"
             src="/images/image-15.jpg"
             width={600}
             height={600}
@@ -16,7 +16,7 @@ export default function Gallery() {
         </div>
         <div className="rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated neon portrait"
             src="/images/image-9.jpg"
             width={600}
             height={600}
@@ -25,7 +25,7 @@ export default function Gallery() {
         </div>
         <div className="md:col-span-2 rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated urban skyline artwork"
             src="/images/image-11.jpg"
             width={600}
             height={600}
@@ -38,7 +38,7 @@ export default function Gallery() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="rounded-2xl h-110 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated product flat lay"
             src="/images/image-16.jpg"
             width={600}
             height={600}
@@ -48,7 +48,7 @@ export default function Gallery() {
         <div className="grid gap-4">
           <div className="rounded-2xl h-53 w-full overflow-hidden group cursor-pointer">
             <Image
-              alt="image"
+              alt="AI generated cinematic landscape"
               src="/images/image-17.jpg"
               width={600}
               height={600}
@@ -57,7 +57,7 @@ export default function Gallery() {
           </div>
           <div className="rounded-2xl h-53 w-full overflow-hidden group cursor-pointer">
             <Image
-              alt="image"
+              alt="AI generated architectural concept"
               src="/images/image-18.jpg"
               width={600}
               height={600}
@@ -67,7 +67,7 @@ export default function Gallery() {
         </div>
         <div className="rounded-2xl h-110 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated abstract textures"
             src="/images/image-19.jpg"
             width={600}
             height={600}
@@ -80,7 +80,7 @@ export default function Gallery() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="md:col-span-2 rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated campaign mood board"
             src="/images/image-14.jpg"
             width={600}
             height={600}
@@ -89,7 +89,7 @@ export default function Gallery() {
         </div>
         <div className="rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated desert landscape"
             src="/images/image-20.jpg"
             width={600}
             height={600}
@@ -98,7 +98,7 @@ export default function Gallery() {
         </div>
         <div className="rounded-2xl h-72 w-full overflow-hidden group cursor-pointer">
           <Image
-            alt="image"
+            alt="AI generated lifestyle photography"
             src="/images/image-12.jpg"
             width={600}
             height={600}

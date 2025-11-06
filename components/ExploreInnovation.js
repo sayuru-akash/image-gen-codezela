@@ -1,4 +1,4 @@
-import Articles from "@/data/articles.json";
+import articles from "@/data/articles";
 import { MdOutlineArrowLeft, MdOutlineArrowRight } from "react-icons/md";
 import BlogCard from "./BlogCard";
 
@@ -7,7 +7,7 @@ export default function ExploreInnovation() {
     <div>
       <div className="flex justify-between">
         <h3 className="text-2xl md:text-5xl font-semibold text-left w-full lg:w-8/12 bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
-          Explore More Innovative Possibilities with Enhanced Models
+          Fresh ideas from the kAIro AI and Codezela Technologies teams
         </h3>
         <div className="hidden lg:flex justify-end mt-auto">
           <div className="md:flex gap-2">
@@ -22,14 +22,14 @@ export default function ExploreInnovation() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-6 lg:py-20">
-        {Articles.slice(0, 4).map((article) => (
+        {articles.slice(0, 4).map((article) => (
           <BlogCard
             key={article.id}
-            href={`/blogs/${article.id}`}
+            href={`/blog/${article.id}`}
             image1={article.image1}
             image2={article.image2}
             title={article.title}
-            body={article.body}
+            excerpt={article.excerpt}
             date={article.date}
             author={article.author}
           />

@@ -56,15 +56,16 @@ export default function Carousel4({ activeCarousel, onTabChange }) {
             </button>
           </div>
 
-          <p className="text-base">Artistic Fusion</p>
-          <h3 className="text-2xl font-semibold py-2">
-            AI Dual Image Editor, Style Transfer
+          <p className="text-base uppercase tracking-[0.25em] text-gold/80">
+            Concept blending
+          </p>
+          <h3 className="text-2xl font-semibold py-2 text-white">
+            Style transfer for dual image storytelling.
           </h3>
-          <p className="text-sm mt-10 mb-10">
-            Unlock new creative dimensions by blending the aesthetics of two
-            images. Upload a pair of visuals, choose your desired style, and our
-            AI will intelligently transfer elements, colors, and lighting to
-            create unique, harmonized compositions.
+          <p className="text-sm mt-8 mb-10 text-white/80">
+            Combine texture, colour, and lighting from two reference assets to build mood boards,
+            launch lookbooks, or craft cinematic key art. kAIro AI understands hierarchy, so your primary
+            subject stays in focus while the supporting style layers harmoniously.
           </p>
           <button
             onClick={handleTryNow}

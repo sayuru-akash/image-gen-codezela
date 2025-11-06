@@ -1,42 +1,32 @@
 [
   {
     "id": "1",
-    "question": "Where can I watch?",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "What is kAIro AI and how does it relate to Codezela Technologies?",
+    "answer": "kAIro AI is the creative automation platform built by Codezela Technologies. It combines text-to-image generation, intelligent editing, and governed delivery workflows so marketing, product, and creative teams can produce on-brand visuals in minutes."
   },
   {
     "id": "2",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "Can we customise prompts and style guides for our brand?",
+    "answer": "Yes. Codezela Technologies configures kAIro AI with brand-specific palettes, typography, negative prompts, and content guardrails. You can also create reusable prompt templates to keep every asset aligned with your visual identity."
   },
   {
     "id": "3",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "Does kAIro AI support team collaboration and approvals?",
+    "answer": "kAIro AI includes shared libraries, version history, and inline feedback. Stakeholders can compare variations, leave annotated comments, and approve final renders before export, ensuring your compliance and legal teams stay in the loop."
   },
   {
     "id": "4",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "Which file formats and resolutions can we export?",
+    "answer": "The platform exports high-resolution PNG, JPG, and WebP assets, as well as layered PSD files for advanced adjustments. You can define presets for paid media, social, and print so every deliverable meets channel specifications."
   },
   {
     "id": "5",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "How secure is the platform for enterprise deployments?",
+    "answer": "Codezela Technologies implements SOC 2-ready infrastructure, encryption in transit and at rest, role-based access, and detailed audit logs. Optional private inference endpoints ensure sensitive prompts and assets remain within your environment."
   },
   {
     "id": "6",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
-  },
-  {
-    "id": "7",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
-  },
-  {
-    "id": "8",
-    "question": "Question Heading",
-    "answer": "Nibh quisque suscipit fermentum netus nulla cras porttitor euismod nulla. Orci, dictumst nec aliquet id ullamcorper venenatis. Fermentum sulla craspor ttitore  ismod nulla."
+    "question": "Can Codezela Technologies help with custom integrations?",
+    "answer": "Absolutely. Our engineering teams extend kAIro AI into DAM systems, CMS workflows, and project-management tools. We also design bespoke dashboards, API automations, and training programs tailored to your creative operations."
   }
 ]

@@ -17,15 +17,15 @@ kAIro is a modern AI creativity suite built with Next.js. It pairs a polished ma
 
 ## 🏗 Architecture Overview
 
-| Layer | Summary |
-| --- | --- |
-| **Framework** | Next.js App Router (React 19) with hybrid server/client components and middleware. |
-| **Auth** | NextAuth (JWT strategy, credential provider by default; Google/LinkedIn stubs ready). |
-| **Data** | MongoDB client helper in `lib/db.js`; collections for users and generated assets. |
-| **Styling** | Tailwind-inspired utility classes, custom gradients, MUI components inside the dashboard. |
-| **Assets** | `/public/images` optimised with `next/image` and deliberate quality hints. |
-| **APIs** | `app/api/*` routes wrap Codezela AI endpoints (text, mask, reference generation, etc.). |
-| **Security** | Route middleware restricts `/dashboard/**`, Suspense-protected search params, guarded redirects. |
+| Layer         | Summary                                                                                          |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| **Framework** | Next.js App Router (React 19) with hybrid server/client components and middleware.               |
+| **Auth**      | NextAuth (JWT strategy, credential provider by default; Google/LinkedIn stubs ready).            |
+| **Data**      | MongoDB client helper in `lib/db.js`; collections for users and generated assets.                |
+| **Styling**   | Tailwind-inspired utility classes, custom gradients, MUI components inside the dashboard.        |
+| **Assets**    | `/public/images` optimised with `next/image` and deliberate quality hints.                       |
+| **APIs**      | `app/api/*` routes wrap Codezela AI endpoints (text, mask, reference generation, etc.).          |
+| **Security**  | Route middleware restricts `/dashboard/**`, Suspense-protected search params, guarded redirects. |
 
 ---
 
@@ -33,7 +33,7 @@ kAIro is a modern AI creativity suite built with Next.js. It pairs a polished ma
 
 ```
 app/
-  (marketing routes: page.js, blogs, faq, login, signup, privacy-policy, test-base64)
+  (marketing routes: page.js, blog, faq, login, signup, privacy-policy, test-base64)
   dashboard/
     page.js                # Dashboard home hub
     text-to-image/
@@ -41,12 +41,13 @@ app/
     edit-with-mask/
     image-update/
 components/
+  auth/                    # Client-authenticated forms for login/signup
   home/HomeContent.js      # Client shell for landing page
   navigationbar.js, Footer.js, Hero.js, Gallery.js, ...
   dashboard/TitleBar.js    # Reusable dashboard chrome
   ProtectedRoute.js        # Session gatekeeper
-data/
-  articles.json, faqs.json
+  data/
+  articles.js, faqs.json
 lib/
   auth.js, db.js
 utils/
@@ -117,19 +118,19 @@ npm run lint
 
 ## 🧭 Feature Map
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Marketing homepage (hero, features, partner carousel, gallery, CTA). |
-| `/login` & `/signup` | Mobile-first auth screens with session awareness. |
-| `/dashboard` | Auth-gated hub aggregating AI tools and stats. |
-| `/dashboard/text-to-image` | Prompt-based image generation with history & fullscreen preview. |
-| `/dashboard/dual-image-editor` | Upload, compare, and enhance paired images. |
-| `/dashboard/edit-with-mask` | Brush-driven masking workflow for selective edits. |
-| `/dashboard/image-update` | Update existing creatives with prompt adjustments. |
-| `/blogs` & `/blogs/[id]` | Dynamic blog grid with hover reveals and detail pages. |
-| `/faq` | Accordion-based FAQ powered by `FaqCard`. |
-| `/privacy-policy` | Static legal copy with rich imagery. |
-| `/test-base64` | Utility page for validating base64 image responses. |
+| Route                          | Purpose                                                              |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `/`                            | Marketing homepage (hero, features, partner carousel, gallery, CTA). |
+| `/login` & `/signup`           | Mobile-first auth screens with session awareness.                    |
+| `/dashboard`                   | Auth-gated hub aggregating AI tools and stats.                       |
+| `/dashboard/text-to-image`     | Prompt-based image generation with history & fullscreen preview.     |
+| `/dashboard/dual-image-editor` | Upload, compare, and enhance paired images.                          |
+| `/dashboard/edit-with-mask`    | Brush-driven masking workflow for selective edits.                   |
+| `/dashboard/image-update`      | Update existing creatives with prompt adjustments.                   |
+| `/blog` & `/blog/[id]`         | Dynamic blog grid with hover reveals and detail pages.               |
+| `/faq`                         | Accordion-based FAQ powered by `FaqCard`.                            |
+| `/privacy-policy`              | Static legal copy with rich imagery.                                 |
+| `/test-base64`                 | Utility page for validating base64 image responses.                  |
 
 ---
 

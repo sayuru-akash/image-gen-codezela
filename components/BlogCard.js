@@ -6,7 +6,7 @@ export default function BlogCard({
   image1,
   image2,
   title,
-  body,
+  excerpt,
   date,
   author,
   className = "",
@@ -35,7 +35,7 @@ export default function BlogCard({
       <div className="p-4">
         <p className="text-lg font-semibold text-white mb-2">{title}</p>
         <p className="text-off-white text-sm py-2 leading-relaxed line-clamp-3 overflow-y-auto scrollbar-hide">
-          {body}
+          {excerpt}
         </p>
         <div className="flex gap-4 text-gray-400 text-xs mt-4">
           <p>• {date}</p>

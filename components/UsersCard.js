@@ -9,9 +9,9 @@ export default function UsersCard({ title, body }) {
     <div className="group cursor-pointer">
       <div className="relative rounded-2xl border border-secondary-accent p-6 min-h-48 overflow-hidden transition-all duration-300">
         {/* Background Image - appears on hover with opacity */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-15 transition-opacity duration-300 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-15 rounded-2xl overflow-hidden">
           <Image
-            alt=""
+            alt="Abstract creative pattern"
             src="/images/image-9.jpg"
             fill
             className="object-cover"

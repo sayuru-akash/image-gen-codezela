@@ -55,16 +55,16 @@ export default function Carousel1({ activeCarousel, onTabChange }) {
             </button>
           </div>
 
-          <p className="text-base">Core Tools</p>
-          <h3 className="text-2xl font-semibold py-2">
-            AI Text to Image Generator
+          <p className="text-base uppercase tracking-[0.25em] text-gold/80">
+            Core engine
+          </p>
+          <h3 className="text-2xl font-semibold py-2 text-white">
+            Narrative text-to-image built for brand storytelling.
           </h3>
-          <p className="text-sm mt-10 mb-10">
-            Transform your ideas into stunning visuals with our powerful AI.
-            Simply describe your vision in text, and watch as it comes to life
-            with incredible detail and artistic flair. Whether it&apos;s
-            realistic scenes, digital art, or abstract concepts, our AI
-            delivers.
+          <p className="text-sm mt-8 mb-10 text-white/80">
+            Describe your campaign concept, tone, or product hero and kAIro AI creates ready-to-use
+            imagery in seconds. Save prompt recipes, control negative prompts, and keep every render aligned
+            with your visual identity.
           </p>
           <button
             onClick={handleTryNow}

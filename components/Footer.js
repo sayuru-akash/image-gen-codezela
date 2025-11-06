@@ -22,10 +22,9 @@ export default function Footer() {
               kAIro
             </span>
           </div>
-          <p className="text-off-white text-sm ">
-            Lorem ipsum dolor sit amet consectetur. Tortor accumsan non eget
-            orci. Faucibus sed sed libero amet ac eu. Pulvinar integer feugiat
-            erat maecenas. Aliquet in consectetur.
+          <p className="text-off-white text-sm">
+            kAIro AI is the creative automation suite engineered by Codezela Technologies.
+            We help ambitious brands generate, edit, and deliver intelligent imagery with governance built in.
           </p>
 
           <div className="mt-10 lg:mt-20">
@@ -95,7 +94,7 @@ export default function Footer() {
               href="#contact"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
-              Contact Us
+              Contact
             </Link>
             <Link
               href="/privacy-policy"
@@ -104,7 +103,9 @@ export default function Footer() {
               Privacy Policy
             </Link>
             <Link
-              href="#"
+              href="https://codezela.com/privacy-policy"
+              target="_blank"
+              rel="noreferrer"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
               Terms of Service
