@@ -1,4 +1,5 @@
 import LoginForm from "@/components/auth/LoginForm";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Login | kAIro AI by Codezela Technologies",
@@ -13,5 +14,15 @@ export const metadata = {
 };
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-dark-blue text-white">
+          Loading workspace…
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
 }
