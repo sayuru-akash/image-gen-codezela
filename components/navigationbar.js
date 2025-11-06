@@ -50,7 +50,7 @@ export default function NavigationBar() {
               Usage
             </Link>
             <Link
-              href="/blogs"
+              href="/blog"
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Blog
@@ -127,7 +127,7 @@ export default function NavigationBar() {
                 Usage
               </Link>
               <Link
-                href="/blogs"
+                href="/blog"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >

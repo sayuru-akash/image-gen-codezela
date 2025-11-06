@@ -16,7 +16,7 @@ export const metadata = {
   ],
 };
 
-export default function Blogs() {
+export default function BlogIndex() {
   return (
     <>
       <div className="bg-black">
@@ -43,7 +43,7 @@ export default function Blogs() {
           {articles.map((article) => (
             <BlogCard
               key={article.id}
-              href={`/blogs/${article.id}`}
+              href={`/blog/${article.id}`}
               image1={article.image1}
               image2={article.image2}
               title={article.title}
@@ -58,6 +58,7 @@ export default function Blogs() {
       <div id="contact" className="scroll-mt-24">
         <Signup />
       </div>
+
       <Footer />
     </>
   );

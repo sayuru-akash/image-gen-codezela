@@ -3,14 +3,71 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
-  Camera,
-  Edit3,
-  ImageIcon,
   Wand2,
-  ArrowRight,
-  Sparkles,
+  Edit3,
   Palette,
+  ImageIcon,
+  Sparkles,
+  ShieldCheck,
+  Gauge,
+  ArrowRight,
 } from "lucide-react";
+
+const TOOL_CARDS = [
+  {
+    title: "Text to Image Studio",
+    description:
+      "Generate concept art, hero imagery, and marketing-ready visuals with governed prompt templates and negative prompt controls.",
+    href: "/dashboard/text-to-image",
+    icon: <Wand2 className="h-7 w-7" />,
+    gradient: "from-purple-500/20 via-purple-500/10 to-transparent",
+  },
+  {
+    title: "Image Update Pipeline",
+    description:
+      "Refresh lighting, backgrounds, and campaign-specific elements without rerendering entire scenes or rebooking photo shoots.",
+    href: "/dashboard/image-update",
+    icon: <ImageIcon className="h-7 w-7" />,
+    gradient: "from-sky-500/20 via-sky-500/10 to-transparent",
+  },
+  {
+    title: "Mask & Brush Editor",
+    description:
+      "Paint directly on assets to isolate interface elements, packaging, or wardrobe, then regenerate only the masked regions with AI precision.",
+    href: "/dashboard/edit-with-mask",
+    icon: <Palette className="h-7 w-7" />,
+    gradient: "from-emerald-500/20 via-emerald-500/10 to-transparent",
+  },
+  {
+    title: "Dual Image Composer",
+    description:
+      "Blend styles, textures, and lighting between two references to craft mood boards, lookbooks, and cinematic key art in minutes.",
+    href: "/dashboard/dual-image-editor",
+    icon: <Edit3 className="h-7 w-7" />,
+    gradient: "from-amber-500/20 via-amber-500/10 to-transparent",
+  },
+];
+
+const QUICK_STATS = [
+  {
+    title: "Prompt Library",
+    description:
+      "Reuse governed prompt recipes curated by Codezela Technologies and your brand leads.",
+    icon: <Sparkles className="h-6 w-6" />,
+  },
+  {
+    title: "Governance & Audit",
+    description:
+      "Track asset lineage, approvals, and export history with enterprise-ready logging.",
+    icon: <ShieldCheck className="h-6 w-6" />,
+  },
+  {
+    title: "Performance Insights",
+    description:
+      "Measure which assets drive the strongest engagement and feed learnings into the next campaign.",
+    icon: <Gauge className="h-6 w-6" />,
+  },
+];
 
 export default function DashboardHome() {
   return (
@@ -23,165 +80,141 @@ export default function DashboardHome() {
 function DashboardHomeContent() {
   const { data: session } = useSession();
 
-  const dashboardFeatures = [
-    {
-      title: "Text to Image",
-      description: "Generate stunning images from text descriptions using AI",
-      icon: <Wand2 className="w-8 h-8" />,
-      href: "/dashboard/text-to-image",
-      color: "from-purple-500 to-pink-500",
-    },
-    {
-      title: "Dual Image Editor",
-      description: "Edit and enhance images with advanced AI tools",
-      icon: <Edit3 className="w-8 h-8" />,
-      href: "/dashboard/dual-image-editor",
-      color: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "Edit with Mask",
-      description: "Precise image editing with intelligent masking",
-      icon: <Palette className="w-8 h-8" />,
-      href: "/dashboard/edit-with-mask",
-      color: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "Image Update",
-      description: "Update and modify existing images seamlessly",
-      icon: <ImageIcon className="w-8 h-8" />,
-      href: "/dashboard/image-update",
-      color: "from-orange-500 to-red-500",
-    },
-  ];
+  const initials =
+    session?.user?.name?.[0] || session?.user?.email?.[0] || "U";
 
   return (
-    <div className="min-h-screen bg-[#181D28] text-white">
-      {/* Header */}
-      <div className="border-b border-white/10 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-white from-20% to-gold to-80% rounded-full"></div>
-              <h1 className="text-2xl font-bold">kAIro Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-white/70">
-                Welcome back, {session?.user?.name || session?.user?.email}
-              </span>
-              <div className="w-8 h-8 bg-gradient-to-r from-gold to-white/60 rounded-full flex items-center justify-center">
-                <span className="text-xs font-semibold text-dark-blue">
-                  {session?.user?.name?.charAt(0) ||
-                    session?.user?.email?.charAt(0) ||
-                    "U"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Welcome Section */}
-        <div className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gold from-20% to-white to-80% bg-clip-text text-transparent">
-              Create Amazing Images with AI
-            </h2>
-            <p className="text-xl text-white/70 max-w-3xl mx-auto">
-              Unleash your creativity with our powerful AI-driven image
-              generation and editing tools. Transform your ideas into stunning
-              visuals in seconds.
+    <div className="min-h-screen bg-gradient-to-br from-[#0F1622] via-[#141D2A] to-[#0C121B] text-white">
+      <header className="border-b border-white/10 bg-black/30 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-gold/70">
+              kAIro AI workspace
             </p>
+            <h1 className="mt-2 text-2xl font-semibold text-white">
+              Welcome back, {session?.user?.name || session?.user?.email}
+            </h1>
           </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">AI Powered</h3>
-              <p className="text-sm text-white/70">
-                Advanced machine learning models
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">High Quality</h3>
-              <p className="text-sm text-white/70">
-                Professional grade outputs
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-gold/20 to-yellow-500/20 border border-gold/30 rounded-xl p-6 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-gold to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Edit3 className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Easy to Use</h3>
-              <p className="text-sm text-white/70">
-                Intuitive interface design
-              </p>
-            </div>
+          <div className="flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2">
+            <span className="text-xs text-white/70">Signed in as</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-gold to-white/70 text-sm font-semibold text-dark-blue">
+              {initials.toUpperCase()}
+            </span>
           </div>
         </div>
+      </header>
 
-        {/* Features Grid */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-bold mb-8 text-center">
-            Choose Your Creative Tool
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {dashboardFeatures.map((feature, index) => (
-              <Link
-                key={index}
-                href={feature.href}
-                className="group bg-gray-800/50 hover:bg-gray-800/70 border border-white/10 hover:border-gold/50 rounded-xl p-6 transition-all duration-300 hover:transform hover:scale-105"
-              >
-                <div className="flex items-start space-x-4">
-                  <div
-                    className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    {feature.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-xl font-semibold mb-2 group-hover:text-gold transition-colors duration-300">
-                      {feature.title}
-                    </h4>
-                    <p className="text-white/70 mb-4 leading-relaxed">
-                      {feature.description}
+      <main className="mx-auto max-w-6xl px-6 py-12">
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-lg">
+          <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-gold/70">
+                Creative mission control
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                Align every campaign with AI that understands your brand.
+              </h2>
+              <p className="mt-4 text-sm text-white/75">
+                Launch new visuals, iterate on existing assets, and collaborate
+                with Codezela Technologies inside a single governed workspace.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link
+                  href="/dashboard/text-to-image"
+                  className="inline-flex items-center rounded-full bg-gradient-to-r from-gold to-white/70 px-5 py-3 text-sm font-semibold text-dark-blue transition-all duration-300 hover:from-white/80 hover:to-gold"
+                >
+                  Start with Text to Image
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="https://codezela.com/contact"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:border-gold hover:text-gold"
+                >
+                  Request tailored onboarding
+                </Link>
+              </div>
+            </div>
+            <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/75">
+              {QUICK_STATS.map((item) => (
+                <div
+                  key={item.title}
+                  className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/5 p-3"
+                >
+                  <span className="mt-1 text-gold">{item.icon}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {item.title}
                     </p>
-                    <div className="flex items-center text-gold group-hover:text-white transition-colors duration-300">
-                      <span className="text-sm font-medium">Get Started</span>
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    </div>
+                    <p className="mt-1 text-xs text-white/70">
+                      {item.description}
+                    </p>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-14">
+          <h3 className="text-center text-xs uppercase tracking-[0.35em] text-gold/70">
+            Creative suite
+          </h3>
+          <p className="mt-3 text-center text-2xl font-semibold text-white sm:text-3xl">
+            Choose the workflow you want to activate.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {TOOL_CARDS.map((tool) => (
+              <Link
+                key={tool.title}
+                href={tool.href}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold/60"
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
+                />
+                <div className="relative z-10 flex flex-col gap-4">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white">
+                    {tool.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-semibold text-white">
+                      {tool.title}
+                    </h4>
+                    <p className="mt-2 text-sm text-white/75">
+                      {tool.description}
+                    </p>
+                  </div>
+                  <span className="mt-auto inline-flex items-center text-sm font-semibold text-gold transition-colors duration-300 group-hover:text-white">
+                    Open tool
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </span>
                 </div>
               </Link>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Getting Started Section */}
-        <div className="bg-gradient-to-r from-gold/10 to-white/5 border border-gold/20 rounded-xl p-8 text-center">
-          <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
-          <p className="text-white/70 mb-6 max-w-2xl mx-auto">
-            Choose any tool above to begin creating amazing images. Each tool is
-            designed to help you achieve different creative goals with the power
-            of AI.
+        <section className="mt-14 rounded-3xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur">
+          <h3 className="text-2xl font-semibold text-white">
+            Need a bespoke workflow?
+          </h3>
+          <p className="mt-4 text-sm text-white/75">
+            Codezela Technologies designs custom integrations, private inference deployments, and
+            white-label solutions tailored to your client or enterprise needs.
           </p>
           <Link
-            href="/dashboard/text-to-image"
-            className="inline-flex items-center bg-gradient-to-r from-gold to-yellow-500 text-dark-blue font-semibold px-8 py-3 rounded-full hover:from-yellow-500 hover:to-gold transition-all duration-300"
+            href="https://codezela.com/contact"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex items-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:border-gold hover:text-gold"
           >
-            Start Creating
-            <ArrowRight className="w-4 h-4 ml-2" />
+            Schedule a strategy session
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

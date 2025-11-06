@@ -85,7 +85,7 @@ export default function Footer() {
               FAQ
             </Link>
             <Link
-              href="/blogs"
+              href="/blog"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
               Blog
@@ -103,9 +103,7 @@ export default function Footer() {
               Privacy Policy
             </Link>
             <Link
-              href="https://codezela.com/privacy-policy"
-              target="_blank"
-              rel="noreferrer"
+              href="/terms"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
               Terms of Service

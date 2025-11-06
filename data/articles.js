@@ -5,7 +5,7 @@ const articles = [
     excerpt:
       "Discover how in-house marketing teams use kAIro AI from Codezela Technologies to automate image requests, protect brand standards, and ship campaigns faster.",
     date: "March 4, 2025",
-    author: "Rishad Ahamed",
+    author: "Codezela Content Team",
     readTime: "6 min read",
     heroImage: "/images/image-11.jpg",
     image1: "/images/image-11.jpg",
@@ -38,7 +38,7 @@ const articles = [
     excerpt:
       "Use kAIro AI to create market-specific visuals, localised messaging, and seasonal refreshes without burning out your design squad.",
     date: "February 18, 2025",
-    author: "Sara Patel",
+    author: "Codezela Content Team",
     readTime: "5 min read",
     heroImage: "/images/image-2.jpg",
     image1: "/images/image-2.jpg",
@@ -64,7 +64,7 @@ const articles = [
     excerpt:
       "Learn how product designers use kAIro AI’s mask editor to test interface concepts, merchandising displays, and packaging prototypes in hours.",
     date: "January 29, 2025",
-    author: "Joshua Tan",
+    author: "Codezela Content Team",
     readTime: "7 min read",
     heroImage: "/images/image-13.png",
     image1: "/images/image-13.png",
@@ -90,7 +90,7 @@ const articles = [
     excerpt:
       "Practical steps for CMOs and creative directors to deploy kAIro AI responsibly, authored by Codezela Technologies’ strategy team.",
     date: "January 10, 2025",
-    author: "Nadeen El-Sayed",
+    author: "Codezela Content Team",
     readTime: "8 min read",
     heroImage: "/images/image-12.jpg",
     image1: "/images/image-12.jpg",

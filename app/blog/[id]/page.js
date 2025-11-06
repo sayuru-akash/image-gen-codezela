@@ -104,9 +104,11 @@ export default function BlogArticle({ params }) {
         <ExploreInnovation />
         <hr className="mt-10 border border-off-white/20" />
       </section>
+
       <div id="contact" className="scroll-mt-24">
         <Signup />
       </div>
+
       <Footer />
     </>
   );
