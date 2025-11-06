@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   BsArrowRightCircleFill,
   BsArrowUpRightCircleFill,
@@ -8,7 +9,17 @@ export default function UsersCard({ title, body }) {
     <div className="group cursor-pointer">
       <div className="relative rounded-2xl border border-secondary-accent p-6 min-h-48 overflow-hidden transition-all duration-300">
         {/* Background Image - appears on hover with opacity */}
-        <div className="absolute inset-0 bg-[url(/images/image-9.jpg)] bg-center bg-cover opacity-0 group-hover:opacity-15 transition-opacity duration-300 rounded-2xl"></div>
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-15 transition-opacity duration-300 rounded-2xl overflow-hidden">
+          <Image
+            alt=""
+            src="/images/image-9.jpg"
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 24rem, 100vw"
+            quality={60}
+            priority={false}
+          />
+        </div>
 
         {/* Content */}
         <div className="relative z-10">

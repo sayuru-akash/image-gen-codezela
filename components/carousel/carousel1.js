@@ -1,4 +1,5 @@
 import { BsArrowUpRightCircleFill } from "react-icons/bs";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function Carousel1({ activeCarousel, onTabChange }) {
@@ -73,25 +74,45 @@ export default function Carousel1({ activeCarousel, onTabChange }) {
           </button>
         </div>
 
-        <div className="col-span-full lg:col-span-3">
-          {/* Right side star */}
-          <div className="hidden lg:grid justify-items-end">
-            <div className="absolute w-16 h-16 bg-[url(/images/star-icon.svg)] bg-center bg-cover"></div>
-          </div>
-
-          {/* Stars */}
-          <div className="hidden lg:block relative">
-            <div className="absolute w-8 h-8 top-35 left-5 bg-[url(/images/stars.svg)] bg-center bg-cover"></div>
-          </div>
-
-          {/* Icon */}
-          <div className="hidden lg:block relative">
-            <div className="absolute w-14 h-14 top-[24rem] left-5 bg-[url(/images/Product-Icon-1.svg)] bg-center bg-cover"></div>
-          </div>
+        <div className="col-span-full lg:col-span-3 relative">
+          {/* Decorative elements */}
+          <Image
+            alt=""
+            src="/images/star-icon.svg"
+            width={64}
+            height={64}
+            className="hidden lg:block absolute top-0 right-0"
+            priority={false}
+          />
+          <Image
+            alt=""
+            src="/images/stars.svg"
+            width={32}
+            height={32}
+            className="hidden lg:block absolute top-35 left-5"
+            priority={false}
+          />
+          <Image
+            alt=""
+            src="/images/Product-Icon-1.svg"
+            width={56}
+            height={56}
+            className="hidden lg:block absolute top-[24rem] left-5"
+            priority={false}
+          />
 
           <div className="flex justify-center h-full items-center">
             <div className="z-10 bg-gradient-to-r from-white/20 to-gold backdrop-blur-xs rounded-4xl p-2 lg:p-4 w-full lg:w-96 h-96 shadow-2xl">
-              <div className="bg-[url(/images/image-5.png)] bg-center bg-cover rounded-3xl w-full h-full"></div>
+              <div className="relative w-full h-full">
+                <Image
+                  alt="AI generated portrait in warm tones"
+                  src="/images/image-5.png"
+                  fill
+                  className="rounded-3xl object-cover"
+                  sizes="(min-width: 1024px) 24rem, 90vw"
+                  quality={70}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -45,8 +45,17 @@ export default function Home() {
 
   return (
     <>
-      <div className="bg-[url(/images/hero-img.jpg)] bg-center bg-cover h-screen">
-        <div className="w-full h-full relative bg-gradient-to-b from-dark-blue from-5% via-gold/20 to-dark-blue">
+      <div className="relative h-screen">
+        <Image
+          alt="Vibrant AI generated gallery background"
+          src="/images/hero-img.jpg"
+          fill
+          priority
+          quality={70}
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-dark-blue from-5% via-gold/20 to-dark-blue">
           <Navigationbar />
 
           <div className="w-full grid justify-items-center px-6 py-20 lg:px-28 lg:pt-28">

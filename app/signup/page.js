@@ -17,15 +17,35 @@ export default function SignUp() {
   return (
     <div>
       <div className="relative bg-dark-blue grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-20 md:p-20">
-        <div className="absolute inset-0 bg-[url(/images/signup-bg.png)] bg-center bg-size-[auto_500px] bg-no-repeat opacity-50 md:hidden"></div>
+        <div className="absolute inset-0 opacity-50 md:hidden">
+          <Image
+            alt="Decorative signup background"
+            src="/images/signup-bg.png"
+            fill
+            className="object-contain object-center"
+            quality={70}
+            sizes="100vw"
+            priority
+          />
+        </div>
 
         <div className="hidden md:block col-span-2 px-10 relative z-10">
-          <div className="bg-[url(/images/signup-bg.png)] bg-center bg-contain bg-no-repeat w-full h-full flex justify-center items-center">
+          <div className="relative w-full h-full flex justify-center items-center">
             <Image
-              alt="logo"
+              alt="Signup background illustration"
+              src="/images/signup-bg.png"
+              fill
+              className="object-contain"
+              quality={70}
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              priority
+            />
+            <Image
+              alt="kAIro awards icon"
               src="/images/awards-icon.svg"
               width={200}
               height={200}
+              className="relative z-10"
             />
           </div>
         </div>
