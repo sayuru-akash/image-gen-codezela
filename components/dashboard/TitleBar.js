@@ -7,7 +7,7 @@ export default function TitleBar() {
   const router = useRouter();
 
   const navigateHome = () => {
-    router.push("/");
+    router.push("/dashboard");
   };
 
   return (
