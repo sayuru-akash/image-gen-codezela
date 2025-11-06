@@ -89,7 +89,7 @@ export default function Footer() {
               href="/blogs"
               className="text-white text-sm hover:text-gold cursor-pointer transition-all"
             >
-              Blogs
+              Blog
             </Link>
             <Link
               href="#contact"

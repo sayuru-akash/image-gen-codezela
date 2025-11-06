@@ -36,7 +36,7 @@ export default function NavigationBar() {
           </Link>
 
           {/* Desktop Menu Items */}
-          <div className="hidden lg:flex items-center space-x-20">
+          <div className="hidden lg:flex items-center space-x-16 xl:space-x-20">
             <Link
               href="#features"
               className="hover:text-amber-400 transition-colors duration-200"
@@ -48,6 +48,18 @@ export default function NavigationBar() {
               className="hover:text-amber-400 transition-colors duration-200"
             >
               Usage
+            </Link>
+            <Link
+              href="/blogs"
+              className="hover:text-amber-400 transition-colors duration-200"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/faq"
+              className="hover:text-amber-400 transition-colors duration-200"
+            >
+              FAQ
             </Link>
             <Link
               href="#contact"
@@ -113,6 +125,20 @@ export default function NavigationBar() {
                 onClick={toggleMenu}
               >
                 Usage
+              </Link>
+              <Link
+                href="/blogs"
+                className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
+                onClick={toggleMenu}
+              >
+                Blog
+              </Link>
+              <Link
+                href="/faq"
+                className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
+                onClick={toggleMenu}
+              >
+                FAQ
               </Link>
               <Link
                 href="#contact"
