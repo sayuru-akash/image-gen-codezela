@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaApple, FaGoogle } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
 
 async function signupUser(name, email, password, confirmPassword) {
   const response = await fetch("/api/auth/signup", {
@@ -20,7 +18,6 @@ async function signupUser(name, email, password, confirmPassword) {
 }
 
 export default function SignupForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -28,29 +25,41 @@ export default function SignupForm() {
     password: "",
     confirmPassword: "",
   });
-
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function validate() {
-    const e = {};
-    if (!formData.name.trim()) e.name = "Name is required";
-    if (!formData.email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      e.email = "Enter a valid email";
-    if (!formData.password) e.password = "Password is required";
-    else if (formData.password.length < 6)
-      e.password = "Password should be at least 6 characters";
-    if (!formData.confirmPassword) e.confirmPassword = "Please confirm";
-    else if (formData.password !== formData.confirmPassword)
-      e.confirmPassword = "Passwords do not match";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
+  const handleChange = (field) => (event) => {
+    setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
 
-  async function submitHandler(event) {
+  const validate = () => {
+    const validationErrors = {};
+    if (!formData.name.trim()) validationErrors.name = "Name is required";
+    if (!formData.email.trim()) {
+      validationErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      validationErrors.email = "Enter a valid email address";
+    }
+    if (!formData.password) {
+      validationErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      validationErrors.password = "Use at least 6 characters";
+    }
+    if (!formData.confirmPassword) {
+      validationErrors.confirmPassword = "Confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      validationErrors.confirmPassword = "Passwords do not match";
+    }
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
+
+  const submitHandler = async (event) => {
     event.preventDefault();
     setMessage(null);
+
     if (!validate()) return;
 
     setIsSubmitting(true);
@@ -64,181 +73,198 @@ export default function SignupForm() {
 
       setMessage({
         type: "success",
-        text: result.message || "Account created",
+        text: result.message || "Account created. Redirecting to sign in…",
       });
       setFormData({ name: "", email: "", password: "", confirmPassword: "" });
 
-      // small delay so user sees success then redirect to login
       setTimeout(() => {
         router.push(
           `/login?email=${encodeURIComponent(result.email || formData.email)}`
         );
-      }, 900);
-    } catch (err) {
-      setMessage({ type: "error", text: err.message || "Signup failed" });
+      }, 1000);
+    } catch (error) {
+      setMessage({ type: "error", text: error.message || "Signup failed" });
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <div>
-      <div className="relative bg-dark-blue grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-20 md:p-20">
-        <div className="absolute inset-0 opacity-50 md:hidden">
-          <Image
-            alt="Decorative signup background"
-            src="/images/signup-bg.png"
-            fill
-            className="object-contain object-center"
-            quality={70}
-            sizes="100vw"
-            priority
-          />
-        </div>
-
-        <div className="hidden md:block col-span-2 px-10 relative z-10">
-          <div className="relative w-full h-full flex justify-center items-center">
+    <div className="relative min-h-screen overflow-hidden bg-dark-blue">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.3),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(43,87,151,0.45),_transparent_60%)]" />
+      <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
+        <div className="relative hidden flex-1 flex-col justify-between overflow-hidden border-r border-white/10 bg-gradient-to-b from-white/5 via-transparent to-white/10 px-12 py-16 lg:flex">
+          <div className="flex items-center gap-3 text-white/70">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-gold to-white/60 text-xs font-semibold text-dark-blue">
+              New
+            </span>
+            <span className="text-xs uppercase tracking-[0.4em] text-white/50">
+              Create account
+            </span>
+          </div>
+          <div>
+            <h2 className="text-4xl font-semibold text-white lg:text-5xl">
+              Start shaping intelligent visuals with <span className="text-gold">kAIro</span>
+            </h2>
+            <p className="mt-6 max-w-sm text-base text-white/70">
+              Provision secure access for your team and collaborate on Codezela&apos;s suite
+              of AI artistry tools built for production-grade launches.
+            </p>
+          </div>
+          <div className="relative mt-16 aspect-square w-full max-w-sm self-end overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
             <Image
-              alt="Signup background illustration"
-              src="/images/signup-bg.png"
+              alt="Teams collaborating on AI artwork"
+              src="/images/image-16.jpg"
               fill
-              className="object-contain"
+              className="object-cover"
               quality={70}
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              priority
-            />
-            <Image
-              alt="kAIro awards icon"
-              src="/images/awards-icon.svg"
-              width={200}
-              height={200}
-              className="relative z-10"
+              sizes="(min-width: 1024px) 22rem, 50vw"
             />
           </div>
         </div>
 
-        {/* Right section - Sign up form */}
-        <div className="relative z-10">
-          <h3 className="text-3xl text-white font-semibold text-center mb-8">
-            Create your own masterpiece with AI
-          </h3>
-
-          <form onSubmit={submitHandler} className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Full name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className={`px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition`}
-                placeholder="Your name"
-              />
-              {errors.name && (
-                <p className="text-xs text-red-400">{errors.name}</p>
-              )}
+        <div className="flex-1 px-6 py-10 sm:px-8 md:px-12 lg:px-16">
+          <div className="mx-auto flex w-full max-w-xl flex-col justify-center rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-md sm:p-10">
+            <div className="mb-8 text-center">
+              <p className="text-xs uppercase tracking-[0.4em] text-gold/80">
+                Create account
+              </p>
+              <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+                Unlock the full kAIro studio
+              </h1>
+              <p className="mt-3 text-sm text-white/70">
+                Build a profile to store prompts, manage assets, and collaborate with Codezela&apos;s AI team.
+              </p>
             </div>
 
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition"
-                placeholder="you@domain.com"
-              />
-              {errors.email && (
-                <p className="text-xs text-red-400">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Password</label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition"
-                placeholder="At least 6 characters"
-              />
-              {errors.password && (
-                <p className="text-xs text-red-400">{errors.password}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 w-full md:w-96 mx-auto">
-              <label className="text-sm text-white/90">Confirm password</label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-                className="px-4 py-3 rounded-lg bg-white/5 border border-transparent focus:border-gold outline-none text-white placeholder-white/60 transition"
-                placeholder="Repeat your password"
-              />
-              {errors.confirmPassword && (
-                <p className="text-xs text-red-400">{errors.confirmPassword}</p>
-              )}
-            </div>
-
-            {message && (
-              <div
-                className={`w-full md:w-96 mx-auto text-sm text-center py-2 rounded ${
-                  message.type === "error"
-                    ? "bg-red-800 text-red-200"
-                    : "bg-green-900 text-green-200"
-                }`}
-              >
-                {message.text}
+            <form onSubmit={submitHandler} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-white/85">
+                  Full name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange("name")}
+                  autoComplete="name"
+                  className={`w-full rounded-2xl border bg-white/5 px-4 py-3 text-sm text-white placeholder-white/40 outline-none transition focus:border-gold ${
+                    errors.name ? "border-red-400/80" : "border-white/10"
+                  }`}
+                  placeholder="Alex Morgan"
+                />
+                {errors.name && (
+                  <p className="text-xs text-red-300">{errors.name}</p>
+                )}
               </div>
-            )}
 
-            <div className="w-full md:w-96 mx-auto">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-white/85">
+                  Work email
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange("email")}
+                  autoComplete="email"
+                  className={`w-full rounded-2xl border bg-white/5 px-4 py-3 text-sm text-white placeholder-white/40 outline-none transition focus:border-gold ${
+                    errors.email ? "border-red-400/80" : "border-white/10"
+                  }`}
+                  placeholder="you@company.com"
+                />
+                {errors.email && (
+                  <p className="text-xs text-red-300">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/85">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange("password")}
+                    autoComplete="new-password"
+                    className={`w-full rounded-2xl border bg-white/5 px-4 py-3 text-sm text-white placeholder-white/40 outline-none transition focus:border-gold ${
+                      errors.password ? "border-red-400/80" : "border-white/10"
+                    }`}
+                    placeholder="Minimum 6 characters"
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-300">{errors.password}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-white/85">
+                    Confirm password
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange("confirmPassword")}
+                    autoComplete="new-password"
+                    className={`w-full rounded-2xl border bg-white/5 px-4 py-3 text-sm text-white placeholder-white/40 outline-none transition focus:border-gold ${
+                      errors.confirmPassword
+                        ? "border-red-400/80"
+                        : "border-white/10"
+                    }`}
+                    placeholder="Re-type password"
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-xs text-red-300">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {message && (
+                <div
+                  className={`rounded-2xl border px-4 py-3 text-sm ${
+                    message.type === "error"
+                      ? "border-red-400/40 bg-red-500/10 text-red-100"
+                      : "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-3 rounded-full hover:opacity-95 transition"
+                className="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-gold to-white/70 px-6 py-3 text-sm font-semibold text-dark-blue shadow-lg transition-all duration-300 hover:from-white/80 hover:to-gold disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "Creating account..." : "Create account"}
+                {isSubmitting ? "Creating your account..." : "Create account"}
               </button>
-            </div>
+            </form>
 
-            <p className="text-sm text-white/90 text-center mt-5">
-              Have an account?
-            </p>
-
-            <div className="w-full md:w-96 mx-auto">
-              <Link
-                href="/login"
-                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-gold from-10% to-white to-70% text-dark-blue text-sm font-semibold px-8 py-3 rounded-full hover:opacity-95 transition"
-              >
-                Log in
+            <p className="mt-8 text-center text-xs text-white/55">
+              Already have an account?{" "}
+              <Link href="/login" className="text-gold hover:text-white">
+                Sign in
               </Link>
-            </div>
-          </form>
-
-          <p className="text-white text-sm text-center md:mb-14">
-            By continuing, you agree to kAIro&apos;s{" "}
-            <Link
-              href="/"
-              className="underline hover:text-gold transition-colors duration-200"
-            >
-              Terms of Use
-            </Link>
-            . Read our{" "}
-            <Link
-              href="/"
-              className="underline hover:text-gold transition-colors duration-200"
-            >
-              Privacy Policy
-            </Link>
-          </p>
+            </p>
+            <p className="mt-3 text-center text-xs text-white/45">
+              By continuing you agree to the{" "}
+              <Link
+                href="https://codezela.com/privacy-policy"
+                target="_blank"
+                rel="noreferrer"
+                className="text-gold hover:text-white"
+              >
+                Codezela terms
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy-policy"
+                className="text-gold hover:text-white"
+              >
+                privacy policy
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </div>
 

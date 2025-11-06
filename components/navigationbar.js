@@ -44,16 +44,10 @@ export default function NavigationBar() {
               Features
             </Link>
             <Link
-              href="#pricing"
+              href="#usage"
               className="hover:text-amber-400 transition-colors duration-200"
             >
-              Pricing
-            </Link>
-            <Link
-              href="#examples"
-              className="hover:text-amber-400 transition-colors duration-200"
-            >
-              Examples
+              Usage
             </Link>
             <Link
               href="#contact"
@@ -114,18 +108,11 @@ export default function NavigationBar() {
                 Features
               </Link>
               <Link
-                href="#pricing"
+                href="#usage"
                 className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
                 onClick={toggleMenu}
               >
-                Pricing
-              </Link>
-              <Link
-                href="#examples"
-                className="block py-2 px-4 hover:bg-gray-800 rounded-md transition-colors duration-200"
-                onClick={toggleMenu}
-              >
-                Examples
+                Usage
               </Link>
               <Link
                 href="#contact"

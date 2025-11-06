@@ -1,28 +1,74 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Signup() {
   return (
-    <div className="w-full h-fit p-4 md:p-10 lg:p-20 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gradient-to-r from-dark-blue to-gold">
-      <div className="bg-transparent backdrop-blur-xs rounded-4xl p-2 w-full h-96 shadow-2xl border border-white/30">
-        <div className="relative w-full h-full">
-          <Image
-            alt="Featured AI generated artwork"
-            src="/images/hero-img.jpg"
-            fill
-            className="rounded-3xl object-cover"
-            quality={70}
-            sizes="(min-width: 768px) 40vw, 100vw"
-          />
+    <div className="relative w-full overflow-hidden bg-gradient-to-r from-dark-blue via-[#1A2334] to-black px-4 py-16 md:px-10 lg:px-20">
+      <div className="absolute inset-0 -skew-x-6 bg-gradient-to-tr from-gold/15 via-white/5 to-transparent opacity-80" />
+      <div className="relative z-10 grid grid-cols-1 items-center gap-10 md:grid-cols-5">
+        <div className="md:col-span-2 lg:col-span-2">
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-4xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+            <Image
+              alt="Codezela crafts immersive AI experiences for bold brands."
+              src="/images/hero-img.jpg"
+              fill
+              className="object-cover"
+              quality={70}
+              sizes="(min-width: 1024px) 24rem, 90vw"
+              priority
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="py-10 px-5 md:p-10">
-        <p className="text-white text-4xl font-semibold mb-10">
-          Create your next artwork, with the power of KAIRO Ai
-        </p>
-        <button className="w-full md:w-fit bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-sm font-medium px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000">
-          Start Using KAIRO →
-        </button>
+        <div className="md:col-span-3 text-left">
+          <p className="text-sm uppercase tracking-[0.35em] text-gold/80">
+            Powered by Codezela
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
+            Let&apos;s design your next AI breakthrough together.
+          </h2>
+          <p className="mt-6 text-base text-white/80 sm:text-lg lg:max-w-2xl">
+            Codezela Technologies builds production-ready web, mobile, and platform
+            experiences that bring machine learning to life. From bespoke models
+            to intuitive dashboards like kAIro, we help teams launch faster and scale
+            with confidence.
+          </p>
+          <ul className="mt-8 grid gap-3 text-sm text-white/70 sm:grid-cols-2">
+            <li className="flex items-center gap-2">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+              Full-stack web & mobile product engineering
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+              Applied AI workflows & integrations
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+              Secure, compliant data handling
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+              Long-term support and co-innovation
+            </li>
+          </ul>
+
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="https://codezela.com/contact"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-gold to-white/70 px-8 py-3 text-sm font-semibold text-dark-blue shadow-lg transition-all duration-300 hover:from-white/80 hover:to-gold sm:w-max"
+            >
+              Talk to Codezela&apos;s AI Team
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex w-full items-center justify-center rounded-full border border-white/20 px-8 py-3 text-sm font-semibold text-white transition-all duration-300 hover:border-gold hover:text-gold sm:w-max"
+            >
+              Explore kAIro Tools
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

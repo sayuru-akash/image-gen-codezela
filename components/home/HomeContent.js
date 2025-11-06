@@ -98,7 +98,7 @@ export default function HomeContent() {
 
       <div className="w-full h-[20vh] md:h-[15vh] lg:h-[85vh]"></div>
 
-      <div className="p-5 md:p-10 lg:p-20">
+      <div id="features" className="p-5 md:p-10 lg:p-20 scroll-mt-24">
         <h3 className="text-3xl font-semibold text-center bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
           Unleash Your Creativity
         </h3>
@@ -237,14 +237,16 @@ export default function HomeContent() {
         </div>
       </div>
 
-      <div className="p-4 md:px-10 lg:px-20 md:py-20">
+      <div id="usage" className="p-4 md:px-10 lg:px-20 md:py-20 scroll-mt-24">
         <h3 className="text-2xl md:text-4xl mb-10 text-center font-semibold bg-gradient-to-r from-gold from-10% to-white to-90% bg-clip-text text-transparent">
           Platform Gallery
         </h3>
         <Gallery />
       </div>
 
-      <Signup />
+      <div id="contact" className="scroll-mt-24">
+        <Signup />
+      </div>
       <Footer />
     </>
   );
