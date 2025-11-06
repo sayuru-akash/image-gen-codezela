@@ -4,8 +4,9 @@ import Image from "next/image";
 import TitleBar from "../titlebar";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   IconButton,
   Tooltip,
@@ -28,6 +29,14 @@ import {
 } from "@mui/icons-material";
 
 export default function TexttoImage() {
+  return (
+    <ProtectedRoute>
+      <TexttoImageContent />
+    </ProtectedRoute>
+  );
+}
+
+function TexttoImageContent() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
@@ -40,16 +49,98 @@ export default function TexttoImage() {
 
   // Load image history from localStorage on component mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem("imageHistory");
-    if (savedHistory) {
-      setImageHistory(JSON.parse(savedHistory));
+    try {
+      const savedHistory = localStorage.getItem("imageHistory");
+      if (savedHistory) {
+        setImageHistory(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.error("Failed to load image history:", error);
+      // Clear corrupted data
+      localStorage.removeItem("imageHistory");
     }
   }, []);
 
-  // Save image history to localStorage whenever it changes
+  const showMessage = useCallback((message) => {
+    setSnackbarMessage(message);
+    setShowSnackbar(true);
+  }, []);
+
+  // Handle localStorage quota exceeded by progressively reducing stored images
+  const handleQuotaExceeded = useCallback(() => {
+    let currentHistory = imageHistory;
+    let maxAttempts = 5;
+    let currentLimit = Math.max(1, currentHistory.length - 1);
+
+    while (maxAttempts > 0 && currentLimit > 0) {
+      try {
+        // Reduce the number of stored images
+        const reducedHistory = currentHistory.slice(0, currentLimit);
+        localStorage.setItem("imageHistory", JSON.stringify(reducedHistory));
+
+        // Update state if successful
+        setImageHistory(reducedHistory);
+        showMessage(
+          `Storage limit reached. Reduced history to ${currentLimit} images.`
+        );
+        console.log(`Successfully reduced history to ${currentLimit} images`);
+        return;
+      } catch (error) {
+        console.log(
+          `Still over quota with ${currentLimit} images, trying ${
+            currentLimit - 1
+          }...`
+        );
+        currentLimit--;
+        maxAttempts--;
+      }
+    }
+
+    // If we still can't save, clear all history
+    console.log("Clearing all image history due to persistent quota issues");
+    localStorage.removeItem("imageHistory");
+    setImageHistory([]);
+    showMessage("Storage limit exceeded. Cleared image history.");
+  }, [imageHistory, showMessage]);
+
+  // Save image history to localStorage whenever it changes with quota handling
   useEffect(() => {
-    localStorage.setItem("imageHistory", JSON.stringify(imageHistory));
-  }, [imageHistory]);
+    if (imageHistory.length === 0) return;
+
+    try {
+      const historyData = JSON.stringify(imageHistory);
+      localStorage.setItem("imageHistory", historyData);
+    } catch (error) {
+      console.error("Failed to save image history:", error);
+
+      if (error.name === "QuotaExceededError") {
+        // Handle quota exceeded by reducing the number of stored images
+        console.log("LocalStorage quota exceeded, reducing stored images...");
+        handleQuotaExceeded();
+      }
+    }
+  }, [imageHistory, handleQuotaExceeded]);
+
+  // Check if adding new image would exceed reasonable size limit
+  const estimateStorageSize = (imageData) => {
+    // Rough estimate: base64 images are about 4/3 the size of original + metadata
+    const estimatedSize = imageData.length * 1.33 + 200; // 200 bytes for metadata
+    return estimatedSize;
+  };
+
+  // Get current localStorage usage
+  const getStorageInfo = () => {
+    try {
+      const historyData = localStorage.getItem("imageHistory");
+      if (!historyData) return { used: 0, usedMB: 0 };
+
+      const used = new Blob([historyData]).size;
+      const usedMB = used / (1024 * 1024);
+      return { used, usedMB };
+    } catch (error) {
+      return { used: 0, usedMB: 0 };
+    }
+  };
 
   const saveToHistory = (imageData, promptText) => {
     const newImage = {
@@ -58,22 +149,47 @@ export default function TexttoImage() {
       prompt: promptText,
       timestamp: new Date().toLocaleString(),
     };
-    setImageHistory((prev) => [newImage, ...prev.slice(0, 9)]); // Keep only 10 recent images
+
+    // Estimate the size of the new image
+    const imageSize = estimateStorageSize(imageData);
+    const sizeInMB = imageSize / (1024 * 1024);
+
+    console.log(`New image estimated size: ${sizeInMB.toFixed(2)}MB`);
+
+    // If single image is too large (over 8MB), don't store it
+    if (sizeInMB > 8) {
+      showMessage("Image too large to store in history");
+      return;
+    }
+
+    // Dynamically adjust history limit based on image size
+    let maxImages = 10;
+    if (sizeInMB > 2) {
+      maxImages = 3; // Large images: store only 3
+    } else if (sizeInMB > 1) {
+      maxImages = 5; // Medium images: store only 5
+    } else {
+      maxImages = 10; // Small images: store up to 10
+    }
+
+    // Add new image and limit history
+    setImageHistory((prev) => [newImage, ...prev.slice(0, maxImages - 1)]);
   };
 
   const deleteFromHistory = (id) => {
     setImageHistory((prev) => prev.filter((img) => img.id !== id));
   };
 
+  const clearAllHistory = () => {
+    setImageHistory([]);
+    localStorage.removeItem("imageHistory");
+    showMessage("Image history cleared");
+  };
+
   const loadFromHistory = (imageData) => {
     setGeneratedImage(imageData.image);
     setPrompt(imageData.prompt);
     setIsFullscreen(false); // Ensure we're not in fullscreen when loading from history
-  };
-
-  const showMessage = (message) => {
-    setSnackbarMessage(message);
-    setShowSnackbar(true);
   };
 
   const downloadImage = () => {
@@ -291,7 +407,7 @@ export default function TexttoImage() {
                       }}
                     />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <Typography
                       variant="h6"
                       sx={{
@@ -310,9 +426,31 @@ export default function TexttoImage() {
                         fontSize: "12px",
                       }}
                     >
-                      {imageHistory.length} of 10 images
+                      {imageHistory.length} images •{" "}
+                      {getStorageInfo().usedMB.toFixed(1)}MB used
                     </Typography>
                   </div>
+                  {imageHistory.length > 0 && (
+                    <Tooltip title="Clear All Images" placement="left">
+                      <IconButton
+                        size="small"
+                        onClick={clearAllHistory}
+                        sx={{
+                          bgcolor: "rgba(255, 0, 0, 0.1)",
+                          border: "1px solid rgba(255, 0, 0, 0.3)",
+                          color: "rgba(255, 0, 0, 0.8)",
+                          width: "28px",
+                          height: "28px",
+                          "&:hover": {
+                            bgcolor: "rgba(255, 0, 0, 0.2)",
+                            borderColor: "rgba(255, 0, 0, 0.5)",
+                          },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </div>
 
                 <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">

@@ -128,6 +128,10 @@ export const authOptions = {
     },
 
     async redirect({ url, baseUrl }) {
+      // After successful login, redirect to home page
+      if (url === baseUrl) {
+        return baseUrl;
+      }
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
@@ -137,8 +141,8 @@ export const authOptions = {
   },
 
   pages: {
-    signIn: "/auth/home",
-    error: "/auth/error",
+    signIn: "/login",
+    error: "/login",
   },
 };
 

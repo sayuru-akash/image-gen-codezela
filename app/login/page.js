@@ -4,16 +4,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession, useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.replace("/text-to-image");
+    }
+  }, [session, status, router]);
 
   useEffect(() => {
     try {
@@ -42,7 +50,7 @@ export default function LoginPage() {
       const session = await getSession();
 
       if (session) {
-        router.push("/dual-image-editor");
+        router.push("/"); // Redirect to home page
         setIsSubmitting(false);
       }
     } else {
