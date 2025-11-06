@@ -6,6 +6,7 @@ import {
   HiOutlinePhotograph,
   HiOutlineAdjustments,
   HiMenu,
+  HiX,
 } from "react-icons/hi";
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
@@ -45,12 +46,14 @@ export default function ImageInpaintingEditor() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed by default
   const [selectedForEdit, setSelectedForEdit] = useState("original");
   const [showMessage, setShowMessage] = useState(null);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [imageHistory, setImageHistory] = useState([]);
   const [maskEnabled, setMaskEnabled] = useState(false);
+  const [showMobileTools, setShowMobileTools] = useState(false);
+  const [showMobileComparison, setShowMobileComparison] = useState(false);
 
   // Enhanced masking states
   const [isDrawing, setIsDrawing] = useState(false);
@@ -64,6 +67,8 @@ export default function ImageInpaintingEditor() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
+  const [lastDrawPoint, setLastDrawPoint] = useState({ x: 0, y: 0 });
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0, visible: false });
 
   const canvasRef = useRef(null);
   const maskCanvasRef = useRef(null);
@@ -77,6 +82,28 @@ export default function ImageInpaintingEditor() {
   // Handle client-side hydration
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Set initial sidebar state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      // On mobile (md breakpoint and below), keep sidebar collapsed
+      // On desktop, expand sidebar
+      if (window.innerWidth >= 768) {
+        setSidebarCollapsed(false);
+      } else {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Show message notification
@@ -140,7 +167,7 @@ export default function ImageInpaintingEditor() {
       reader.onloadend = () => {
         const img = new window.Image(); // Use window.Image to avoid conflicts
         img.onload = () => {
-          console.log("Image loaded:", img.width, img.height); // Debug log
+          console.log("Image loaded:", img.width, img.height);
 
           // Store original dimensions
           const originalWidth = img.width;
@@ -172,7 +199,7 @@ export default function ImageInpaintingEditor() {
             height: Math.round(displayHeight),
           };
 
-          console.log("Canvas size set to:", finalCanvasSize); // Debug log
+          console.log("Canvas size set to:", finalCanvasSize);
           setCanvasSize(finalCanvasSize);
 
           const imageData = {
@@ -257,16 +284,20 @@ export default function ImageInpaintingEditor() {
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
+    // Handle both mouse and touch events
+    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   };
 
   const drawBrush = (ctx, x, y, isErasing = false) => {
     ctx.save();
 
-    if (isErasing) {
+    if (isErasing || brushType.type === "eraser") {
       ctx.globalCompositeOperation = "destination-out";
     } else {
       ctx.globalCompositeOperation = "source-over";
@@ -313,42 +344,102 @@ export default function ImageInpaintingEditor() {
     ctx.restore();
   };
 
+  // Smooth line drawing between two points
+  const drawLine = (ctx, x1, y1, x2, y2, isErasing = false) => {
+    const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const steps = Math.ceil(distance / (brushSize * 0.1)); // Interpolate based on brush size
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = x1 + (x2 - x1) * t;
+      const y = y1 + (y2 - y1) * t;
+      drawBrush(ctx, x, y, isErasing);
+    }
+  };
+
+  const updateCursor = (e) => {
+    if (!maskCanvasRef.current || !maskEnabled) return;
+
+    const pos = getMousePos(maskCanvasRef.current, e);
+    setCursorPos({
+      x: pos.x,
+      y: pos.y,
+      visible: true,
+    });
+  };
+
+  const hideCursor = () => {
+    setCursorPos((prev) => ({ ...prev, visible: false }));
+  };
+
   const startDrawing = (e) => {
-    if (!maskCanvas) return;
+    if (!maskCanvas || !maskEnabled) return;
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault();
 
     // Check if it's a right click for panning
     if (e.button === 2) {
       setIsPanning(true);
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+      const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+      setLastPanPoint({ x: clientX, y: clientY });
       return;
     }
 
     setIsDrawing(true);
     const pos = getMousePos(maskCanvasRef.current, e);
+    setLastDrawPoint({ x: pos.x, y: pos.y });
+
     const ctx = maskCanvas.getContext("2d");
     drawBrush(ctx, pos.x, pos.y, brushType.type === "eraser");
   };
 
   const draw = (e) => {
+    if (!maskCanvas || !maskEnabled) return;
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault();
+
+    const clientX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0]?.clientY) || 0;
+
     if (isPanning) {
-      const deltaX = e.clientX - lastPanPoint.x;
-      const deltaY = e.clientY - lastPanPoint.y;
+      const deltaX = clientX - lastPanPoint.x;
+      const deltaY = clientY - lastPanPoint.y;
       setPanOffset((prev) => ({
         x: prev.x + deltaX,
         y: prev.y + deltaY,
       }));
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
+      setLastPanPoint({ x: clientX, y: clientY });
       return;
     }
 
-    if (!isDrawing || !maskCanvas) return;
+    // Update cursor position
+    updateCursor(e);
+
+    if (!isDrawing) return;
 
     const pos = getMousePos(maskCanvasRef.current, e);
     const ctx = maskCanvas.getContext("2d");
-    drawBrush(ctx, pos.x, pos.y, brushType.type === "eraser");
+
+    // Draw smooth line from last point to current point
+    drawLine(
+      ctx,
+      lastDrawPoint.x,
+      lastDrawPoint.y,
+      pos.x,
+      pos.y,
+      brushType.type === "eraser"
+    );
+
+    setLastDrawPoint({ x: pos.x, y: pos.y });
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e) => {
+    if (e) {
+      e.preventDefault();
+    }
     setIsDrawing(false);
     setIsPanning(false);
   };
@@ -463,12 +554,15 @@ export default function ImageInpaintingEditor() {
     if (!canSubmit) {
       if (!originalImage) {
         setError("Please upload an original image.");
+        displayMessage("Please upload an image first");
       } else if (!hasMask()) {
         setError("Please draw a mask on the areas you want to edit.");
+        displayMessage("Please draw a mask on the image");
       } else if (!prompt.trim()) {
         setError(
           "Please enter a prompt describing what to generate in the masked area."
         );
+        displayMessage("Please enter a prompt");
       }
       return;
     }
@@ -480,13 +574,33 @@ export default function ImageInpaintingEditor() {
     try {
       // Create mask image blob
       const maskDataUrl = getMaskDataUrl();
+      if (!maskDataUrl) {
+        throw new Error("Failed to create mask data");
+      }
+
       const maskBlob = await fetch(maskDataUrl).then((r) => r.blob());
+
+      // Validate image file
+      if (
+        !originalImage.file ||
+        !originalImage.file.type.startsWith("image/")
+      ) {
+        throw new Error("Invalid image file");
+      }
 
       // Create form data
       const formData = new FormData();
       formData.append("original_image", originalImage.file);
       formData.append("mask_image", maskBlob, "mask.png");
       formData.append("prompt", prompt);
+
+      console.log("Sending mask edit request:", {
+        hasOriginalImage: !!originalImage.file,
+        imageType: originalImage.file.type,
+        imageSize: originalImage.file.size,
+        hasMask: !!maskBlob,
+        prompt: prompt,
+      });
 
       // Replace this with your actual API endpoint
       const response = await apiCall("/edit-with-mask", {
@@ -498,7 +612,9 @@ export default function ImageInpaintingEditor() {
         const errorData = await response.json().catch(() => ({
           error: "Inpainting failed: " + response.statusText,
         }));
-        throw new Error(errorData.error || "Inpainting failed");
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
       }
 
       const data = await response.json();
@@ -524,6 +640,8 @@ export default function ImageInpaintingEditor() {
         } else {
           imageUrl = `data:image/png;base64,${firstImage}`;
         }
+      } else {
+        throw new Error("No image data received from server");
       }
 
       setResultUrl(imageUrl || originalImage.preview);
@@ -531,13 +649,295 @@ export default function ImageInpaintingEditor() {
       displayMessage("Image generated successfully!");
     } catch (err) {
       console.error("Inpainting failed:", err);
-      setError(
-        err.message || "An unexpected error occurred during inpainting."
-      );
+
+      // Provide more specific error messages
+      if (err.message.includes("400")) {
+        setError("Invalid request. Please check your image and mask.");
+        displayMessage("Invalid request. Please check your image and mask.");
+      } else if (err.message.includes("413")) {
+        setError("Image file too large. Please use a smaller image.");
+        displayMessage("Image file too large. Please use a smaller image.");
+      } else if (err.message.includes("429")) {
+        setError("Too many requests. Please wait a moment and try again.");
+        displayMessage(
+          "Too many requests. Please wait a moment and try again."
+        );
+      } else if (err.message.includes("500")) {
+        setError("Server error. Please try again later.");
+        displayMessage("Server error. Please try again later.");
+      } else {
+        setError(
+          err.message || "An unexpected error occurred during inpainting."
+        );
+        displayMessage("Failed to generate image. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Mobile Tools Modal Component
+  const MobileToolsModal = () => (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm md:hidden">
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+            <TbMask className="w-5 h-5 text-gold" />
+            Mask Tools
+          </h3>
+          <button
+            onClick={() => setShowMobileTools(false)}
+            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all duration-200"
+          >
+            <HiX className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        <div className="flex-1 p-4 space-y-6">
+          {/* Upload Section */}
+          <div>
+            <h4 className="text-white font-medium mb-3">Upload Image</h4>
+            <button
+              onClick={() => {
+                document.getElementById("imageInput").click();
+                setShowMobileTools(false);
+              }}
+              className="w-full py-3 px-4 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group"
+            >
+              <FiUpload className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
+              <span className="text-gold font-medium">Upload New Image</span>
+            </button>
+          </div>
+
+          {/* Mask Toggle */}
+          {originalImage && (
+            <div>
+              <h4 className="text-white font-medium mb-3">Mask Tool</h4>
+              <button
+                onClick={() => setMaskEnabled(!maskEnabled)}
+                className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                  maskEnabled
+                    ? "bg-gold text-gray-900"
+                    : "bg-gray-600/50 text-gray-300 hover:bg-gray-600"
+                }`}
+              >
+                <RiBrushLine className="w-5 h-5" />
+                {maskEnabled ? "Mask Tool Active" : "Enable Mask Tool"}
+              </button>
+            </div>
+          )}
+
+          {/* Brush Size */}
+          {originalImage && (
+            <div>
+              <h4 className="text-white font-medium mb-3">Brush Size</h4>
+              <input
+                type="range"
+                min="5"
+                max="50"
+                value={brushSize}
+                onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>5px</span>
+                <span className="text-gold font-medium">{brushSize}px</span>
+                <span>50px</span>
+              </div>
+            </div>
+          )}
+
+          {/* Opacity */}
+          {originalImage && (
+            <div>
+              <h4 className="text-white font-medium mb-3">Opacity</h4>
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.1"
+                value={brushOpacity}
+                onChange={(e) => setBrushOpacity(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>10%</span>
+                <span className="text-gold font-medium">
+                  {Math.round(brushOpacity * 100)}%
+                </span>
+                <span>100%</span>
+              </div>
+            </div>
+          )}
+
+          {/* Clear Mask */}
+          {originalImage && (
+            <div>
+              <button
+                onClick={() => {
+                  clearMask();
+                  displayMessage("Mask cleared");
+                }}
+                className="w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg font-medium transition-all duration-200"
+              >
+                Clear Mask
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Comparison Modal Component
+  const MobileComparisonModal = () => (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm md:hidden">
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+            <MdCompareArrows className="w-5 h-5 text-gold" />
+            Compare Images
+          </h3>
+          <button
+            onClick={() => setShowMobileComparison(false)}
+            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all duration-200"
+          >
+            <HiX className="w-5 h-5 text-white" />
+          </button>
+        </div>
+
+        {/* Image Selection Tabs */}
+        <div className="p-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedForEdit("original")}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                selectedForEdit === "original"
+                  ? "bg-gold text-gray-900"
+                  : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
+              }`}
+            >
+              Original
+            </button>
+            <button
+              onClick={() => setSelectedForEdit("generated")}
+              disabled={!generatedImage}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                selectedForEdit === "generated"
+                  ? "bg-gold text-gray-900"
+                  : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 disabled:bg-gray-800/50 disabled:text-gray-600"
+              }`}
+            >
+              Generated
+            </button>
+          </div>
+        </div>
+
+        {/* Image Display */}
+        <div className="flex-1 p-4 space-y-4">
+          {/* Original Image */}
+          <div
+            className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+              selectedForEdit === "original"
+                ? "border-gold shadow-lg shadow-gold/20"
+                : "border-white/10"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Original Image</h4>
+              {selectedForEdit === "original" && (
+                <FiCheck className="w-4 h-4 text-gold" />
+              )}
+            </div>
+            <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+              {originalImage ? (
+                <Image
+                  src={originalImage.preview}
+                  alt="Original"
+                  width={300}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  <HiOutlinePhotograph className="w-12 h-12" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Generated Image */}
+          <div
+            className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+              selectedForEdit === "generated"
+                ? "border-gold shadow-lg shadow-gold/20"
+                : "border-white/10"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-medium">Generated Image</h4>
+              {selectedForEdit === "generated" && (
+                <FiCheck className="w-4 h-4 text-gold" />
+              )}
+            </div>
+            <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+              {generatedImage ? (
+                <Image
+                  src={generatedImage}
+                  alt="Generated"
+                  width={300}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <HiOutlineAdjustments className="w-12 h-12 mx-auto mb-2" />
+                    <p className="text-sm">Generated image will appear here</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="p-4 border-t border-white/10">
+          <div className="space-y-2">
+            <button
+              onClick={() =>
+                downloadImage(
+                  selectedForEdit === "generated"
+                    ? generatedImage
+                    : originalImage?.preview,
+                  selectedForEdit === "generated"
+                    ? "generated"
+                    : originalImage?.name
+                )
+              }
+              disabled={!originalImage}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-lg transition-all duration-200"
+            >
+              <BiDownload className="w-5 h-5" />
+              <span>Download Selected</span>
+            </button>
+            <button
+              onClick={handleRegenerate}
+              disabled={isLoading || !prompt.trim()}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500 font-medium"
+            >
+              <BiRefresh
+                className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`}
+              />
+              <span>Re-generate</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   if (!isClient) {
     return (
@@ -779,19 +1179,93 @@ export default function ImageInpaintingEditor() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Mobile menu button */}
-        <div className="md:hidden fixed top-4 left-4 z-40">
-          <button
-            onClick={() => setSidebarCollapsed(false)}
-            className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
-          >
-            <HiMenu className="w-5 h-5 text-gold" />
-          </button>
+        <div className="md:hidden fixed top-4 left-4 z-30">
+          {sidebarCollapsed ? (
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50 backdrop-blur-sm"
+            >
+              <HiMenu className="w-5 h-5 text-gold" />
+            </button>
+          ) : (
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-all duration-200 border border-gold/50 hover:border-gold backdrop-blur-sm"
+            >
+              <HiX className="w-5 h-5 text-gold" />
+            </button>
+          )}
         </div>
 
         {/* Title Bar */}
-        <div className="p-3 md:p-6 border-b border-white/10">
+        <div className="p-3 md:p-6 border-b border-white/10 pt-16 md:pt-3">
           <TitleBar />
         </div>
+
+        {/* Mobile Quick Actions - Only visible on mobile */}
+        <div className="md:hidden p-3 border-b border-white/10">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowMobileTools(true)}
+              className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white text-sm font-medium"
+            >
+              <TbMask className="w-4 h-4" />
+              Tools
+            </button>
+            <button
+              onClick={() => setShowMobileComparison(true)}
+              disabled={!originalImage}
+              className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white disabled:text-gray-500 text-sm font-medium"
+            >
+              <MdCompareArrows className="w-4 h-4" />
+              Compare
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Upload Section - Only visible on mobile when no image */}
+        {!originalImage && (
+          <div className="md:hidden p-3">
+            <div className="text-center">
+              <button
+                onClick={() => document.getElementById("imageInput").click()}
+                className="w-full py-4 px-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-3 group"
+              >
+                <FiUpload className="w-6 h-6 text-gold group-hover:scale-110 transition-transform" />
+                <span className="text-gold font-medium text-lg">
+                  Upload Image to Start
+                </span>
+              </button>
+              <p className="text-gray-400 text-sm mt-2">
+                Upload an image and draw a mask to edit specific areas
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Mask Status - Only visible on mobile when image exists */}
+        {originalImage && (
+          <div className="md:hidden p-3 border-b border-white/10">
+            <div className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <TbMask className="w-4 h-4 text-gold" />
+                <span className="text-white text-sm font-medium">
+                  Mask Tool: {maskEnabled ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <button
+                onClick={() => setMaskEnabled(!maskEnabled)}
+                className={`px-3 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                  maskEnabled
+                    ? "bg-gold text-gray-900"
+                    : "bg-gray-700/50 text-gray-300"
+                }`}
+              >
+                {maskEnabled ? "ON" : "OFF"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Central Canvas Workspace */}
         <div className="flex-1 p-3 md:p-6">
@@ -849,6 +1323,9 @@ export default function ImageInpaintingEditor() {
                       onMouseMove={maskEnabled ? draw : undefined}
                       onMouseUp={maskEnabled ? stopDrawing : undefined}
                       onMouseLeave={maskEnabled ? stopDrawing : undefined}
+                      onTouchStart={maskEnabled ? startDrawing : undefined}
+                      onTouchMove={maskEnabled ? draw : undefined}
+                      onTouchEnd={maskEnabled ? stopDrawing : undefined}
                       onContextMenu={(e) => e.preventDefault()}
                     />
                   </div>
@@ -960,6 +1437,15 @@ export default function ImageInpaintingEditor() {
                 )}
               </button>
 
+              {/* Mobile Upload Button */}
+              <button
+                onClick={() => document.getElementById("imageInput").click()}
+                className="md:hidden flex items-center gap-1 px-3 py-2 bg-gold/20 hover:bg-gold/30 text-gold font-medium rounded-xl transition-all duration-200 border border-gold/50 hover:border-gold text-sm"
+              >
+                <FiUpload className="w-4 h-4" />
+                <span>Upload</span>
+              </button>
+
               <button
                 onClick={() =>
                   downloadImage(
@@ -974,6 +1460,35 @@ export default function ImageInpaintingEditor() {
                 <span className="hidden sm:inline">Download</span>
               </button>
             </div>
+
+            {/* Mobile Action Grid - Additional mobile actions */}
+            {originalImage && (
+              <div className="md:hidden mt-6">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleRegenerate}
+                    disabled={isLoading || !prompt.trim()}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500 font-medium text-sm"
+                  >
+                    <BiRefresh
+                      className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                    />
+                    <span>Re-generate</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      clearMask();
+                      displayMessage("Mask cleared");
+                    }}
+                    disabled={!hasMask()}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-red-400 hover:text-red-300 disabled:text-gray-500 font-medium text-sm"
+                  >
+                    <TbMask className="w-4 h-4" />
+                    <span>Clear Mask</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1096,6 +1611,12 @@ export default function ImageInpaintingEditor() {
           )}
         </div>
       </div>
+
+      {/* Mobile Tools Modal */}
+      {showMobileTools && <MobileToolsModal />}
+
+      {/* Mobile Comparison Modal */}
+      {showMobileComparison && <MobileComparisonModal />}
 
       {/* Message Notification */}
       {showMessage && (

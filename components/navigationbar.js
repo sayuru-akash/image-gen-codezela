@@ -1,13 +1,20 @@
 "use client";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function NavigationBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/login" });
   };
 
   return (
@@ -18,7 +25,13 @@ export default function NavigationBar() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center hover:cursor-pointer">
-            <div className="w-8 h-8 bg-gradient-to-r from-white from-20% to-gold to-80% rounded-full mr-1"></div>
+            <Image
+              src="/images/logo1.png"
+              alt="kAIro Logo"
+              width={32}
+              height={32}
+              className="rounded-full mr-1"
+            />
             <span className="text-xl font-semibold tracking-wider">kAIro</span>
           </Link>
 
@@ -50,13 +63,35 @@ export default function NavigationBar() {
             </Link>
           </div>
 
-          {/* Desktop Sign Up Button */}
-          <Link
-            href="/signup"
-            className="hidden lg:block bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000"
-          >
-            Sign Up →
-          </Link>
+          {/* Desktop Sign Up/Login Button */}
+          {status === "authenticated" ? (
+            <div className="hidden lg:flex items-center space-x-4">
+              <span className="text-sm text-white/80">
+                Welcome, {session?.user?.name || session?.user?.email}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold px-6 py-2 rounded-full hover:from-red-600 hover:to-red-700 cursor-pointer transition-all duration-300"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center space-x-4">
+              <Link
+                href="/login"
+                className="text-white text-xs font-semibold px-6 py-2 rounded-full border border-white/30 hover:border-gold hover:text-gold cursor-pointer transition-all duration-300"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-300"
+              >
+                Sign Up →
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -99,12 +134,41 @@ export default function NavigationBar() {
               >
                 Contact
               </Link>
-              <Link
-                href="/signup"
-                className="bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-100000 mt-4 w-full"
-              >
-                Sign Up →
-              </Link>
+
+              {/* Mobile Auth Buttons */}
+              {status === "authenticated" ? (
+                <div className="flex flex-col space-y-2 pt-2">
+                  <span className="text-sm text-white/80 px-4">
+                    Welcome, {session?.user?.name || session?.user?.email}
+                  </span>
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      toggleMenu();
+                    }}
+                    className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold px-6 py-2 rounded-full hover:from-red-600 hover:to-red-700 cursor-pointer transition-all duration-300 mx-4"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-2">
+                  <Link
+                    href="/login"
+                    className="text-white text-xs font-semibold px-6 py-2 rounded-full border border-white/30 hover:border-gold hover:text-gold cursor-pointer transition-all duration-300 mx-4 text-center"
+                    onClick={toggleMenu}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="bg-gradient-to-r from-gold from-50% to-white/60 to-95% text-white text-xs font-semibold px-8 py-3 rounded-full hover:from-white/20 hover:to-gold cursor-pointer transition-all duration-300 mx-4 text-center"
+                    onClick={toggleMenu}
+                  >
+                    Sign Up →
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

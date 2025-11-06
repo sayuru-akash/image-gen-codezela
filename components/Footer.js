@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
@@ -10,7 +11,13 @@ export default function Footer() {
         {/* Column 1 */}
         <div className="md:col-span-4 lg:col-span-2 lg:pr-20 mb-14 lg:mb-0">
           <div className="flex items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-r from-white from-20% to-gold to-80% rounded-full mr-3"></div>
+            <Image
+              src="/images/logo1.png"
+              alt="kAIro Logo"
+              width={64}
+              height={64}
+              className="rounded-full mr-3"
+            />
             <span className="text-3xl font-semibold text-white tracking-wider">
               kAIro
             </span>
@@ -60,13 +67,22 @@ export default function Footer() {
           <h3 className="text-2xl text-white font-medium mb-8">About</h3>
 
           <div className="flex flex-col gap-8">
-            <Link href="/faq" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link
+              href="/faq"
+              className="text-white text-sm hover:text-gold cursor-pointer transition-all"
+            >
               FAQ
             </Link>
-            <Link href="/blogs" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link
+              href="/blogs"
+              className="text-white text-sm hover:text-gold cursor-pointer transition-all"
+            >
               Blogs
             </Link>
-            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link
+              href="/"
+              className="text-white text-sm hover:text-gold cursor-pointer transition-all"
+            >
               Contact Us
             </Link>
             <Link
@@ -75,7 +91,10 @@ export default function Footer() {
             >
               Privacy Policy
             </Link>
-            <Link href="/" className="text-white text-sm hover:text-gold cursor-pointer transition-all">
+            <Link
+              href="/"
+              className="text-white text-sm hover:text-gold cursor-pointer transition-all"
+            >
               Terms of Service
             </Link>
           </div>
