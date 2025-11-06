@@ -217,7 +217,7 @@ export default function HomeContent() {
       <main>
         <section
           id="features"
-          className={`${sectionSpacing} scroll-mt-24 pt-36 md:pt-[36rem]`}
+          className={`${sectionSpacing} scroll-mt-24 pt-36 md:pt-[36rem] lg:pt-[36rem]`}
         >
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-gold/80">
