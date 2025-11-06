@@ -185,16 +185,8 @@ export default function HomeContent() {
       </section>
 
       <section className="px-4 pb-24 md:px-10 lg:px-20">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="flex items-center justify-center rounded-[2.5rem] border border-white/20 backdrop-blur-xs lg:h-[28rem]">
-            <Image
-              src="/images/image-10.png"
-              alt="Creative team collaborating with kAIro AI"
-              width={500}
-              height={500}
-              className="w-full lg:w-[29rem] lg:h-[27rem]"
-            />
-          </div>
+        <div className="grid grid-cols-1 gap-8">
+
 
           <div className="lg:col-span-2">
             <div className="relative flex flex-col">

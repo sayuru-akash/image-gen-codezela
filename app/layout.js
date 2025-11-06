@@ -76,9 +76,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${plusJakartaSans.variable} ${poppins.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CQPCTZKDB2"
