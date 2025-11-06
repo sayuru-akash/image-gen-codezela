@@ -20,7 +20,7 @@ import Footer from "@/components/Footer";
 export default function HomeContent() {
   const { data: session } = useSession();
   const [activeCarousel, setActiveCarousel] = useState(1);
-  const sectionSpacing = "px-4 py-16 md:px-10 lg:px-20 lg:py-24";
+  const sectionSpacing = "px-4 py-12 md:px-10 lg:px-20 lg:py-16";
 
   const personaCards = useMemo(
     () => [
@@ -123,14 +123,17 @@ export default function HomeContent() {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute top-70 w-full">
+          <div className="pointer-events-none absolute top-80 w-full">
             <Hero />
           </div>
         </div>
       </section>
 
       <main>
-        <section id="features" className={`${sectionSpacing} scroll-mt-24 mt-96`}>
+        <section
+          id="features"
+          className={`${sectionSpacing} scroll-mt-24 pt-16 lg:pt-[36rem]`}
+        >
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-gold/80">
               Platform capabilities
@@ -146,7 +149,7 @@ export default function HomeContent() {
             </p>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-8">
             {activeCarousel === 1 ? (
               <Carousel1
                 activeCarousel={activeCarousel}
@@ -257,7 +260,7 @@ export default function HomeContent() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
             <div className="flex items-center">
               <p className="text-sm text-white/70">
                 From Fortune 500 standards and trends to emerging brand
@@ -298,7 +301,7 @@ export default function HomeContent() {
             Explore campaign-ready outputs, product mockups, and immersive art
             directions generated inside the platform.
           </p>
-          <div className="mt-10">
+          <div className="mt-8">
             <Gallery />
           </div>
         </section>
