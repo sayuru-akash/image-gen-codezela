@@ -889,22 +889,6 @@ function TexttoImageContent() {
         .custom-scrollbar > * {
           animation: slideInRight 0.3s ease-out forwards;
         }
-
-        .custom-scrollbar > *:nth-child(1) {
-          animation-delay: 0.1s;
-        }
-        .custom-scrollbar > *:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        .custom-scrollbar > *:nth-child(3) {
-          animation-delay: 0.3s;
-        }
-        .custom-scrollbar > *:nth-child(4) {
-          animation-delay: 0.4s;
-        }
-        .custom-scrollbar > *:nth-child(5) {
-          animation-delay: 0.5s;
-        }
       </div>
       <style jsx>{`
         .custom-scrollbar > *:nth-child(1) {
