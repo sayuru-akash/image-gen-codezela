@@ -1,12 +1,10 @@
 // app/dashboard/text-to-image/page.js
 "use client";
 import Image from "next/image";
-import TitleBar from "@/components/dashboard/TitleBar";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import { useState, useEffect, useCallback } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   IconButton,
   Tooltip,
@@ -29,11 +27,7 @@ import {
 } from "@mui/icons-material";
 
 export default function TexttoImage() {
-  return (
-    <ProtectedRoute>
-      <TexttoImageContent />
-    </ProtectedRoute>
-  );
+  return <TexttoImageContent />;
 }
 
 function TexttoImageContent() {
@@ -636,11 +630,6 @@ function TexttoImageContent() {
           >
             <HiMenu size={20} />
           </IconButton>
-        </div>
-
-        {/* Title Bar */}
-        <div className="p-3 md:p-6 border-b border-white/10">
-          <TitleBar />
         </div>
 
         {/* Central Workspace */}

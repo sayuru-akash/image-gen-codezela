@@ -12,7 +12,6 @@ import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
 import { TbMask } from "react-icons/tb";
-import TitleBar from "@/components/dashboard/TitleBar";
 import styles from "./slider.module.css";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 
@@ -1195,11 +1194,6 @@ export default function ImageInpaintingEditor() {
               <HiX className="w-5 h-5 text-gold" />
             </button>
           )}
-        </div>
-
-        {/* Title Bar */}
-        <div className="p-3 md:p-6 border-b border-white/10 pt-16 md:pt-3">
-          <TitleBar />
         </div>
 
         {/* Mobile Quick Actions - Only visible on mobile */}

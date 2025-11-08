@@ -10,7 +10,6 @@ import {
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-import TitleBar from "@/components/dashboard/TitleBar";
 import { useRef, useState, useEffect } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 
@@ -756,11 +755,6 @@ export default function ImageUpdate() {
               <HiX className="w-5 h-5 text-gold" />
             </button>
           )}
-        </div>
-
-        {/* Title Bar */}
-        <div className="p-3 md:p-6 border-b border-white/10 pt-16 md:pt-3">
-          <TitleBar />
         </div>
 
         {/* Central Workspace */}
