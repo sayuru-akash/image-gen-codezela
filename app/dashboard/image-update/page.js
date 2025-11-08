@@ -2,13 +2,9 @@
 import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
-import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
-import {
-  HiMenu,
-  HiOutlinePhotograph,
-  HiOutlineAdjustments,
-  HiX,
-} from "react-icons/hi";
+import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import { BiDownload, BiRefresh } from "react-icons/bi";
+import { HiOutlinePhotograph, HiOutlineAdjustments, HiX } from "react-icons/hi";
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
@@ -21,34 +17,11 @@ export default function ImageUpdate() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed by default
   const [selectedForEdit, setSelectedForEdit] = useState("original"); // "original" or "generated"
   const [showMessage, setShowMessage] = useState(null);
   const [showMobileGallery, setShowMobileGallery] = useState(false);
   const [showMobileComparison, setShowMobileComparison] = useState(false);
   const fileInputRef = useRef(null);
-
-  // Set initial sidebar state based on screen size
-  useEffect(() => {
-    const handleResize = () => {
-      // On mobile (md breakpoint and below), keep sidebar collapsed
-      // On desktop, expand sidebar
-      if (window.innerWidth >= 768) {
-        setSidebarCollapsed(false);
-      } else {
-        setSidebarCollapsed(true);
-      }
-    };
-
-    // Set initial state
-    handleResize();
-
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Show message notification
   const displayMessage = (message) => {
@@ -58,10 +31,6 @@ export default function ImageUpdate() {
 
   const handleAddImage = () => {
     fileInputRef.current?.click();
-    // Auto-close sidebar on mobile when upload is triggered
-    if (window.innerWidth < 768) {
-      setSidebarCollapsed(true);
-    }
   };
 
   const handleFileUpload = (event) => {
@@ -140,10 +109,6 @@ export default function ImageUpdate() {
   const handleImageClick = (image) => {
     setSelectedImage(image);
     setSelectedForEdit("original");
-    // Auto-close sidebar on mobile when image is selected
-    if (window.innerWidth < 768) {
-      setSidebarCollapsed(true);
-    }
   };
 
   const removeImage = (imageId, event) => {
@@ -563,209 +528,166 @@ export default function ImageUpdate() {
         description="Refresh lighting, backgrounds, and campaign-specific elements without re-rendering entire scenes or rebooking shoots."
         badges={["Upload ready", "Mask aware"]}
       />
-      <div className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
-        {/* Collapsible Left Sidebar */}
-        <div
-          className={`${sidebarCollapsed ? "w-16 md:w-16" : "w-80 md:w-80"} ${
-            !sidebarCollapsed
-              ? "fixed md:relative inset-0 z-50 md:z-auto"
-              : "hidden md:block"
-          } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
+      <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
+        <WorkspaceSidePanel
+          title="Gallery"
+          subtitle="Uploaded & Generated"
+          collapsedLabel="Gallery"
+          icon={HiOutlinePhotograph}
         >
-          <div className="h-full flex flex-col p-4">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div
-                className={`${
-                  sidebarCollapsed ? "hidden" : "block"
-                } transition-all duration-300`}
-              >
-                <h2 className="text-white font-semibold text-lg">Gallery</h2>
-                <p className="text-gray-400 text-sm">Uploaded & Generated</p>
-              </div>
-              <button
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
-              >
-                <BiSolidRightArrow
-                  className={`w-4 h-4 text-gold transition-transform duration-300 ${
-                    sidebarCollapsed ? "" : "rotate-180"
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Mobile Overlay */}
-            {!sidebarCollapsed && (
-              <div
-                className="md:hidden fixed inset-0 bg-black/50 z-40"
-                onClick={() => setSidebarCollapsed(true)}
-              />
-            )}
-
-            {/* Upload Button */}
-            <button
-              onClick={handleAddImage}
-              className={`${
-                sidebarCollapsed ? "w-8 h-8 p-1" : "w-full py-3 px-4"
-              } mb-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group`}
-            >
-              <FiUpload className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
-              {!sidebarCollapsed && (
-                <span className="text-gold font-medium">Upload Image</span>
-              )}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept="image/*"
-                className="hidden"
-              />
-            </button>
-
-            {/* Image Thumbnails */}
-            <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
-              {uploadedImages.map((image) => (
-                <div
-                  key={image.id}
-                  className={`relative group cursor-pointer transition-all duration-200 ${
-                    sidebarCollapsed ? "w-8 h-8" : "w-full h-20"
-                  }`}
-                  onClick={() => handleImageClick(image)}
+          {({ isOpen }) =>
+            isOpen && (
+              <div className="flex-1 overflow-hidden transition-all duration-300 ease-in-out">
+                <button
+                  onClick={handleAddImage}
+                  className="group mb-6 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gold/50 bg-gradient-to-r from-gold/20 to-yellow-600/20 px-4 py-3 transition-all duration-200 hover:border-gold hover:from-gold/30 hover:to-yellow-600/30"
                 >
-                  <div
-                    className={`${
-                      selectedImage?.id === image.id
-                        ? "ring-2 ring-gold shadow-lg shadow-gold/20"
-                        : "ring-1 ring-white/20 hover:ring-gold/50"
-                    } rounded-lg overflow-hidden transition-all duration-200 ${
-                      sidebarCollapsed ? "w-8 h-8" : "w-full h-20"
-                    }`}
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.name}
-                      width={sidebarCollapsed ? 32 : 320}
-                      height={sidebarCollapsed ? 32 : 80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <FiUpload className="w-5 h-5 text-gold transition-transform group-hover:scale-110" />
+                  <span className="text-gold font-medium">Upload Image</span>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </button>
 
-                  {!sidebarCollapsed && (
-                    <>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-lg" />
-                      <button
-                        onClick={(e) => removeImage(image.id, e)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center shadow-lg"
-                      >
-                        ×
-                      </button>
-                      <div className="absolute bottom-1 left-1 right-1">
-                        <div className="bg-black/70 backdrop-blur-sm rounded px-2 py-1">
-                          <p className="text-white text-xs truncate">
-                            {image.name}
+                <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto">
+                  {uploadedImages.map((image) => (
+                    <div
+                      key={image.id}
+                      className="group relative cursor-pointer rounded-xl border border-white/10 bg-gray-800/40 p-3 transition-all duration-200 hover:border-gold/40"
+                      onClick={() => handleImageSelection(image)}
+                    >
+                      <div className="h-20 w-full overflow-hidden rounded-lg">
+                        <Image
+                          src={image.url}
+                          alt={image.name}
+                          width={320}
+                          height={80}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {image.name.length > 20
+                              ? `${image.name.slice(0, 17)}...`
+                              : image.name}
+                          </p>
+                          <p className="text-gray-400 text-xs">
+                            {Math.round(image.size / 1024)} KB • {image.type}
                           </p>
                         </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReplaceImage(uploadedImages.indexOf(image));
+                            }}
+                            className="rounded-lg border border-white/10 bg-white/5 p-2 text-white/70 transition-all duration-200 hover:border-gold/50 hover:text-white"
+                          >
+                            <FiEdit3 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteImage(image.id);
+                            }}
+                            className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-300 transition-all duration-200 hover:bg-red-500/20"
+                          >
+                            <HiX className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
-                    </>
+                      {selectedImage?.id === image.id && (
+                        <div className="absolute inset-0 rounded-xl border-2 border-gold/60"></div>
+                      )}
+                    </div>
+                  ))}
+
+                  {uploadedImages.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center">
+                      <HiOutlinePhotograph className="mx-auto mb-2 h-12 w-12 text-white/40" />
+                      <p className="text-white font-medium">No images yet</p>
+                      <p className="text-gray-400 text-sm">
+                        Upload images to start editing
+                      </p>
+                    </div>
                   )}
                 </div>
-              ))}
 
-              {/* Generated Image Thumbnail */}
-              {generatedImage && !sidebarCollapsed && (
-                <div className="border-t border-white/10 pt-3 mt-6">
-                  <p className="text-gray-400 text-sm mb-3 font-medium">
-                    Generated Result
-                  </p>
-                  <div className="relative group cursor-pointer">
-                    <div className="w-full h-20 rounded-lg overflow-hidden ring-1 ring-green-500/50 hover:ring-green-400 transition-all duration-200">
-                      <Image
-                        src={generatedImage}
-                        alt="Generated"
-                        width={320}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                {generatedImage && (
+                  <div className="mt-6 border-t border-white/10 pt-4">
+                    <p className="mb-3 text-sm font-medium text-gray-400">
+                      Generated Result
+                    </p>
+                    <div className="group relative cursor-pointer">
+                      <div className="h-20 w-full overflow-hidden rounded-lg ring-1 ring-green-500/50 transition-all duration-200 hover:ring-green-400">
+                        <Image
+                          src={generatedImage}
+                          alt="Generated"
+                          width={320}
+                          height={80}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute right-2 top-2 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white">
                         NEW
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
 
-            {/* Action Widgets */}
-            {!sidebarCollapsed && selectedImage && (
-              <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
-                <p className="text-gray-400 text-sm font-medium mb-3">
-                  Quick Actions
-                </p>
-
-                <button
-                  onClick={() =>
-                    downloadImage(
-                      selectedForEdit === "generated"
-                        ? generatedImage
-                        : selectedImage.url,
-                      selectedForEdit === "generated"
-                        ? "generated"
-                        : selectedImage.name
-                    )
-                  }
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
-                >
-                  <BiDownload className="w-4 h-4" />
-                  <span className="text-sm">Download</span>
-                </button>
-
-                <button
-                  onClick={handleResize}
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
-                >
-                  <RiExpandDiagonalLine className="w-4 h-4" />
-                  {/* <span className="text-sm">Resize</span> */}
-                </button>
-
-                <button
-                  onClick={handleRegenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500"
-                >
-                  <BiRefresh
-                    className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`}
-                  />
-                  <span className="text-sm">Re-generate</span>
-                </button>
+                {selectedImage && (
+                  <div className="mt-4 border-t border-white/10 pt-4 space-y-2">
+                    <p className="mb-3 text-sm font-medium text-gray-400">
+                      Quick Actions
+                    </p>
+                    <button
+                      onClick={() =>
+                        downloadImage(
+                          selectedForEdit === "generated"
+                            ? generatedImage
+                            : selectedImage.url,
+                          selectedForEdit === "generated"
+                            ? "generated"
+                            : selectedImage.name
+                        )
+                      }
+                      className="flex w-full items-center gap-3 rounded-lg bg-gray-700/50 px-3 py-2 text-gray-300 transition-all duration-200 hover:bg-gray-600/50 hover:text-white"
+                    >
+                      <BiDownload className="h-4 w-4" />
+                      <span className="text-sm">Download</span>
+                    </button>
+                    <button
+                      onClick={handleResize}
+                      className="flex w-full items-center gap-3 rounded-lg bg-gray-700/50 px-3 py-2 text-gray-300 transition-all duration-200 hover:bg-gray-600/50 hover:text-white"
+                    >
+                      <RiExpandDiagonalLine className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleRegenerate}
+                      disabled={isGenerating || !prompt.trim()}
+                      className="flex w-full items-center gap-3 rounded-lg bg-gold/20 px-3 py-2 text-gold transition-all duration-200 hover:bg-gold/30 hover:text-yellow-300 disabled:bg-gray-700/30 disabled:text-gray-500"
+                    >
+                      <BiRefresh
+                        className={`h-4 w-4 ${
+                          isGenerating ? "animate-spin" : ""
+                        }`}
+                      />
+                      <span className="text-sm">Re-generate</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            )
+          }
+        </WorkspaceSidePanel>
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Mobile menu button */}
-          <div className="md:hidden fixed top-4 left-4 z-30">
-            {sidebarCollapsed ? (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50 backdrop-blur-sm"
-              >
-                <HiMenu className="w-5 h-5 text-gold" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setSidebarCollapsed(true)}
-                className="p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-all duration-200 border border-gold/50 hover:border-gold backdrop-blur-sm"
-              >
-                <HiX className="w-5 h-5 text-gold" />
-              </button>
-            )}
-          </div>
-
           {/* Central Workspace */}
           <div className="flex-1 flex">
             {/* Prompt Input Area */}

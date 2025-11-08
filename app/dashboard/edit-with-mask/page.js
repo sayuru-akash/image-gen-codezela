@@ -3,13 +3,9 @@ import { useState, useCallback, useRef, useEffect, useId } from "react";
 import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
-import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
-import {
-  HiOutlinePhotograph,
-  HiOutlineAdjustments,
-  HiMenu,
-  HiX,
-} from "react-icons/hi";
+import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import { BiDownload, BiRefresh } from "react-icons/bi";
+import { HiOutlinePhotograph, HiOutlineAdjustments, HiX } from "react-icons/hi";
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
@@ -47,7 +43,6 @@ export default function ImageInpaintingEditor() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isClient, setIsClient] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed by default
   const [selectedForEdit, setSelectedForEdit] = useState("original");
   const [showMessage, setShowMessage] = useState(null);
   const [generatedImage, setGeneratedImage] = useState(null);
@@ -83,28 +78,6 @@ export default function ImageInpaintingEditor() {
   // Handle client-side hydration
   useEffect(() => {
     setIsClient(true);
-  }, []);
-
-  // Set initial sidebar state based on screen size
-  useEffect(() => {
-    const handleResize = () => {
-      // On mobile (md breakpoint and below), keep sidebar collapsed
-      // On desktop, expand sidebar
-      if (window.innerWidth >= 768) {
-        setSidebarCollapsed(false);
-      } else {
-        setSidebarCollapsed(true);
-      }
-    };
-
-    // Set initial state
-    handleResize();
-
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Show message notification
@@ -956,259 +929,196 @@ export default function ImageInpaintingEditor() {
         description="Paint directly on assets, isolate interface elements, and regenerate only what you need with precision controls."
         badges={["Brush tools", "Comparison view"]}
       />
-      <div className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
-        {/* Collapsible Left Sidebar */}
-        <div
-          className={`${sidebarCollapsed ? "w-16 md:w-16" : "w-80 md:w-80"} ${
-            !sidebarCollapsed
-              ? "fixed md:relative inset-0 z-50 md:z-auto"
-              : "hidden md:block"
-          } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
+      <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
+        <WorkspaceSidePanel
+          title="Mask Editor"
+          subtitle="Tools & History"
+          collapsedLabel="Tools"
+          icon={TbMask}
         >
-          <div className="h-full flex flex-col p-4">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div
-                className={`${
-                  sidebarCollapsed ? "hidden" : "block"
-                } transition-all duration-300`}
-              >
-                <h2 className="text-white font-semibold text-lg">
-                  Mask Editor
-                </h2>
-                <p className="text-gray-400 text-sm">Tools & History</p>
-              </div>
-              <button
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
-              >
-                <BiSolidRightArrow
-                  className={`w-4 h-4 text-gold transition-transform duration-300 ${
-                    sidebarCollapsed ? "" : "rotate-180"
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Mobile Overlay */}
-            {!sidebarCollapsed && (
-              <div
-                className="md:hidden fixed inset-0 bg-black/50 z-40"
-                onClick={() => setSidebarCollapsed(true)}
-              />
-            )}
-
-            {/* Upload Button */}
-            <button
-              onClick={() => document.getElementById("imageInput").click()}
-              className={`${
-                sidebarCollapsed ? "w-8 h-8 p-1" : "w-full py-3 px-4"
-              } mb-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group`}
-            >
-              <FiUpload className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
-              {!sidebarCollapsed && (
-                <span className="text-gold font-medium">Upload Image</span>
-              )}
-              <input
-                id="imageInput"
-                type="file"
-                onChange={handleOriginalImageChange}
-                accept="image/*"
-                className="hidden"
-              />
-            </button>
-
-            {/* Masking Tools */}
-            {!sidebarCollapsed && originalImage && (
-              <div className="mb-6 p-4 bg-gray-700/30 rounded-xl border border-white/10">
-                <h3 className="text-white font-medium mb-4 flex items-center gap-2">
-                  <TbMask className="w-4 h-4 text-gold" />
-                  Masking Tools
-                </h3>
-
-                {/* Mask Toggle */}
-                <div className="mb-4">
-                  <button
-                    onClick={() => setMaskEnabled(!maskEnabled)}
-                    className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-                      maskEnabled
-                        ? "bg-gold text-gray-900"
-                        : "bg-gray-600/50 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    <RiBrushLine className="w-4 h-4" />
-                    {maskEnabled ? "Mask Tool Active" : "Enable Mask Tool"}
-                  </button>
-                </div>
-
-                {/* Brush Size Slider */}
-                <div className="mb-4">
-                  <label className="block text-white text-sm font-medium mb-2">
-                    Brush Size
-                  </label>
-                  <input
-                    type="range"
-                    min="5"
-                    max="50"
-                    value={brushSize}
-                    onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>5px</span>
-                    <span className="text-gold font-medium">{brushSize}px</span>
-                    <span>50px</span>
-                  </div>
-                </div>
-
-                {/* Opacity Slider */}
-                <div className="mb-4">
-                  <label className="block text-white text-sm font-medium mb-2">
-                    Opacity
-                  </label>
-                  <input
-                    type="range"
-                    min="0.1"
-                    max="1"
-                    step="0.1"
-                    value={brushOpacity}
-                    onChange={(e) =>
-                      setBrushOpacity(parseFloat(e.target.value))
-                    }
-                    className="w-full h-2 bg-gray-600 rounded-lg cursor-pointer slider-thumb"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>10%</span>
-                    <span className="text-gold font-medium">
-                      {Math.round(brushOpacity * 100)}%
-                    </span>
-                    <span>100%</span>
-                  </div>
-                </div>
-
-                {/* Clear Mask Button */}
+          {({ isOpen }) =>
+            isOpen && (
+              <div className="flex h-full flex-col gap-4 overflow-hidden transition-all duration-300 ease-in-out">
                 <button
-                  onClick={clearMask}
-                  className="w-full py-2 px-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg text-sm font-medium transition-all duration-200"
+                  onClick={() => document.getElementById("imageInput").click()}
+                  className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gold/50 bg-gradient-to-r from-gold/20 to-yellow-600/20 px-4 py-3 transition-all duration-200 hover:border-gold hover:from-gold/30 hover:to-yellow-600/30"
                 >
-                  Clear Mask
+                  <FiUpload className="h-5 w-5 text-gold transition-transform group-hover:scale-110" />
+                  <span className="text-gold font-medium">Upload Image</span>
+                  <input
+                    id="imageInput"
+                    type="file"
+                    onChange={handleOriginalImageChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
                 </button>
-              </div>
-            )}
 
-            {/* Image Thumbnails */}
-            <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
-              {originalImage && !sidebarCollapsed && (
-                <div className="relative group cursor-pointer">
-                  <div className="w-full h-20 rounded-lg overflow-hidden ring-1 ring-white/20 hover:ring-gold/50 transition-all duration-200">
-                    <Image
-                      src={originalImage.preview}
-                      alt="Original"
-                      width={320}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute bottom-1 left-1 right-1">
-                    <div className="bg-black/70 backdrop-blur-sm rounded px-2 py-1">
-                      <p className="text-white text-xs truncate">
-                        {originalImage.name}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Generated Image Thumbnail */}
-              {generatedImage && !sidebarCollapsed && (
-                <div className="border-t border-white/10 pt-3 mt-6">
-                  <p className="text-gray-400 text-sm mb-3 font-medium">
-                    Generated Result
-                  </p>
-                  <div className="relative group cursor-pointer">
-                    <div className="w-full h-20 rounded-lg overflow-hidden ring-1 ring-green-500/50 hover:ring-green-400 transition-all duration-200">
-                      <Image
-                        src={generatedImage}
-                        alt="Generated"
-                        width={320}
-                        height={80}
-                        className="w-full h-full object-cover"
+                {originalImage && (
+                  <div className="space-y-4 rounded-xl border border-white/10 bg-gray-700/30 p-4">
+                    <h3 className="flex items-center gap-2 text-white font-medium">
+                      <TbMask className="h-4 w-4 text-gold" />
+                      Masking Tools
+                    </h3>
+                    <button
+                      onClick={() => setMaskEnabled(!maskEnabled)}
+                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                        maskEnabled
+                          ? "bg-gold text-gray-900"
+                          : "bg-gray-600/50 text-gray-300 hover:bg-gray-600"
+                      }`}
+                    >
+                      <RiBrushLine className="h-4 w-4" />
+                      {maskEnabled ? "Mask Tool Active" : "Enable Mask Tool"}
+                    </button>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-white">
+                        Brush Size
+                      </label>
+                      <input
+                        type="range"
+                        min="5"
+                        max="50"
+                        value={brushSize}
+                        onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                        className="slider-thumb h-2 w-full cursor-pointer rounded-lg bg-gray-600"
                       />
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        NEW
+                      <div className="mt-1 flex justify-between text-xs text-gray-400">
+                        <span>5px</span>
+                        <span className="text-gold font-medium">
+                          {brushSize}px
+                        </span>
+                        <span>50px</span>
                       </div>
                     </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-white">
+                        Opacity
+                      </label>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1"
+                        step="0.1"
+                        value={brushOpacity}
+                        onChange={(e) =>
+                          setBrushOpacity(parseFloat(e.target.value))
+                        }
+                        className="slider-thumb h-2 w-full cursor-pointer rounded-lg bg-gray-600"
+                      />
+                      <div className="mt-1 flex justify-between text-xs text-gray-400">
+                        <span>10%</span>
+                        <span className="text-gold font-medium">
+                          {Math.round(brushOpacity * 100)}%
+                        </span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={clearMask}
+                      className="w-full rounded-lg bg-red-600/20 px-3 py-2 text-sm font-medium text-red-400 transition-all duration-200 hover:bg-red-600/30 hover:text-red-300"
+                    >
+                      Clear Mask
+                    </button>
                   </div>
+                )}
+
+                <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto">
+                  {originalImage && (
+                    <div className="group relative cursor-pointer">
+                      <div className="h-20 w-full overflow-hidden rounded-lg ring-1 ring-white/20 transition-all duration-200 hover:ring-gold/50">
+                        <Image
+                          src={originalImage.preview}
+                          alt="Original"
+                          width={320}
+                          height={80}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute bottom-1 left-1 right-1">
+                        <div className="rounded bg-black/70 px-2 py-1 text-xs text-white">
+                          {originalImage.name}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {generatedImage && (
+                    <div className="border-t border-white/10 pt-3">
+                      <p className="mb-3 text-sm font-medium text-gray-400">
+                        Generated Result
+                      </p>
+                      <div className="group relative cursor-pointer">
+                        <div className="h-20 w-full overflow-hidden rounded-lg ring-1 ring-green-500/50 transition-all duration-200 hover:ring-green-400">
+                          <Image
+                            src={generatedImage}
+                            alt="Generated"
+                            width={320}
+                            height={80}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute right-2 top-2 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white">
+                          NEW
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!originalImage && !generatedImage && (
+                    <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-center">
+                      <HiOutlinePhotograph className="mx-auto mb-2 h-12 w-12 text-white/40" />
+                      <p className="text-white font-medium">No assets yet</p>
+                      <p className="text-gray-400 text-sm">
+                        Upload an image to start masking
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Action Widgets */}
-            {!sidebarCollapsed && originalImage && (
-              <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
-                <p className="text-gray-400 text-sm font-medium mb-3">
-                  Quick Actions
-                </p>
-
-                <button
-                  onClick={() =>
-                    downloadImage(
-                      generatedImage || originalImage.preview,
-                      generatedImage ? "generated" : originalImage.name
-                    )
-                  }
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
-                >
-                  <BiDownload className="w-4 h-4" />
-                  <span className="text-sm">Download</span>
-                </button>
-
-                <button
-                  onClick={handleResize}
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 text-gray-300 hover:text-white"
-                >
-                  <RiExpandDiagonalLine className="w-4 h-4" />
-                  {/* <span className="text-sm">Resize</span> */}
-                </button>
-
-                <button
-                  onClick={handleRegenerate}
-                  disabled={isLoading || !prompt.trim()}
-                  className="w-full flex items-center gap-3 px-3 py-2 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500"
-                >
-                  <BiRefresh
-                    className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-                  />
-                  <span className="text-sm">Re-generate</span>
-                </button>
+                {originalImage && (
+                  <div className="space-y-2 border-t border-white/10 pt-4">
+                    <p className="text-sm font-medium text-gray-400">
+                      Quick Actions
+                    </p>
+                    <button
+                      onClick={() =>
+                        downloadImage(
+                          generatedImage || originalImage.preview,
+                          generatedImage ? "generated" : originalImage.name
+                        )
+                      }
+                      className="flex w-full items-center gap-3 rounded-lg bg-gray-700/50 px-3 py-2 text-gray-300 transition-all duration-200 hover:bg-gray-600/50 hover:text-white"
+                    >
+                      <BiDownload className="h-4 w-4" />
+                      <span className="text-sm">Download</span>
+                    </button>
+                    <button
+                      onClick={handleResize}
+                      className="flex w-full items-center gap-3 rounded-lg bg-gray-700/50 px-3 py-2 text-gray-300 transition-all duration-200 hover:bg-gray-600/50 hover:text-white"
+                    >
+                      <RiExpandDiagonalLine className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleRegenerate}
+                      disabled={isLoading || !prompt.trim()}
+                      className="flex w-full items-center gap-3 rounded-lg bg-gold/20 px-3 py-2 text-gold transition-all duration-200 hover:bg-gold/30 hover:text-yellow-300 disabled:bg-gray-700/30 disabled:text-gray-500"
+                    >
+                      <BiRefresh
+                        className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                      />
+                      <span className="text-sm">Re-generate</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            )
+          }
+        </WorkspaceSidePanel>
 
         {/* Main Content Area */}
+        {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Mobile menu button */}
-          <div className="md:hidden fixed top-4 left-4 z-30">
-            {sidebarCollapsed ? (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50 backdrop-blur-sm"
-              >
-                <HiMenu className="w-5 h-5 text-gold" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setSidebarCollapsed(true)}
-                className="p-2 rounded-lg bg-gold/20 hover:bg-gold/30 transition-all duration-200 border border-gold/50 hover:border-gold backdrop-blur-sm"
-              >
-                <HiX className="w-5 h-5 text-gold" />
-              </button>
-            )}
-          </div>
-
           {/* Mobile Quick Actions - Only visible on mobile */}
           <div className="md:hidden p-3 border-b border-white/10">
             <div className="flex gap-2">

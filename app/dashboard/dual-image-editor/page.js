@@ -2,8 +2,8 @@
 import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
-import { BiSolidRightArrow, BiDownload, BiRefresh } from "react-icons/bi";
-import { HiMenu, HiOutlinePhotograph } from "react-icons/hi";
+import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import { BiDownload, BiRefresh } from "react-icons/bi";
 import { FiUpload, FiCheck, FiEdit3 } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
 import { useRef, useState, useEffect } from "react";
@@ -41,7 +41,6 @@ export default function DualImageEditor() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState([]);
-  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [imageHistory, setImageHistory] = useState([]);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -83,22 +82,6 @@ export default function DualImageEditor() {
     }
   }, [imageHistory]);
 
-  // Handle mobile view initialization and responsive behavior
-  useEffect(() => {
-    const checkMobileView = () => {
-      const isMobile = window.innerWidth < 768;
-      if (isMobile) {
-        setSidebarExpanded(false);
-      }
-    };
-
-    // Check on mount
-    checkMobileView();
-
-    // Add resize listener
-    window.addEventListener("resize", checkMobileView);
-    return () => window.removeEventListener("resize", checkMobileView);
-  }, []);
 
   const saveToHistory = (uploadedImgs, generatedImgs, promptText) => {
     const newItem = {
@@ -368,106 +351,20 @@ export default function DualImageEditor() {
         description="Blend textures, lighting, and style between references to craft cinematic key art and mood boards instantly."
         badges={["Style transfer", "Side-by-side"]}
       />
-      <div className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
-        {/* Collapsible Left Sidebar */}
-        <div
-          className={`${sidebarExpanded ? "w-80 md:w-80" : "w-16 md:w-16"} ${
-            sidebarExpanded
-              ? "fixed md:relative inset-0 z-50 md:z-auto"
-              : "hidden md:block"
-          } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
+      <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
+        <WorkspaceSidePanel
+          title="Dual Editor"
+          subtitle="Two Image Workflow"
+          collapsedLabel="History"
+          icon={HistoryIcon}
         >
-          <div className="h-full flex flex-col p-4">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div
-                className={`${
-                  sidebarExpanded ? "block" : "hidden"
-                } transition-all duration-300`}
-              >
-                <h2 className="text-white font-semibold text-lg">
-                  Dual Editor
-                </h2>
-                <p className="text-gray-400 text-sm">Two Image Workflow</p>
-              </div>
-              <button
-                onClick={() => setSidebarExpanded(!sidebarExpanded)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
-              >
-                <BiSolidRightArrow
-                  className={`w-4 h-4 text-gold transition-transform duration-300 ${
-                    sidebarExpanded ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Mobile Overlay */}
-            {sidebarExpanded && (
-              <div
-                className="md:hidden fixed inset-0 bg-black/50 z-40"
-                onClick={() => setSidebarExpanded(false)}
-              />
-            )}
-
-            {/* Collapsed Sidebar Indicator */}
-            {!sidebarExpanded && (
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="relative">
-                  {/* History Icon with pulse animation */}
-                  <div className="mb-4 p-3 bg-gradient-to-r from-gold/20 to-gold/10 rounded-lg border border-gold/30 animate-pulse">
-                    <HistoryIcon
-                      sx={{
-                        color: "#D4AF37",
-                        fontSize: "24px",
-                      }}
-                    />
-                  </div>
-
-                  {/* Floating dots indicator */}
-                  <div className="flex flex-col space-y-1 items-center">
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    ></div>
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-
-                  {/* Text hint */}
-                  <div className="mt-4 transform -rotate-90 origin-center">
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "rgba(212, 175, 55, 0.8)",
-                        fontSize: "10px",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      History
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Expanded Sidebar Content */}
-            {sidebarExpanded && (
-              <Slide
-                direction="right"
-                in={sidebarExpanded}
-                mountOnEnter
-                unmountOnExit
-              >
+          {({ isOpen }) => (
+            <Slide
+              direction="right"
+              in={isOpen}
+              mountOnEnter
+              unmountOnExit
+            >
                 <div className="flex-1 overflow-hidden">
                   {/* Quick Actions */}
                   <div className="mb-6">
@@ -873,31 +770,13 @@ export default function DualImageEditor() {
                     )}
                   </div>
                 </div>
-              </Slide>
-            )}
-          </div>
-        </div>
+
+            </Slide>
+          )}
+        </WorkspaceSidePanel>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Mobile menu button */}
-          <div className="md:hidden fixed top-4 left-4 z-40">
-            <IconButton
-              onClick={() => setSidebarExpanded(true)}
-              sx={{
-                bgcolor: "rgba(30, 41, 59, 0.9)",
-                border: "1px solid #D4AF37",
-                color: "#D4AF37",
-                "&:hover": {
-                  bgcolor: "rgba(212, 175, 55, 0.2)",
-                },
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              <HiMenu size={20} />
-            </IconButton>
-          </div>
-
           {/* Main Workspace - Improved Layout */}
           <div className="flex-1 p-3 md:p-6 flex flex-col">
             {/* Content Area with Uploaded and Generated Images */}

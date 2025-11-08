@@ -3,8 +3,7 @@
 import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
-import { BiSolidRightArrow } from "react-icons/bi";
-import { HiMenu } from "react-icons/hi";
+import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
 import { useState, useEffect, useCallback } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 import {
@@ -41,7 +40,6 @@ function TexttoImageContent() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   // Load image history from localStorage on component mount
   useEffect(() => {
@@ -302,345 +300,191 @@ function TexttoImageContent() {
         description="Generate hero shots, mood boards, and concept art with governed prompts, negative controls, and instant history playback."
         badges={["GPU ready", "History synced"]}
       />
-      <div className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
-        {/* Collapsible Left Sidebar */}
-        <div
-          className={`${sidebarExpanded ? "w-80 md:w-80" : "w-16 md:w-16"} ${
-            sidebarExpanded
-              ? "fixed md:relative inset-0 z-50 md:z-auto"
-              : "hidden md:block"
-          } transition-all duration-300 ease-in-out bg-gray-800/50 backdrop-blur-sm border-r border-white/10`}
+      <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
+        <WorkspaceSidePanel
+          title="Gallery"
+          subtitle="Generated Images"
+          collapsedLabel="History"
+          icon={HistoryIcon}
         >
-          <div className="h-full flex flex-col p-4">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div
-                className={`${
-                  sidebarExpanded ? "block" : "hidden"
-                } transition-all duration-300`}
-              >
-                <h2 className="text-white font-semibold text-lg">Gallery</h2>
-                <p className="text-gray-400 text-sm">Generated Images</p>
-              </div>
-              <button
-                onClick={() => setSidebarExpanded(!sidebarExpanded)}
-                className="p-2 rounded-lg bg-gray-700/50 hover:bg-gold/20 transition-all duration-200 border border-white/10 hover:border-gold/50"
-              >
-                <BiSolidRightArrow
-                  className={`w-4 h-4 text-gold transition-transform duration-300 ${
-                    sidebarExpanded ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Mobile Overlay */}
-            {sidebarExpanded && (
-              <div
-                className="md:hidden fixed inset-0 bg-black/50 z-40"
-                onClick={() => setSidebarExpanded(false)}
-              />
-            )}
-
-            {/* Collapsed Sidebar Indicator */}
-            {!sidebarExpanded && (
-              <div className="flex flex-col items-center justify-center h-full">
-                <div className="relative">
-                  {/* History Icon with pulse animation */}
-                  <div className="mb-4 p-3 bg-gradient-to-r from-gold/20 to-gold/10 rounded-lg border border-gold/30 animate-pulse">
+          {({ isOpen }) => (
+            <Slide
+              direction="right"
+              in={isOpen}
+              mountOnEnter
+              unmountOnExit
+            >
+              <div className="flex-1 overflow-hidden">
+                <div className="mb-6 flex items-center gap-3 rounded-lg border border-white/10 bg-gradient-to-r from-gray-800/50 to-gray-700/30 p-3">
+                  <div className="rounded-lg bg-gradient-to-r from-gold/20 to-gold/10 p-2">
                     <HistoryIcon
                       sx={{
                         color: "#D4AF37",
-                        fontSize: "24px",
+                        fontSize: "20px",
                       }}
                     />
                   </div>
-
-                  {/* Floating dots indicator */}
-                  <div className="flex flex-col space-y-1 items-center">
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    ></div>
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-
-                  {/* Text hint */}
-                  <div className="mt-4 transform -rotate-90 origin-center">
+                  <div className="flex-1">
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "white",
+                        fontWeight: 600,
+                        fontSize: "16px",
+                        marginBottom: "2px",
+                      }}
+                    >
+                      Recent Images
+                    </Typography>
                     <Typography
                       variant="caption"
                       sx={{
-                        color: "rgba(212, 175, 55, 0.8)",
-                        fontSize: "10px",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        whiteSpace: "nowrap",
+                        color: "rgba(255, 255, 255, 0.6)",
+                        fontSize: "12px",
                       }}
                     >
-                      History
+                      {imageHistory.length} images • {getStorageInfo().usedMB.toFixed(1)}MB used
                     </Typography>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Generated Images History */}
-            {sidebarExpanded && (
-              <Slide
-                direction="right"
-                in={sidebarExpanded}
-                mountOnEnter
-                unmountOnExit
-              >
-                <div className="flex-1 overflow-hidden">
-                  <div className="flex items-center gap-3 mb-6 p-3 bg-gradient-to-r from-gray-800/50 to-gray-700/30 rounded-lg border border-white/10">
-                    <div className="p-2 bg-gradient-to-r from-gold/20 to-gold/10 rounded-lg">
-                      <HistoryIcon
+                  {imageHistory.length > 0 && (
+                    <Tooltip title="Clear All Images" placement="left">
+                      <IconButton
+                        size="small"
+                        onClick={clearAllHistory}
                         sx={{
-                          color: "#D4AF37",
-                          fontSize: "20px",
+                          bgcolor: "rgba(255, 0, 0, 0.1)",
+                          border: "1px solid rgba(255, 0, 0, 0.3)",
+                          color: "rgba(255, 0, 0, 0.8)",
+                          width: "28px",
+                          height: "28px",
+                          "&:hover": {
+                            bgcolor: "rgba(255, 0, 0, 0.2)",
+                            borderColor: "rgba(255, 0, 0, 0.5)",
+                          },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </div>
+
+                <div className="custom-scrollbar max-h-96 space-y-3 overflow-y-auto">
+                  {imageHistory.map((item) => (
+                    <Card
+                      key={item.id}
+                      className="group relative overflow-hidden border border-white/10 bg-white/[0.02] transition-all duration-300 hover:border-gold/40 hover:bg-white/[0.04]"
+                      sx={{
+                        borderRadius: "16px",
+                        backdropFilter: "blur(6px)",
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={item.image}
+                        alt={item.prompt}
+                        sx={{
+                          height: 160,
+                          objectFit: "cover",
+                          transition: "transform 0.3s ease",
                         }}
                       />
-                    </div>
-                    <div className="flex-1">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <div className="absolute bottom-0 w-full p-3">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              marginBottom: "4px",
+                            }}
+                          >
+                            {item.prompt.length > 50
+                              ? `${item.prompt.slice(0, 47)}...`
+                              : item.prompt}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "rgba(255, 255, 255, 0.7)",
+                              fontSize: "11px",
+                            }}
+                          >
+                            {item.timestamp}
+                          </Typography>
+                          <div className="mt-2 flex gap-2">
+                            <Tooltip title="Load Image">
+                              <IconButton
+                                size="small"
+                                onClick={() => loadFromHistory(item)}
+                                sx={{
+                                  bgcolor: "rgba(255, 255, 255, 0.1)",
+                                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                                  color: "white",
+                                  "&:hover": {
+                                    bgcolor: "rgba(212, 175, 55, 0.2)",
+                                    borderColor: "rgba(212, 175, 55, 0.5)",
+                                  },
+                                }}
+                              >
+                                <DownloadIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete Item">
+                              <IconButton
+                                size="small"
+                                onClick={() => deleteFromHistory(item.id)}
+                                sx={{
+                                  bgcolor: "rgba(255, 0, 0, 0.1)",
+                                  border: "1px solid rgba(255, 0, 0, 0.3)",
+                                  color: "rgba(255, 0, 0, 0.8)",
+                                  "&:hover": {
+                                    bgcolor: "rgba(255, 0, 0, 0.2)",
+                                    borderColor: "rgba(255, 0, 0, 0.5)",
+                                  },
+                                }}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                  {imageHistory.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] py-10 text-center">
                       <Typography
                         variant="h6"
                         sx={{
                           color: "white",
                           fontWeight: 600,
+                          marginBottom: "8px",
                           fontSize: "16px",
-                          marginBottom: "2px",
                         }}
                       >
-                        Recent Images
+                        No images yet
                       </Typography>
                       <Typography
-                        variant="caption"
+                        variant="body2"
                         sx={{
-                          color: "rgba(255, 255, 255, 0.6)",
-                          fontSize: "12px",
+                          color: "rgba(255, 255, 255, 0.4)",
+                          fontSize: "13px",
                         }}
                       >
-                        {imageHistory.length} images •{" "}
-                        {getStorageInfo().usedMB.toFixed(1)}MB used
+                        Generated images will appear here
                       </Typography>
                     </div>
-                    {imageHistory.length > 0 && (
-                      <Tooltip title="Clear All Images" placement="left">
-                        <IconButton
-                          size="small"
-                          onClick={clearAllHistory}
-                          sx={{
-                            bgcolor: "rgba(255, 0, 0, 0.1)",
-                            border: "1px solid rgba(255, 0, 0, 0.3)",
-                            color: "rgba(255, 0, 0, 0.8)",
-                            width: "28px",
-                            height: "28px",
-                            "&:hover": {
-                              bgcolor: "rgba(255, 0, 0, 0.2)",
-                              borderColor: "rgba(255, 0, 0, 0.5)",
-                            },
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </div>
-
-                  <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                    {imageHistory.map((item) => (
-                      <Card
-                        key={item.id}
-                        className="cursor-pointer transition-all duration-200 overflow-hidden"
-                        onClick={() => loadFromHistory(item)}
-                        sx={{
-                          bgcolor: "rgba(30, 41, 59, 0.8)",
-                          border: "1px solid rgba(255, 255, 255, 0.2)",
-                          borderRadius: "12px",
-                          "&:hover": {
-                            borderColor: "#D4AF37",
-                            boxShadow: "0 4px 20px rgba(212, 175, 55, 0.3)",
-                            transform: "translateY(-2px)",
-                            bgcolor: "rgba(30, 41, 59, 0.9)",
-                          },
-                        }}
-                      >
-                        <div className="relative group">
-                          <CardMedia
-                            component="img"
-                            height="100"
-                            image={item.image}
-                            alt={item.prompt}
-                            sx={{
-                              height: "100px",
-                              objectFit: "cover",
-                              borderRadius: "12px 12px 0 0",
-                            }}
-                          />
-
-                          {/* Overlay with gradient for better text visibility */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200" />
-
-                          {/* Delete button */}
-                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteFromHistory(item.id);
-                              }}
-                              sx={{
-                                bgcolor: "rgba(0, 0, 0, 0.7)",
-                                border: "1px solid #D4AF37",
-                                color: "#D4AF37",
-                                width: "28px",
-                                height: "28px",
-                                "&:hover": {
-                                  bgcolor: "rgba(212, 175, 55, 0.2)",
-                                  borderColor: "#D4AF37",
-                                  transform: "scale(1.1)",
-                                },
-                                backdropFilter: "blur(4px)",
-                              }}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </div>
-
-                          {/* Play/View indicator */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <div className="bg-black bg-opacity-50 rounded-full p-2 backdrop-blur-sm">
-                              <FullscreenIcon
-                                sx={{
-                                  color: "#D4AF37",
-                                  fontSize: "20px",
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <Box
-                          className="p-3"
-                          sx={{ bgcolor: "rgba(30, 41, 59, 0.9)" }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "rgba(255, 255, 255, 0.9)",
-                              fontWeight: 500,
-                              marginBottom: "4px",
-                              lineHeight: 1.3,
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              fontSize: "14px",
-                            }}
-                            title={item.prompt}
-                          >
-                            {item.prompt.length > 40
-                              ? `${item.prompt.substring(0, 40)}...`
-                              : item.prompt}
-                          </Typography>
-
-                          <div className="flex items-center justify-between">
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                color: "rgba(212, 175, 55, 0.8)",
-                                fontSize: "11px",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {new Date(item.timestamp).toLocaleDateString()}
-                            </Typography>
-
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                fontSize: "11px",
-                              }}
-                            >
-                              {new Date(item.timestamp).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </Typography>
-                          </div>
-                        </Box>
-                      </Card>
-                    ))}
-
-                    {imageHistory.length === 0 && (
-                      <div className="text-center py-12">
-                        <div className="mb-4">
-                          <HistoryIcon
-                            sx={{
-                              fontSize: "48px",
-                              color: "rgba(212, 175, 55, 0.3)",
-                            }}
-                          />
-                        </div>
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            color: "rgba(255, 255, 255, 0.6)",
-                            fontWeight: 500,
-                            marginBottom: "8px",
-                            fontSize: "16px",
-                          }}
-                        >
-                          No images yet
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "rgba(255, 255, 255, 0.4)",
-                            fontSize: "13px",
-                          }}
-                        >
-                          Generated images will appear here
-                        </Typography>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </Slide>
-            )}
-          </div>
-        </div>
+              </div>
+            </Slide>
+          )}
+        </WorkspaceSidePanel>
 
         {/* Main Content */}
+        {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Mobile menu button */}
-          <div className="md:hidden fixed top-4 left-4 z-40">
-            <IconButton
-              onClick={() => setSidebarExpanded(true)}
-              sx={{
-                bgcolor: "rgba(30, 41, 59, 0.9)",
-                border: "1px solid #D4AF37",
-                color: "#D4AF37",
-                "&:hover": {
-                  bgcolor: "rgba(212, 175, 55, 0.2)",
-                },
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              <HiMenu size={20} />
-            </IconButton>
-          </div>
-
           {/* Central Workspace */}
           <div className="flex-1 p-3 md:p-6">
             <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
