@@ -294,15 +294,14 @@ function TexttoImageContent() {
     }
   };
   return (
-    <div className="space-y-6">
-      <WorkspaceHeader
-        title="Text to Image Studio"
-        description="Generate hero shots, mood boards, and concept art with governed prompts, negative controls, and instant history playback."
-        badges={["GPU ready", "History synced"]}
-      />
-      <div
-        className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6"
-      >
+    <>
+      <div className="space-y-6">
+        <WorkspaceHeader
+          title="Text to Image Studio"
+          description="Generate hero shots, mood boards, and concept art with governed prompts, negative controls, and instant history playback."
+          badges={["GPU ready", "History synced"]}
+        />
+        <div className="flex min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
       {/* Collapsible Left Sidebar */}
       <div
         className={`${sidebarExpanded ? "w-80 md:w-80" : "w-16 md:w-16"} ${
@@ -826,7 +825,6 @@ function TexttoImageContent() {
         </div>
       </div>
 
-      {/* Snackbar for notifications */}
       <Snackbar
         open={showSnackbar}
         autoHideDuration={3000}
@@ -846,7 +844,6 @@ function TexttoImageContent() {
         </Alert>
       </Snackbar>
 
-      {/* Custom CSS for scrollbar */}
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
@@ -889,24 +886,7 @@ function TexttoImageContent() {
         .custom-scrollbar > * {
           animation: slideInRight 0.3s ease-out forwards;
         }
-      </div>
-      <style jsx>{`
-        .custom-scrollbar > *:nth-child(1) {
-          animation-delay: 0.1s;
-        }
-        .custom-scrollbar > *:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        .custom-scrollbar > *:nth-child(3) {
-          animation-delay: 0.3s;
-        }
-        .custom-scrollbar > *:nth-child(4) {
-          animation-delay: 0.4s;
-        }
-        .custom-scrollbar > *:nth-child(5) {
-          animation-delay: 0.5s;
-        }
       `}</style>
-    </div>
+    </>
   );
 }
