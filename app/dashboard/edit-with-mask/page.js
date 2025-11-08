@@ -973,12 +973,14 @@ export default function ImageInpaintingEditor() {
         badges={["Brush tools", "Comparison view"]}
       />
       <WorkspaceQuickStats stats={quickStats} />
-      <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
-        <WorkspaceSidePanel
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start min-h-[calc(100vh-8rem)] rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
+        <div className="xl:w-[22rem] flex-shrink-0">
+          <WorkspaceSidePanel
           title="Mask Editor"
           subtitle="Tools & History"
           collapsedLabel="Tools"
           icon={TbMask}
+          className="xl:h-full"
         >
           {({ isOpen }) => (
             <Slide direction="right" in={isOpen} mountOnEnter unmountOnExit>
@@ -1159,10 +1161,11 @@ export default function ImageInpaintingEditor() {
             </Slide>
           )}
         </WorkspaceSidePanel>
+        </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-3 md:p-6">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_26rem] items-start">
+        <div className="flex-1 w-full p-3 md:p-6">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-3 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
               {/* Mobile Quick Actions - Only visible on mobile */}
               <div className="md:hidden p-3 border-b border-white/10">
@@ -1470,8 +1473,8 @@ export default function ImageInpaintingEditor() {
               </div>
             </div>
 
-            {/* Right Side - Image Comparison */}
-            <div className="flex flex-col rounded-[32px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_90px_rgba(6,8,20,0.55)] h-full">
+            {/* Image Comparison */}
+            <div className="flex flex-col rounded-[32px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_90px_rgba(6,8,20,0.55)]">
               <div className="mb-5 flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.35em] text-white/60">
@@ -1514,7 +1517,7 @@ export default function ImageInpaintingEditor() {
                 </button>
               </div>
 
-              <div className="flex-1 space-y-5 overflow-auto pr-1">
+            <div className="flex-1 space-y-5">
                 <div
                   className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ${
                     selectedForEdit === "original"
