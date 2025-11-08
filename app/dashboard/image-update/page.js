@@ -522,6 +522,25 @@ export default function ImageUpdate() {
     </div>
   );
 
+  const formatFileSize = (bytes) => {
+    if (!bytes && bytes !== 0) return "--";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const formatImageMeta = (image, fallback = "Awaiting image") => {
+    if (!image) return fallback;
+    const size =
+      typeof image.size === "number"
+        ? formatFileSize(image.size)
+        : image.file?.size
+        ? formatFileSize(image.file.size)
+        : "--";
+    const type = (image.type || image.file?.type || "image").split("/").pop();
+    return `${size} • ${type?.toUpperCase() || "IMG"}`;
+  };
+
   const quickStats = [
     {
       label: "Uploads",
@@ -714,13 +733,14 @@ export default function ImageUpdate() {
         </WorkspaceSidePanel>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col gap-4 p-3 md:p-6">
-          <div className="flex-1 rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-3 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
-            {/* Central Workspace */}
-            <div className="flex-1 flex">
-              {/* Prompt Input Area */}
-              <div className="flex-1 p-3 md:p-6">
-                <div className="max-w-4xl mx-auto">
+        <div className="flex-1 p-3 md:p-6">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_26rem] items-start">
+            <div className="flex flex-col rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-3 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
+              {/* Central Workspace */}
+              <div className="flex-1 flex">
+                {/* Prompt Input Area */}
+                <div className="flex-1 p-3 md:p-6">
+                  <div className="max-w-4xl mx-auto">
                   {/* Mobile Upload Section - Only visible on mobile when no images */}
                   {uploadedImages.length === 0 && (
                     <div className="md:hidden mb-6">
@@ -914,138 +934,181 @@ export default function ImageUpdate() {
                     </div>
                   )}
                 </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Side - Image Comparison */}
-          <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
-            <div className="h-full flex flex-col">
-              <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-                <MdCompareArrows className="w-5 h-5 text-gold" />
-                Image Comparison
-              </h3>
-
-              {/* Image Selection Tabs */}
-              <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => setSelectedForEdit("original")}
-                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedForEdit === "original"
-                      ? "bg-gold text-gray-900"
-                      : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
-                  }`}
-                >
-                  Original
-                </button>
-                <button
-                  onClick={() => setSelectedForEdit("generated")}
-                  disabled={!generatedImage}
-                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedForEdit === "generated"
-                      ? "bg-gold text-gray-900"
-                      : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 disabled:bg-gray-800/50 disabled:text-gray-600"
-                  }`}
-                >
-                  Generated
-                </button>
+            {/* Right Side - Image Comparison */}
+            <div className="flex flex-col rounded-[32px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_90px_rgba(6,8,20,0.55)] h-full">
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-white/60">
+                  Comparative View
+                </p>
+                <h3 className="text-xl font-semibold text-white">
+                  Image Comparison
+                </h3>
+                <p className="text-sm text-white/50">
+                  Toggle between versions to choose the active edit target.
+                </p>
               </div>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/70">
+                {selectedForEdit === "generated" ? "Generated" : "Original"}
+              </span>
+            </div>
 
-              {/* Image Display Cards */}
-              <div className="flex-1 space-y-4">
-                {/* Original Image Card */}
-                <div
-                  className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
-                    selectedForEdit === "original"
-                      ? "border-gold shadow-lg shadow-gold/20"
-                      : "border-white/10"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-white font-medium">Original Image</h4>
-                    {selectedForEdit === "original" && (
-                      <FiCheck className="w-4 h-4 text-gold" />
-                    )}
+            <div className="mb-4 flex gap-2">
+              <button
+                onClick={() => setSelectedForEdit("original")}
+                className={`flex-1 rounded-2xl px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-200 ${
+                  selectedForEdit === "original"
+                    ? "bg-gold text-gray-900"
+                    : "bg-white/5 text-white/70 hover:bg-white/10"
+                }`}
+              >
+                Original
+              </button>
+              <button
+                onClick={() => setSelectedForEdit("generated")}
+                disabled={!generatedImage}
+                className={`flex-1 rounded-2xl px-4 py-2 text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-200 ${
+                  selectedForEdit === "generated"
+                    ? "bg-gold text-gray-900"
+                    : "bg-white/5 text-white/70 hover:bg-white/10 disabled:bg-transparent disabled:text-white/30"
+                }`}
+              >
+                Generated
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-5 overflow-auto pr-1">
+              <div
+                className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ${
+                  selectedForEdit === "original"
+                    ? "border-gold/70 bg-gradient-to-br from-white/5 to-white/[0.02] shadow-[0_20px_60px_rgba(6,8,20,0.35)]"
+                    : "border-white/10 bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Original image
+                    </p>
+                    <p className="text-xs text-white/50">
+                      {formatImageMeta(selectedImage)}
+                    </p>
                   </div>
-                  <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                    {selectedImage ? (
-                      <Image
-                        src={selectedImage.url}
-                        alt="Original"
-                        width={300}
-                        height={300}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">
-                        <HiOutlinePhotograph className="w-12 h-12" />
-                      </div>
-                    )}
-                  </div>
+                  {selectedForEdit === "original" && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gold">
+                      Active
+                      <FiCheck className="h-3 w-3" />
+                    </span>
+                  )}
                 </div>
-
-                {/* Generated Image Card */}
-                <div
-                  className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
-                    selectedForEdit === "generated"
-                      ? "border-gold shadow-lg shadow-gold/20"
-                      : "border-white/10"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-white font-medium">Generated Image</h4>
-                    {selectedForEdit === "generated" && (
-                      <FiCheck className="w-4 h-4 text-gold" />
-                    )}
-                  </div>
-                  <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                    {generatedImage ? (
-                      <Image
-                        src={generatedImage}
-                        alt="Generated"
-                        width={300}
-                        height={300}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-500">
-                        <div className="text-center">
-                          <HiOutlineAdjustments className="w-12 h-12 mx-auto mb-2" />
-                          <p className="text-sm">
-                            Generated image will appear here
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                <div className="relative aspect-[4/3] rounded-xl border border-white/10 bg-black/40 overflow-hidden">
+                  {selectedImage ? (
+                    <Image
+                      src={selectedImage.url}
+                      alt="Original comparison preview"
+                      fill
+                      sizes="100%"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-white/30">
+                      <HiOutlinePhotograph className="h-10 w-10" />
+                    </div>
+                  )}
+                  {selectedImage && (
+                    <div className="absolute left-3 bottom-3 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-xs text-white/80 backdrop-blur">
+                      {selectedImage.name}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Comparison Info */}
-              {selectedImage && generatedImage && (
-                <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-white/10">
-                  <p className="text-gray-300 text-sm">
-                    <span className="text-gold font-medium">
-                      Selected for editing:
-                    </span>{" "}
-                    {selectedForEdit === "original"
-                      ? "Original Image"
-                      : "Generated Image"}
+              <div
+                className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ${
+                  selectedForEdit === "generated"
+                    ? "border-gold/70 bg-gradient-to-br from-white/5 to-white/[0.02] shadow-[0_20px_60px_rgba(6,8,20,0.35)]"
+                    : "border-white/10 bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Generated result
+                    </p>
+                    <p className="text-xs text-white/50">
+                      {generatedImage ? "AI output • PNG" : "Awaiting render"}
+                    </p>
+                  </div>
+                  {selectedForEdit === "generated" && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gold">
+                      Active
+                      <FiCheck className="h-3 w-3" />
+                    </span>
+                  )}
+                </div>
+                <div className="relative aspect-[4/3] rounded-xl border border-white/10 bg-black/40 overflow-hidden">
+                  {generatedImage ? (
+                    <Image
+                      src={generatedImage}
+                      alt="Generated comparison preview"
+                      fill
+                      sizes="100%"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center gap-2 text-white/40">
+                      <HiOutlineAdjustments className="h-10 w-10" />
+                      <p className="text-xs uppercase tracking-[0.4em]">
+                        Pending
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {(selectedImage || generatedImage) && (
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/50">
+                  Selection summary
+                </p>
+                <p className="mt-2 text-sm text-white/80">
+                  <span className="text-gold font-semibold">
+                    Active edit target:
+                  </span>{" "}
+                  {selectedForEdit === "generated"
+                    ? "Generated image"
+                    : "Original image"}
+                </p>
+                {selectedImage && (
+                  <p className="mt-1 text-xs text-white/50">
+                    Source • {selectedImage.name} ({formatImageMeta(selectedImage)})
                   </p>
-                </div>
-              )}
-            </div>
+                )}
+                {generatedImage && (
+                  <p className="mt-1 text-xs text-white/50">
+                    Output • Latest AI pass
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Mobile Gallery Modal */}
-        {showMobileGallery && <MobileGalleryModal />}
+      {/* Mobile Gallery Modal */}
+      {showMobileGallery && <MobileGalleryModal />}
 
-        {/* Mobile Comparison Modal */}
-        {showMobileComparison && <MobileComparisonModal />}
+      {/* Mobile Comparison Modal */}
+      {showMobileComparison && <MobileComparisonModal />}
 
-        {/* Hidden file input */}
-        <input
+      {/* Hidden file input */}
+      <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileUpload}
@@ -1054,15 +1117,15 @@ export default function ImageUpdate() {
           multiple
         />
 
-        {/* Message Notification */}
-        {showMessage && (
-          <div className="fixed top-6 right-6 bg-gray-800 border border-gold/50 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
-            {showMessage}
-          </div>
-        )}
+      {/* Message Notification */}
+      {showMessage && (
+        <div className="fixed top-6 right-6 bg-gray-800 border border-gold/50 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse">
+          {showMessage}
+        </div>
+      )}
 
-        {/* Custom Styles */}
-        <style jsx global>{`
+      {/* Custom Styles */}
+      <style jsx global>{`
           .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
           }
@@ -1078,11 +1141,10 @@ export default function ImageUpdate() {
             );
             border-radius: 2px;
           }
-          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
-          }
-        `}</style>
-      </div>
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #d4af37 0%, #b8941f 100%);
+        }
+      `}</style>
     </div>
   );
 }
