@@ -58,7 +58,15 @@ export default function DashboardWorkspaceNav({ hideOverview = false }) {
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 shadow-[0_20px_60px_rgba(6,8,20,0.35)] backdrop-blur">
-      <div className="hidden gap-3 md:flex">{renderLinks()}</div>
+      <div className="hidden items-center justify-between gap-3 md:flex">
+        <div className="flex gap-3">{renderLinks()}</div>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-300 hover:border-gold/70 hover:bg-gold/10 hover:text-white"
+        >
+          Dashboard
+        </Link>
+      </div>
       <div className="md:hidden">
         <button
           type="button"
@@ -69,7 +77,16 @@ export default function DashboardWorkspaceNav({ hideOverview = false }) {
           <span aria-hidden="true">{isMobileOpen ? "−" : "+"}</span>
         </button>
         {isMobileOpen && (
-          <div className="mt-3 flex flex-col gap-2">{renderLinks("mobile")}</div>
+          <div className="mt-3 flex flex-col gap-2">
+            {renderLinks("mobile")}
+            <Link
+              href="/dashboard"
+              onClick={() => setIsMobileOpen(false)}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-300 hover:border-gold/70 hover:bg-gold/10 hover:text-white"
+            >
+              Dashboard
+            </Link>
+          </div>
         )}
       </div>
     </div>
