@@ -3,6 +3,7 @@ import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
 import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import WorkspaceQuickStats from "@/components/dashboard/WorkspaceQuickStats";
 import { BiDownload, BiRefresh } from "react-icons/bi";
 import { FiUpload, FiCheck, FiEdit3 } from "react-icons/fi";
 import { RiExpandDiagonalLine } from "react-icons/ri";
@@ -343,6 +344,29 @@ export default function DualImageEditor() {
       setIsGenerating(false);
     }
   };
+  const quickStats = [
+    {
+      label: "Uploads",
+      value: `${uploadedImages.length}/2`,
+      hint: "Reference slots",
+    },
+    {
+      label: "Generated",
+      value: generatedImages.length,
+      hint: "Latest blend set",
+    },
+    {
+      label: "History",
+      value: imageHistory.length,
+      hint: "Recent recipes",
+    },
+    {
+      label: "Status",
+      value: isGenerating ? "Blending" : generatedImages.length ? "Ready" : "Idle",
+      hint: isGenerating ? "GPU engaged" : "Awaiting input",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <DashboardWorkspaceNav hideOverview />
@@ -351,6 +375,7 @@ export default function DualImageEditor() {
         description="Blend textures, lighting, and style between references to craft cinematic key art and mood boards instantly."
         badges={["Style transfer", "Side-by-side"]}
       />
+      <WorkspaceQuickStats stats={quickStats} />
       <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
         <WorkspaceSidePanel
           title="Dual Editor"
@@ -776,9 +801,8 @@ export default function DualImageEditor() {
         </WorkspaceSidePanel>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Main Workspace - Improved Layout */}
-          <div className="flex-1 p-3 md:p-6 flex flex-col">
+        <div className="flex-1 flex flex-col gap-4 p-3 md:p-6">
+          <div className="flex-1 flex flex-col gap-6 rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-3 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
             {/* Content Area with Uploaded and Generated Images */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6">
               {/* Uploaded Images - Compact Size */}

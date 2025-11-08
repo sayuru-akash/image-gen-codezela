@@ -4,6 +4,7 @@ import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
 import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import WorkspaceQuickStats from "@/components/dashboard/WorkspaceQuickStats";
 import { useState, useEffect, useCallback } from "react";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 import {
@@ -292,6 +293,30 @@ function TexttoImageContent() {
       setIsGenerating(false);
     }
   };
+  const storageInfo = getStorageInfo();
+  const quickStats = [
+    {
+      label: "History",
+      value: `${imageHistory.length} saved`,
+      hint: "Local cache",
+    },
+    {
+      label: "Status",
+      value: isGenerating ? "Rendering" : generatedImage ? "Ready" : "Idle",
+      hint: isGenerating ? "GPU in use" : "Awaiting prompt",
+    },
+    {
+      label: "Prompt",
+      value: prompt.length ? `${prompt.length} chars` : "Waiting",
+      hint: "Live token count",
+    },
+    {
+      label: "Storage",
+      value: `${storageInfo.usedMB.toFixed(1)} MB`,
+      hint: "History footprint",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <DashboardWorkspaceNav hideOverview />
@@ -300,6 +325,7 @@ function TexttoImageContent() {
         description="Generate hero shots, mood boards, and concept art with governed prompts, negative controls, and instant history playback."
         badges={["GPU ready", "History synced"]}
       />
+      <WorkspaceQuickStats stats={quickStats} />
       <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
         <WorkspaceSidePanel
           title="Gallery"
@@ -483,16 +509,29 @@ function TexttoImageContent() {
         </WorkspaceSidePanel>
 
         {/* Main Content */}
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Central Workspace */}
-          <div className="flex-1 p-3 md:p-6">
-            <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 p-3 md:p-6">
+          <div className="flex-1 rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-4 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-white/50">
+                  Live Canvas
+                </p>
+                <h3 className="text-2xl font-semibold text-white">
+                  Rendered Preview
+                </h3>
+              </div>
+              <span className="rounded-full border border-white/15 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.3em] text-white/70">
+                {isGenerating ? "Rendering" : generatedImage ? "Ready" : "Idle"}
+              </span>
+            </div>
+            <div className="relative h-[calc(100%-56px)] rounded-[28px] border border-white/10 bg-black/30 p-2 sm:p-4">
               {error ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-red-400 text-center p-4">
-                    <div className="text-lg mb-2">Error</div>
-                    <div className="text-sm">{error}</div>
+                <div className="flex h-full items-center justify-center p-6 text-center">
+                  <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-6 py-4">
+                    <div className="text-lg font-semibold text-red-200 mb-2">
+                      Something went wrong
+                    </div>
+                    <div className="text-sm text-red-100/80">{error}</div>
                   </div>
                 </div>
               ) : generatedImage ? (
@@ -591,83 +630,106 @@ function TexttoImageContent() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-white/60 text-center px-4">
-                    <div className="text-xl mb-2">
-                      Generated image will appear here
-                    </div>
-                    <div className="text-sm">
-                      Enter a prompt and click Generate
-                    </div>
+                <div className="flex h-full flex-col items-center justify-center gap-6 p-6 text-center">
+                  <div className="rounded-3xl border border-gold/30 bg-gold/5 p-6 text-gold">
+                    <HistoryIcon sx={{ fontSize: "48px" }} />
+                  </div>
+                  <div>
+                    <Typography
+                      variant="h5"
+                      sx={{ color: "white", fontWeight: 600, marginBottom: "8px" }}
+                    >
+                      Waiting for your prompt
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: "rgba(255, 255, 255, 0.65)",
+                        maxWidth: "460px",
+                        margin: "0 auto",
+                      }}
+                    >
+                      Craft a descriptive prompt below to generate cinematic
+                      imagery with GPU-accelerated fidelity.
+                    </Typography>
+                  </div>
+                  <div className="grid w-full max-w-3xl gap-3 sm:grid-cols-3">
+                    {["Product hero shot", "Moody key art", "Lifestyle lookbook"].map(
+                      (example) => (
+                        <button
+                          key={example}
+                          onClick={() => setPrompt(example)}
+                          className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 transition-all duration-200 hover:border-gold/40 hover:text-white"
+                        >
+                          {example}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Loading Overlay */}
               {isGenerating && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm">
+                <div className="absolute inset-0 flex items-center justify-center rounded-[28px] bg-black/60 backdrop-blur-sm">
                   <div className="text-center text-white px-4">
                     <CircularProgress
                       size={60}
                       thickness={4}
                       sx={{
                         color: "#FFD700",
-                        marginBottom: 2,
+                        marginBottom: 12,
                       }}
                     />
-                    <Typography
-                      variant="h6"
-                      className="mb-2"
-                      sx={{ fontSize: "20px" }}
-                    >
-                      Generating Image...
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      className="text-white/80"
-                      sx={{ fontSize: "14px" }}
-                    >
+                    <div className="text-lg font-semibold">
+                      Generating image...
+                    </div>
+                    <p className="text-sm text-white/70">
                       This may take a few moments
-                    </Typography>
+                    </p>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Bottom Prompt Input */}
-          <div className="p-3 md:p-6 border-t border-white/10">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative">
-                <input
-                  value={prompt}
-                  onChange={(e) => {
-                    setPrompt(e.target.value);
-                    setError(null);
-                  }}
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && !isGenerating && handleGenerate()
-                  }
-                  placeholder="Describe the image you want to generate..."
-                  className="w-full px-4 md:px-6 py-3 md:py-4 pr-24 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 backdrop-blur-sm text-sm md:text-base"
-                  disabled={isGenerating}
-                />
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium px-4 md:px-8 py-1.5 md:py-2 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2 text-xs md:text-sm"
-                >
-                  {isGenerating && (
-                    <CircularProgress size={12} sx={{ color: "white" }} />
-                  )}
-                  <span className="hidden sm:inline">
-                    {isGenerating ? "Generating..." : "Generate"}
-                  </span>
-                  <span className="sm:hidden">
-                    {isGenerating ? "..." : "Go"}
-                  </span>
-                </button>
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-4 md:p-6 shadow-[0_30px_90px_rgba(6,8,20,0.45)]">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-white/50">
+                  Prompt Composer
+                </p>
+                <h4 className="text-lg font-semibold text-white">
+                  Describe your shot
+                </h4>
               </div>
+              <span className="text-xs text-white/50">
+                Press Enter to run
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                value={prompt}
+                onChange={(e) => {
+                  setPrompt(e.target.value);
+                  setError(null);
+                }}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && !isGenerating && handleGenerate()
+                }
+                placeholder="Describe the image you want to generate..."
+                className="w-full rounded-2xl border border-white/20 bg-white/[0.03] px-4 py-4 pr-28 text-white placeholder-white/30 shadow-inner shadow-black/40 transition-all duration-200 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30"
+                disabled={isGenerating}
+              />
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl bg-gradient-to-r from-gold to-yellow-600 px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-gray-900 shadow-lg shadow-yellow-600/30 transition-all duration-200 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 disabled:text-gray-400"
+              >
+                {isGenerating && (
+                  <CircularProgress size={14} sx={{ color: "#111" }} />
+                )}
+                {isGenerating ? "Rendering" : "Generate"}
+              </button>
             </div>
           </div>
         </div>

@@ -4,12 +4,14 @@ import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
 import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
 import WorkspaceSidePanel from "@/components/dashboard/WorkspaceSidePanel";
+import WorkspaceQuickStats from "@/components/dashboard/WorkspaceQuickStats";
 import { BiDownload, BiRefresh } from "react-icons/bi";
 import { HiOutlinePhotograph, HiOutlineAdjustments, HiX } from "react-icons/hi";
 import { MdCompareArrows } from "react-icons/md";
 import { FiUpload, FiEdit3, FiCheck } from "react-icons/fi";
 import { RiExpandDiagonalLine, RiBrushLine } from "react-icons/ri";
 import { TbMask } from "react-icons/tb";
+import { Slide } from "@mui/material";
 import styles from "./slider.module.css";
 import { apiCall, API_BASE_URL } from "@/utils/apiUtils";
 
@@ -913,6 +915,29 @@ export default function ImageInpaintingEditor() {
     </div>
   );
 
+  const quickStats = [
+    {
+      label: "Mask",
+      value: maskEnabled ? "Enabled" : "Disabled",
+      hint: "Brush toggle",
+    },
+    {
+      label: "Brush",
+      value: `${brushSize}px`,
+      hint: "Current size",
+    },
+    {
+      label: "Opacity",
+      value: `${Math.round(brushOpacity * 100)}%`,
+      hint: "Stroke strength",
+    },
+    {
+      label: "Status",
+      value: isLoading ? "Processing" : generatedImage ? "Ready" : "Idle",
+      hint: isLoading ? "GPU engaged" : "Awaiting edits",
+    },
+  ];
+
   if (!isClient) {
     return (
       <div className="h-screen" style={{ backgroundColor: "#181D28" }}>
@@ -929,6 +954,7 @@ export default function ImageInpaintingEditor() {
         description="Paint directly on assets, isolate interface elements, and regenerate only what you need with precision controls."
         badges={["Brush tools", "Comparison view"]}
       />
+      <WorkspaceQuickStats stats={quickStats} />
       <div className="flex min-h-[calc(100vh-8rem)] gap-4 rounded-3xl border border-white/10 bg-[#181D28] p-3 shadow-[0_30px_90px_rgba(6,8,20,0.45)] md:p-6">
         <WorkspaceSidePanel
           title="Mask Editor"
@@ -936,9 +962,9 @@ export default function ImageInpaintingEditor() {
           collapsedLabel="Tools"
           icon={TbMask}
         >
-          {({ isOpen }) =>
-            isOpen && (
-              <div className="flex h-full flex-col gap-4 overflow-hidden transition-all duration-300 ease-in-out">
+          {({ isOpen }) => (
+            <Slide direction="right" in={isOpen} mountOnEnter unmountOnExit>
+              <div className="flex h-full flex-col gap-4 overflow-hidden">
                 <button
                   onClick={() => document.getElementById("imageInput").click()}
                   className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gold/50 bg-gradient-to-r from-gold/20 to-yellow-600/20 px-4 py-3 transition-all duration-200 hover:border-gold hover:from-gold/30 hover:to-yellow-600/30"
@@ -1112,420 +1138,427 @@ export default function ImageInpaintingEditor() {
                   </div>
                 )}
               </div>
-            )
-          }
+            </Slide>
+          )}
         </WorkspaceSidePanel>
 
         {/* Main Content Area */}
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Mobile Quick Actions - Only visible on mobile */}
-          <div className="md:hidden p-3 border-b border-white/10">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowMobileTools(true)}
-                className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white text-sm font-medium"
-              >
-                <TbMask className="w-4 h-4" />
-                Tools
-              </button>
-              <button
-                onClick={() => setShowMobileComparison(true)}
-                disabled={!originalImage}
-                className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white disabled:text-gray-500 text-sm font-medium"
-              >
-                <MdCompareArrows className="w-4 h-4" />
-                Compare
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Upload Section - Only visible on mobile when no image */}
-          {!originalImage && (
-            <div className="md:hidden p-3">
-              <div className="text-center">
-                <button
-                  onClick={() => document.getElementById("imageInput").click()}
-                  className="w-full py-4 px-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-3 group"
-                >
-                  <FiUpload className="w-6 h-6 text-gold group-hover:scale-110 transition-transform" />
-                  <span className="text-gold font-medium text-lg">
-                    Upload Image to Start
-                  </span>
-                </button>
-                <p className="text-gray-400 text-sm mt-2">
-                  Upload an image and draw a mask to edit specific areas
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Mobile Mask Status - Only visible on mobile when image exists */}
-          {originalImage && (
+        <div className="flex-1 flex flex-col gap-4 p-3 md:p-6">
+          <div className="flex-1 flex flex-col rounded-[32px] border border-white/10 bg-gradient-to-br from-[#111828] via-[#101826] to-[#0b0f19] p-3 md:p-6 shadow-[0_40px_120px_rgba(6,8,20,0.65)]">
+            {/* Mobile Quick Actions - Only visible on mobile */}
             <div className="md:hidden p-3 border-b border-white/10">
-              <div className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
-                <div className="flex items-center gap-2">
-                  <TbMask className="w-4 h-4 text-gold" />
-                  <span className="text-white text-sm font-medium">
-                    Mask Tool: {maskEnabled ? "Active" : "Inactive"}
-                  </span>
-                </div>
+              <div className="flex gap-2">
                 <button
-                  onClick={() => setMaskEnabled(!maskEnabled)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-all duration-200 ${
-                    maskEnabled
-                      ? "bg-gold text-gray-900"
-                      : "bg-gray-700/50 text-gray-300"
-                  }`}
+                  onClick={() => setShowMobileTools(true)}
+                  className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white text-sm font-medium"
                 >
-                  {maskEnabled ? "ON" : "OFF"}
+                  <TbMask className="w-4 h-4" />
+                  Tools
+                </button>
+                <button
+                  onClick={() => setShowMobileComparison(true)}
+                  disabled={!originalImage}
+                  className="flex-1 py-2 px-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-white disabled:text-gray-500 text-sm font-medium"
+                >
+                  <MdCompareArrows className="w-4 h-4" />
+                  Compare
                 </button>
               </div>
             </div>
-          )}
 
-          {/* Central Canvas Workspace */}
-          <div className="flex-1 p-3 md:p-6">
-            <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
-              {!originalImage ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-white/60 text-center">
-                    <HiOutlinePhotograph className="w-16 h-16 mx-auto mb-4 text-gray-500" />
-                    <div className="text-xl mb-2">
-                      Upload an image to start editing
-                    </div>
-                    <div className="text-sm">
-                      Click the upload button to begin masking and editing
+            {/* Mobile Upload Section - Only visible on mobile when no image */}
+            {!originalImage && (
+              <div className="md:hidden p-3">
+                <div className="text-center">
+                  <button
+                    onClick={() =>
+                      document.getElementById("imageInput").click()
+                    }
+                    className="w-full py-4 px-6 bg-gradient-to-r from-gold/20 to-yellow-600/20 hover:from-gold/30 hover:to-yellow-600/30 border-2 border-dashed border-gold/50 hover:border-gold rounded-xl transition-all duration-200 flex items-center justify-center gap-3 group"
+                  >
+                    <FiUpload className="w-6 h-6 text-gold group-hover:scale-110 transition-transform" />
+                    <span className="text-gold font-medium text-lg">
+                      Upload Image to Start
+                    </span>
+                  </button>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Upload an image and draw a mask to edit specific areas
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Mask Status - Only visible on mobile when image exists */}
+            {originalImage && (
+              <div className="md:hidden p-3 border-b border-white/10">
+                <div className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <TbMask className="w-4 h-4 text-gold" />
+                    <span className="text-white text-sm font-medium">
+                      Mask Tool: {maskEnabled ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setMaskEnabled(!maskEnabled)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-all duration-200 ${
+                      maskEnabled
+                        ? "bg-gold text-gray-900"
+                        : "bg-gray-700/50 text-gray-300"
+                    }`}
+                  >
+                    {maskEnabled ? "ON" : "OFF"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Central Canvas Workspace */}
+            <div className="flex-1 p-3 md:p-6">
+              <div className="h-full bg-gray-800/50 rounded-xl border border-white/10 relative overflow-hidden">
+                {!originalImage ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white/60 text-center">
+                      <HiOutlinePhotograph className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+                      <div className="text-xl mb-2">
+                        Upload an image to start editing
+                      </div>
+                      <div className="text-sm">
+                        Click the upload button to begin masking and editing
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  {/* Canvas Container */}
-                  <div
-                    className="absolute inset-4 flex items-center justify-center"
-                    style={{
-                      transform: `scale(${zoomLevel}) translate(${
-                        panOffset.x / zoomLevel
-                      }px, ${panOffset.y / zoomLevel}px)`,
-                      transformOrigin: "center center",
-                    }}
-                  >
-                    <div className="relative">
-                      {/* Original Image Canvas */}
-                      {showOriginal && (
+                ) : (
+                  <>
+                    {/* Canvas Container */}
+                    <div
+                      className="absolute inset-4 flex items-center justify-center"
+                      style={{
+                        transform: `scale(${zoomLevel}) translate(${
+                          panOffset.x / zoomLevel
+                        }px, ${panOffset.y / zoomLevel}px)`,
+                        transformOrigin: "center center",
+                      }}
+                    >
+                      <div className="relative">
+                        {/* Original Image Canvas */}
+                        {showOriginal && (
+                          <canvas
+                            ref={canvasRef}
+                            className="block rounded-lg border border-gray-500 shadow-lg"
+                            style={{
+                              maxWidth: "100%",
+                              height: "auto",
+                              display: "block",
+                            }}
+                          />
+                        )}
+                        {/* Mask Canvas */}
                         <canvas
-                          ref={canvasRef}
-                          className="block rounded-lg border border-gray-500 shadow-lg"
+                          ref={maskCanvasRef}
+                          className="absolute top-0 left-0 rounded-lg border border-gray-500"
                           style={{
                             maxWidth: "100%",
                             height: "auto",
+                            opacity: showMask ? 1 : 0,
+                            cursor: maskEnabled ? brushType.cursor : "default",
                             display: "block",
+                            pointerEvents: maskEnabled ? "auto" : "none",
                           }}
+                          onMouseDown={maskEnabled ? startDrawing : undefined}
+                          onMouseMove={maskEnabled ? draw : undefined}
+                          onMouseUp={maskEnabled ? stopDrawing : undefined}
+                          onMouseLeave={maskEnabled ? stopDrawing : undefined}
+                          onTouchStart={maskEnabled ? startDrawing : undefined}
+                          onTouchMove={maskEnabled ? draw : undefined}
+                          onTouchEnd={maskEnabled ? stopDrawing : undefined}
+                          onContextMenu={(e) => e.preventDefault()}
                         />
-                      )}
-                      {/* Mask Canvas */}
-                      <canvas
-                        ref={maskCanvasRef}
-                        className="absolute top-0 left-0 rounded-lg border border-gray-500"
-                        style={{
-                          maxWidth: "100%",
-                          height: "auto",
-                          opacity: showMask ? 1 : 0,
-                          cursor: maskEnabled ? brushType.cursor : "default",
-                          display: "block",
-                          pointerEvents: maskEnabled ? "auto" : "none",
+                      </div>
+                    </div>
+
+                    {/* Zoom Controls */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 bg-gray-800/70 backdrop-blur-sm rounded-lg p-2 border border-white/10">
+                      <button
+                        onClick={() => handleZoom(0.1)}
+                        className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                        title="Zoom In"
+                      >
+                        +
+                      </button>
+                      <button
+                        onClick={() => handleZoom(-0.1)}
+                        className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                        title="Zoom Out"
+                      >
+                        −
+                      </button>
+                      <button
+                        onClick={resetView}
+                        className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
+                        title="Reset View"
+                      >
+                        ⌂
+                      </button>
+                    </div>
+
+                    {/* Zoom Level Display */}
+                    <div className="absolute bottom-4 right-4 bg-gray-800/70 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-sm border border-white/10">
+                      {Math.round(zoomLevel * 100)}%
+                    </div>
+
+                    {/* Generated Result Overlay */}
+                    {resultUrl && (
+                      <div className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm flex items-center justify-center rounded-xl">
+                        <div className="text-center max-w-2xl p-6">
+                          <div className="mb-4">
+                            <Image
+                              src={resultUrl}
+                              alt="Generated result"
+                              width={600}
+                              height={600}
+                              className="max-w-full max-h-96 object-contain rounded-lg border border-gray-600 shadow-2xl"
+                              unoptimized={true}
+                            />
+                          </div>
+                          <div className="flex gap-3 justify-center">
+                            <button
+                              onClick={() => setResultUrl("")}
+                              className="px-6 py-2 bg-gray-600/50 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
+                            >
+                              Back to Edit
+                            </button>
+                            <button
+                              onClick={() =>
+                                downloadImage(resultUrl, "generated-mask-edit")
+                              }
+                              className="px-6 py-2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white rounded-lg text-sm font-medium transition-all duration-200"
+                            >
+                              Download Result
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Prompt Input */}
+            <div className="p-3 md:p-6 border-t border-white/10">
+              <div className="max-w-4xl mx-auto">
+                <div className="relative">
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe what to generate in the masked area... (e.g., 'Add a sunset sky', 'Replace with a garden', 'Change to winter scene')"
+                    className="w-full h-20 md:h-24 px-3 md:px-4 py-2 md:py-3 pr-28 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm text-sm md:text-base"
+                    disabled={isLoading}
+                  />
+                  <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3">
+                    <FiEdit3 className="w-3 md:w-4 h-3 md:h-4 text-gray-400" />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 md:gap-4 justify-center mt-4 md:mt-6">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={!canSubmit}
+                    className="flex items-center gap-1 md:gap-2 px-4 md:px-8 py-2 md:py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100 text-sm md:text-base"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="w-3 md:w-4 h-3 md:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span className="hidden sm:inline">Generating...</span>
+                        <span className="sm:hidden">...</span>
+                      </>
+                    ) : (
+                      <>
+                        <HiOutlineAdjustments className="w-4 md:w-5 h-4 md:h-5" />
+                        <span className="hidden sm:inline">Generate</span>
+                        <span className="sm:hidden">Go</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Mobile Upload Button */}
+                  <button
+                    onClick={() =>
+                      document.getElementById("imageInput").click()
+                    }
+                    className="md:hidden flex items-center gap-1 px-3 py-2 bg-gold/20 hover:bg-gold/30 text-gold font-medium rounded-xl transition-all duration-200 border border-gold/50 hover:border-gold text-sm"
+                  >
+                    <FiUpload className="w-4 h-4" />
+                    <span>Upload</span>
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      downloadImage(
+                        generatedImage || originalImage?.preview,
+                        generatedImage ? "generated" : originalImage?.name
+                      )
+                    }
+                    disabled={!originalImage}
+                    className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20 text-sm md:text-base"
+                  >
+                    <BiDownload className="w-4 md:w-5 h-4 md:h-5" />
+                    <span className="hidden sm:inline">Download</span>
+                  </button>
+                </div>
+
+                {/* Mobile Action Grid - Additional mobile actions */}
+                {originalImage && (
+                  <div className="md:hidden mt-6">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={handleRegenerate}
+                        disabled={isLoading || !prompt.trim()}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500 font-medium text-sm"
+                      >
+                        <BiRefresh
+                          className={`w-4 h-4 ${
+                            isLoading ? "animate-spin" : ""
+                          }`}
+                        />
+                        <span>Re-generate</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          clearMask();
+                          displayMessage("Mask cleared");
                         }}
-                        onMouseDown={maskEnabled ? startDrawing : undefined}
-                        onMouseMove={maskEnabled ? draw : undefined}
-                        onMouseUp={maskEnabled ? stopDrawing : undefined}
-                        onMouseLeave={maskEnabled ? stopDrawing : undefined}
-                        onTouchStart={maskEnabled ? startDrawing : undefined}
-                        onTouchMove={maskEnabled ? draw : undefined}
-                        onTouchEnd={maskEnabled ? stopDrawing : undefined}
-                        onContextMenu={(e) => e.preventDefault()}
-                      />
+                        disabled={!hasMask()}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-red-400 hover:text-red-300 disabled:text-gray-500 font-medium text-sm"
+                      >
+                        <TbMask className="w-4 h-4" />
+                        <span>Clear Mask</span>
+                      </button>
                     </div>
                   </div>
-
-                  {/* Zoom Controls */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2 bg-gray-800/70 backdrop-blur-sm rounded-lg p-2 border border-white/10">
-                    <button
-                      onClick={() => handleZoom(0.1)}
-                      className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
-                      title="Zoom In"
-                    >
-                      +
-                    </button>
-                    <button
-                      onClick={() => handleZoom(-0.1)}
-                      className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
-                      title="Zoom Out"
-                    >
-                      −
-                    </button>
-                    <button
-                      onClick={resetView}
-                      className="p-2 text-white hover:bg-gray-600/50 rounded text-sm transition-all duration-200"
-                      title="Reset View"
-                    >
-                      ⌂
-                    </button>
-                  </div>
-
-                  {/* Zoom Level Display */}
-                  <div className="absolute bottom-4 right-4 bg-gray-800/70 backdrop-blur-sm text-white px-3 py-1 rounded-lg text-sm border border-white/10">
-                    {Math.round(zoomLevel * 100)}%
-                  </div>
-
-                  {/* Generated Result Overlay */}
-                  {resultUrl && (
-                    <div className="absolute inset-0 bg-gray-900/95 backdrop-blur-sm flex items-center justify-center rounded-xl">
-                      <div className="text-center max-w-2xl p-6">
-                        <div className="mb-4">
-                          <Image
-                            src={resultUrl}
-                            alt="Generated result"
-                            width={600}
-                            height={600}
-                            className="max-w-full max-h-96 object-contain rounded-lg border border-gray-600 shadow-2xl"
-                            unoptimized={true}
-                          />
-                        </div>
-                        <div className="flex gap-3 justify-center">
-                          <button
-                            onClick={() => setResultUrl("")}
-                            className="px-6 py-2 bg-gray-600/50 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-all duration-200"
-                          >
-                            Back to Edit
-                          </button>
-                          <button
-                            onClick={() =>
-                              downloadImage(resultUrl, "generated-mask-edit")
-                            }
-                            className="px-6 py-2 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold text-white rounded-lg text-sm font-medium transition-all duration-200"
-                          >
-                            Download Result
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Bottom Prompt Input */}
-          <div className="p-3 md:p-6 border-t border-white/10">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative">
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe what to generate in the masked area... (e.g., 'Add a sunset sky', 'Replace with a garden', 'Change to winter scene')"
-                  className="w-full h-20 md:h-24 px-3 md:px-4 py-2 md:py-3 pr-28 md:pr-32 bg-gray-800/50 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-gold focus:ring-2 focus:ring-gold/20 transition-all duration-200 resize-none backdrop-blur-sm text-sm md:text-base"
-                  disabled={isLoading}
-                />
-                <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3">
-                  <FiEdit3 className="w-3 md:w-4 h-3 md:h-4 text-gray-400" />
+          {/* Right Side - Image Comparison */}
+          <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
+            <div className="h-full flex flex-col">
+              <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                <MdCompareArrows className="w-5 h-5 text-gold" />
+                Image Comparison
+              </h3>
+
+              {/* Image Selection Tabs */}
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setSelectedForEdit("original")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    selectedForEdit === "original"
+                      ? "bg-gold text-gray-900"
+                      : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
+                  }`}
+                >
+                  Original
+                </button>
+                <button
+                  onClick={() => setSelectedForEdit("generated")}
+                  disabled={!generatedImage}
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    selectedForEdit === "generated"
+                      ? "bg-gold text-gray-900"
+                      : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 disabled:bg-gray-800/50 disabled:text-gray-600"
+                  }`}
+                >
+                  Generated
+                </button>
+              </div>
+
+              {/* Image Display Cards */}
+              <div className="flex-1 space-y-4">
+                {/* Original Image Card */}
+                <div
+                  className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+                    selectedForEdit === "original"
+                      ? "border-gold shadow-lg shadow-gold/20"
+                      : "border-white/10"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-medium">Original Image</h4>
+                    {selectedForEdit === "original" && (
+                      <FiCheck className="w-4 h-4 text-gold" />
+                    )}
+                  </div>
+                  <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                    {originalImage ? (
+                      <Image
+                        src={originalImage.preview}
+                        alt="Original"
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        <HiOutlinePhotograph className="w-12 h-12" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Generated Image Card */}
+                <div
+                  className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
+                    selectedForEdit === "generated"
+                      ? "border-gold shadow-lg shadow-gold/20"
+                      : "border-white/10"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-medium">Generated Image</h4>
+                    {selectedForEdit === "generated" && (
+                      <FiCheck className="w-4 h-4 text-gold" />
+                    )}
+                  </div>
+                  <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                    {generatedImage ? (
+                      <Image
+                        src={generatedImage}
+                        alt="Generated"
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        <div className="text-center">
+                          <HiOutlineAdjustments className="w-12 h-12 mx-auto mb-2" />
+                          <p className="text-sm">
+                            Generated image will appear here
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 md:gap-4 justify-center mt-4 md:mt-6">
-                <button
-                  onClick={handleGenerate}
-                  disabled={!canSubmit}
-                  className="flex items-center gap-1 md:gap-2 px-4 md:px-8 py-2 md:py-3 bg-gradient-to-r from-gold to-yellow-600 hover:from-yellow-600 hover:to-gold disabled:from-gray-600 disabled:to-gray-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-105 disabled:scale-100 text-sm md:text-base"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-3 md:w-4 h-3 md:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span className="hidden sm:inline">Generating...</span>
-                      <span className="sm:hidden">...</span>
-                    </>
-                  ) : (
-                    <>
-                      <HiOutlineAdjustments className="w-4 md:w-5 h-4 md:h-5" />
-                      <span className="hidden sm:inline">Generate</span>
-                      <span className="sm:hidden">Go</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Mobile Upload Button */}
-                <button
-                  onClick={() => document.getElementById("imageInput").click()}
-                  className="md:hidden flex items-center gap-1 px-3 py-2 bg-gold/20 hover:bg-gold/30 text-gold font-medium rounded-xl transition-all duration-200 border border-gold/50 hover:border-gold text-sm"
-                >
-                  <FiUpload className="w-4 h-4" />
-                  <span>Upload</span>
-                </button>
-
-                <button
-                  onClick={() =>
-                    downloadImage(
-                      generatedImage || originalImage?.preview,
-                      generatedImage ? "generated" : originalImage?.name
-                    )
-                  }
-                  disabled={!originalImage}
-                  className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-800/50 text-white disabled:text-gray-500 font-medium rounded-xl transition-all duration-200 border border-white/10 hover:border-white/20 text-sm md:text-base"
-                >
-                  <BiDownload className="w-4 md:w-5 h-4 md:h-5" />
-                  <span className="hidden sm:inline">Download</span>
-                </button>
-              </div>
-
-              {/* Mobile Action Grid - Additional mobile actions */}
-              {originalImage && (
-                <div className="md:hidden mt-6">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={handleRegenerate}
-                      disabled={isLoading || !prompt.trim()}
-                      className="flex items-center justify-center gap-2 px-4 py-3 bg-gold/20 hover:bg-gold/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-gold hover:text-yellow-300 disabled:text-gray-500 font-medium text-sm"
-                    >
-                      <BiRefresh
-                        className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-                      />
-                      <span>Re-generate</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        clearMask();
-                        displayMessage("Mask cleared");
-                      }}
-                      disabled={!hasMask()}
-                      className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 disabled:bg-gray-700/30 rounded-lg transition-all duration-200 text-red-400 hover:text-red-300 disabled:text-gray-500 font-medium text-sm"
-                    >
-                      <TbMask className="w-4 h-4" />
-                      <span>Clear Mask</span>
-                    </button>
-                  </div>
+              {/* Comparison Info */}
+              {originalImage && generatedImage && (
+                <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-white/10">
+                  <p className="text-gray-300 text-sm">
+                    <span className="text-gold font-medium">
+                      Selected for editing:
+                    </span>{" "}
+                    {selectedForEdit === "original"
+                      ? "Original Image"
+                      : "Generated Image"}
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Right Side - Image Comparison */}
-        <div className="hidden lg:block w-96 bg-gray-800/30 backdrop-blur-sm border-l border-white/10 p-6">
-          <div className="h-full flex flex-col">
-            <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-              <MdCompareArrows className="w-5 h-5 text-gold" />
-              Image Comparison
-            </h3>
-
-            {/* Image Selection Tabs */}
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => setSelectedForEdit("original")}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  selectedForEdit === "original"
-                    ? "bg-gold text-gray-900"
-                    : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
-                }`}
-              >
-                Original
-              </button>
-              <button
-                onClick={() => setSelectedForEdit("generated")}
-                disabled={!generatedImage}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  selectedForEdit === "generated"
-                    ? "bg-gold text-gray-900"
-                    : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 disabled:bg-gray-800/50 disabled:text-gray-600"
-                }`}
-              >
-                Generated
-              </button>
-            </div>
-
-            {/* Image Display Cards */}
-            <div className="flex-1 space-y-4">
-              {/* Original Image Card */}
-              <div
-                className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
-                  selectedForEdit === "original"
-                    ? "border-gold shadow-lg shadow-gold/20"
-                    : "border-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white font-medium">Original Image</h4>
-                  {selectedForEdit === "original" && (
-                    <FiCheck className="w-4 h-4 text-gold" />
-                  )}
-                </div>
-                <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                  {originalImage ? (
-                    <Image
-                      src={originalImage.preview}
-                      alt="Original"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-500">
-                      <HiOutlinePhotograph className="w-12 h-12" />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Generated Image Card */}
-              <div
-                className={`bg-gray-700/30 rounded-xl p-4 border transition-all duration-200 ${
-                  selectedForEdit === "generated"
-                    ? "border-gold shadow-lg shadow-gold/20"
-                    : "border-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white font-medium">Generated Image</h4>
-                  {selectedForEdit === "generated" && (
-                    <FiCheck className="w-4 h-4 text-gold" />
-                  )}
-                </div>
-                <div className="aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                  {generatedImage ? (
-                    <Image
-                      src={generatedImage}
-                      alt="Generated"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-500">
-                      <div className="text-center">
-                        <HiOutlineAdjustments className="w-12 h-12 mx-auto mb-2" />
-                        <p className="text-sm">
-                          Generated image will appear here
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Comparison Info */}
-            {originalImage && generatedImage && (
-              <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-white/10">
-                <p className="text-gray-300 text-sm">
-                  <span className="text-gold font-medium">
-                    Selected for editing:
-                  </span>{" "}
-                  {selectedForEdit === "original"
-                    ? "Original Image"
-                    : "Generated Image"}
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
