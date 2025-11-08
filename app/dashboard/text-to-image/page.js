@@ -2,6 +2,7 @@
 "use client";
 import Image from "next/image";
 import WorkspaceHeader from "@/components/dashboard/WorkspaceHeader";
+import DashboardWorkspaceNav from "@/components/dashboard/DashboardWorkspaceNav";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { HiMenu } from "react-icons/hi";
 import { useState, useEffect, useCallback } from "react";
@@ -295,6 +296,7 @@ function TexttoImageContent() {
   };
   return (
     <div className="space-y-6">
+      <DashboardWorkspaceNav hideOverview />
       <WorkspaceHeader
         title="Text to Image Studio"
         description="Generate hero shots, mood boards, and concept art with governed prompts, negative controls, and instant history playback."
