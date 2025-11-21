@@ -71,7 +71,7 @@ export default function PrivacyPolicy() {
               src="/images/image-21.jpg"
               fill
               className="object-cover"
-              quality={60}
+              quality={65}
               priority
             />
             <div className="relative grid h-full grid-cols-1 gap-6 bg-gradient-to-r from-[#05070D]/95 via-[#05070D]/90 to-[#05070D]/70 px-8 py-12 lg:grid-cols-5 lg:px-12">
@@ -83,7 +83,9 @@ export default function PrivacyPolicy() {
                   How Codezela Technologies protects your data.
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
-                  Effective March 2025 — this document explains the safeguards behind the kAIro AI platform and your options as a customer or user.
+                  Effective March 2025 — this document explains the safeguards
+                  behind the kAIro AI platform and your options as a customer or
+                  user.
                 </p>
               </div>
               <div className="relative hidden h-full lg:col-span-2 lg:block">
@@ -94,7 +96,8 @@ export default function PrivacyPolicy() {
                       src="/images/image-22.jpg"
                       fill
                       className="object-cover"
-                      quality={60}
+                      sizes="(min-width: 1024px) 208px, 0"
+                      quality={65}
                     />
                   </div>
                   <div className="absolute -bottom-8 right-10 h-44 w-44 overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 backdrop-blur">
@@ -103,7 +106,8 @@ export default function PrivacyPolicy() {
                       src="/images/image-23.jpg"
                       fill
                       className="object-cover"
-                      quality={60}
+                      sizes="(min-width: 1024px) 176px, 0"
+                      quality={65}
                     />
                   </div>
                 </div>
@@ -122,7 +126,10 @@ export default function PrivacyPolicy() {
                   {section.heading}
                 </h2>
                 {section.paragraphs.map((paragraph, index) => (
-                  <p key={index} className="mt-4 text-sm leading-relaxed text-white/75 sm:text-base">
+                  <p
+                    key={index}
+                    className="mt-4 text-sm leading-relaxed text-white/75 sm:text-base"
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -138,7 +145,8 @@ export default function PrivacyPolicy() {
                 Compliance-ready from day one.
               </h3>
               <p className="mt-2 text-sm text-white/70">
-                kAIro AI supports SOC 2 programs, private deployments, and regional data residency requirements.
+                kAIro AI supports SOC 2 programs, private deployments, and
+                regional data residency requirements.
               </p>
             </div>
             <div className="rounded-3xl border border-white/15 bg-white/[0.05] px-5 py-4 text-sm text-white/70">

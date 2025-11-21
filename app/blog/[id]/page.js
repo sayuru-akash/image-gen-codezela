@@ -10,8 +10,18 @@ import { getAllArticles, getArticleBySlug } from "@/lib/articles";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const articles = await getAllArticles();
-  return articles.map((article) => ({ id: article.id }));
+  try {
+    const articles = await getAllArticles();
+    return articles
+      .filter((article) => article && article.id)
+      .map((article) => ({ id: article.id }));
+  } catch (error) {
+    console.warn(
+      "Failed to generate static params for blog articles:",
+      error.message
+    );
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }) {
@@ -95,7 +105,10 @@ export default async function BlogArticle({ params }) {
               {section.heading}
             </h2>
             {section.paragraphs.map((paragraph, index) => (
-              <p key={index} className="mt-4 text-base leading-relaxed text-white/75">
+              <p
+                key={index}
+                className="mt-4 text-base leading-relaxed text-white/75"
+              >
                 {paragraph}
               </p>
             ))}

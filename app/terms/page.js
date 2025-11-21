@@ -89,7 +89,8 @@ export default function TermsOfService() {
               src="/images/image-18.jpg"
               fill
               className="object-cover"
-              quality={60}
+              sizes="(min-width: 1536px) 1152px, (min-width: 1280px) 1024px, 90vw"
+              quality={65}
               priority
             />
             <div className="relative grid h-full grid-cols-1 gap-6 bg-gradient-to-r from-[#05070D]/95 via-[#05070D]/90 to-[#05070D]/70 px-8 py-12 lg:grid-cols-5 lg:px-12">
@@ -101,7 +102,9 @@ export default function TermsOfService() {
                   Your agreement with Codezela Technologies.
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
-                  These terms outline your organisation’s rights and responsibilities when using kAIro AI. Please read them carefully before accessing the platform.
+                  These terms outline your organisation’s rights and
+                  responsibilities when using kAIro AI. Please read them
+                  carefully before accessing the platform.
                 </p>
               </div>
               <div className="relative hidden h-full lg:col-span-2 lg:block">
@@ -140,7 +143,10 @@ export default function TermsOfService() {
                   {section.heading}
                 </h2>
                 {section.paragraphs.map((paragraph, index) => (
-                  <p key={index} className="mt-4 text-sm leading-relaxed text-white/75 sm:text-base">
+                  <p
+                    key={index}
+                    className="mt-4 text-sm leading-relaxed text-white/75 sm:text-base"
+                  >
                     {paragraph}
                   </p>
                 ))}
@@ -156,7 +162,9 @@ export default function TermsOfService() {
                 Custom agreements for enterprise teams.
               </h3>
               <p className="mt-2 text-sm text-white/70">
-                Codezela Technologies partners with legal, procurement, and security stakeholders to configure kAIro AI contracts that match your governance model.
+                Codezela Technologies partners with legal, procurement, and
+                security stakeholders to configure kAIro AI contracts that match
+                your governance model.
               </p>
             </div>
             <div className="rounded-3xl border border-white/15 bg-white/[0.05] px-5 py-4 text-sm text-white/70">

@@ -22,15 +22,21 @@ export default async function sitemap() {
     priority: route.priority,
   }));
 
-  const articles = await getAllArticles();
+  try {
+    const articles = await getAllArticles();
+    const articleEntries = articles
+      .filter((article) => article && article.id)
+      .map((article) => ({
+        url: `${BASE_URL}/blog/${article.id}`,
+        lastModified:
+          article.updatedAt ?? article.publishedAt ?? new Date().toISOString(),
+        changeFrequency: "weekly",
+        priority: 0.8,
+      }));
 
-  const articleEntries = articles.map((article) => ({
-    url: `${BASE_URL}/blog/${article.id}`,
-    lastModified:
-      article.updatedAt ?? article.publishedAt ?? new Date().toISOString(),
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  return [...staticEntries, ...articleEntries];
+    return [...staticEntries, ...articleEntries];
+  } catch (error) {
+    console.warn("Failed to fetch articles for sitemap:", error.message);
+    return staticEntries;
+  }
 }

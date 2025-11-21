@@ -32,7 +32,7 @@ export default function Faq() {
               src="/images/image-24.jpg"
               fill
               className="object-cover"
-              quality={60}
+              quality={65}
               priority
             />
             <div className="relative grid h-full grid-cols-1 gap-6 bg-gradient-to-r from-[#05070D]/95 via-[#05070D]/90 to-[#05070D]/70 px-8 py-12 lg:grid-cols-5 lg:px-12">
@@ -44,20 +44,27 @@ export default function Faq() {
                   Everything you need to launch with kAIro AI.
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
-                  Answers curated by Codezela Technologies so your team can deploy AI-assisted
-                  creative workflows with clarity and confidence.
+                  Answers curated by Codezela Technologies so your team can
+                  deploy AI-assisted creative workflows with clarity and
+                  confidence.
                 </p>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/15 bg-white/[0.08] px-5 py-4 text-sm text-white/70">
-                    <p className="font-semibold text-white">Enterprise onboarding</p>
+                    <p className="font-semibold text-white">
+                      Enterprise onboarding
+                    </p>
                     <p className="mt-1 text-white/60">
-                      Dedicated success teams connecting legal, creative, and engineering stakeholders.
+                      Dedicated success teams connecting legal, creative, and
+                      engineering stakeholders.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-white/15 bg-white/[0.08] px-5 py-4 text-sm text-white/70">
-                    <p className="font-semibold text-white">24/5 global support</p>
+                    <p className="font-semibold text-white">
+                      24/5 global support
+                    </p>
                     <p className="mt-1 text-white/60">
-                      Priority responses for high-impact launches and managed governance setups.
+                      Priority responses for high-impact launches and managed
+                      governance setups.
                     </p>
                   </div>
                 </div>
@@ -70,7 +77,8 @@ export default function Faq() {
                       src="/images/image-25.jpg"
                       fill
                       className="object-cover"
-                      quality={60}
+                      sizes="(min-width: 1024px) 208px, 0"
+                      quality={65}
                     />
                   </div>
                   <div className="absolute -bottom-8 right-10 h-44 w-44 overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 backdrop-blur">
@@ -79,7 +87,8 @@ export default function Faq() {
                       src="/images/image-23.jpg"
                       fill
                       className="object-cover"
-                      quality={60}
+                      sizes="(min-width: 1024px) 176px, 0"
+                      quality={65}
                     />
                   </div>
                 </div>
@@ -107,7 +116,8 @@ export default function Faq() {
               Talk with Codezela’s customer experience team.
             </h2>
             <p className="mt-2 text-sm text-white/70">
-              We’ll walk through governance, localisation, and enterprise deployment options tailored to your organisation.
+              We’ll walk through governance, localisation, and enterprise
+              deployment options tailored to your organisation.
             </p>
           </div>
           <a

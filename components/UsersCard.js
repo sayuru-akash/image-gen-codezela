@@ -16,7 +16,7 @@ export default function UsersCard({ title, body }) {
             fill
             className="object-cover"
             sizes="(min-width: 1024px) 24rem, 100vw"
-            quality={60}
+            quality={65}
             priority={false}
           />
         </div>

@@ -102,6 +102,7 @@ export default function Hero() {
             className="rounded-xl object-cover"
             sizes="(min-width: 1024px) 10rem, 0"
             quality={65}
+            priority
           />
         </div>
       </div>
@@ -117,8 +118,9 @@ export default function Hero() {
             src="/images/image-4.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 10rem, 0"
-            quality={65}
+            sizes="(min-width: 1024px) 134px, 0"
+            quality={70}
+            priority
           />
         </div>
       </div>
@@ -127,14 +129,14 @@ export default function Hero() {
       <div className="z-50 bg-transparent backdrop-blur-xs rounded-4xl p-2 mx-auto lg:p-6 w-11/12 lg:w-7/12 h-72 md:h-[40rem] shadow-2xl border border-white/30">
         <div className="relative w-full h-full">
           <Image
-            alt="Gallery of AI generated artworks"
+            alt="AI-generated gallery showcasing kAIro AI capabilities"
             src="/images/hero-img.jpg"
             fill
             className="rounded-3xl object-cover"
-            sizes="(min-width: 1024px) 50vw, 90vw"
+            sizes="(min-width: 1024px) 58vw, 92vw"
             priority
             fetchPriority="high"
-            quality={65}
+            quality={75}
           />
         </div>
       </div>
