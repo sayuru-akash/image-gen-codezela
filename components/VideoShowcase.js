@@ -131,7 +131,7 @@ export default function VideoShowcase() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-12 md:px-10 lg:px-20 lg:py-16">
+    <section className="relative overflow-hidden px-4 py-8 md:px-10 lg:px-20 lg:py-12">
       {/* Decorative background elements */}
       <div className="absolute left-0 top-20 h-[500px] w-[500px] rounded-full bg-gold/5 blur-[120px]" />
       <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-secondary-accent/10 blur-[100px]" />
@@ -156,7 +156,7 @@ export default function VideoShowcase() {
         </div>
 
         {/* Video Carousel */}
-        <div className="relative mt-12 lg:mt-16">
+        <div className="relative mt-8 lg:mt-12">
           {/* Navigation Buttons */}
           <div className="absolute -top-14 right-0 z-20 hidden gap-2 md:flex">
             <button
@@ -183,7 +183,7 @@ export default function VideoShowcase() {
               {videos.map((video) => (
                 <div
                   key={video.id}
-                  className="flex-[0_0_100%] px-4 md:flex-[0_0_90%] lg:flex-[0_0_80%] xl:flex-[0_0_70%]"
+                  className="flex-[0_0_100%] px-4 md:flex-[0_0_85%] lg:flex-[0_0_75%] xl:flex-[0_0_65%]"
                 >
                   <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-secondary-accent/10 p-1 backdrop-blur-sm transition-all duration-500 hover:border-gold/40 hover:shadow-[0_0_40px_rgba(212,175,55,0.15)]">
                     <div className="relative aspect-video overflow-hidden rounded-[1.3rem] bg-dark-blue">
@@ -191,7 +191,6 @@ export default function VideoShowcase() {
                         ref={(el) => (videoRefs.current[video.id] = el)}
                         className="h-full w-full object-cover"
                         loop
-                        muted
                         playsInline
                         autoPlay
                       >
@@ -219,16 +218,6 @@ export default function VideoShowcase() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Video Info */}
-                    <div className="p-6 md:p-8">
-                      <h3 className="text-xl font-semibold text-white md:text-2xl">
-                        {video.title}
-                      </h3>
-                      <p className="mt-3 text-sm leading-relaxed text-white/70 md:text-base">
-                        {video.description}
-                      </p>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -236,7 +225,7 @@ export default function VideoShowcase() {
           </div>
 
           {/* Dot Indicators */}
-          <div className="mt-8 flex items-center justify-center gap-2">
+          <div className="mt-6 flex items-center justify-center gap-2">
             {videos.map((_, index) => (
               <button
                 key={index}
@@ -253,7 +242,7 @@ export default function VideoShowcase() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="mt-6 flex justify-center gap-3 md:hidden">
+          <div className="mt-4 flex justify-center gap-3 md:hidden">
             <button
               type="button"
               onClick={scrollPrev}
