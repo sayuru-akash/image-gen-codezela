@@ -5,11 +5,6 @@ import Link from "next/link";
 
 const quickLinks = [
   {
-    title: "See kAIro features",
-    description: "Jump to the platform capabilities and workflow demos.",
-    href: "/#features",
-  },
-  {
     title: "Visit the blog",
     description: "Read the latest AI imaging insights from Codezela.",
     href: "/blog",
@@ -19,18 +14,15 @@ const quickLinks = [
     description: "Get quick answers on pricing, access, and governance.",
     href: "/faq",
   },
-  {
-    title: "Talk to us",
-    description: "Request a guided tour or enterprise onboarding session.",
-    href: "https://codezela.com/contact",
-    external: true,
-  },
 ];
 
 export default function NotFound() {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#05070D] via-[#0A0F1C] to-[#05070D] text-white">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        aria-hidden="true"
+      >
         <div className="absolute -left-12 top-6 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
         <div className="absolute right-12 top-24 h-80 w-80 rounded-full bg-secondary-accent/30 blur-3xl" />
         <div className="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
@@ -48,9 +40,9 @@ export default function NotFound() {
               This page is missing, but your creative flow does not have to be.
             </h1>
             <p className="text-sm text-white/70 sm:text-base">
-              The link you followed is no longer available or the content moved. Jump back
-              into the platform, explore our capabilities, or talk with the Codezela team
-              to get where you need to go.
+              The link you followed is no longer available or the content moved.
+              Jump back into the platform, explore our capabilities, or talk
+              with the Codezela team to get where you need to go.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -61,10 +53,11 @@ export default function NotFound() {
                 Back to home
               </Link>
               <Link
-                href="/dashboard"
+                href="https://codezela.com/contact"
+                target="_blank"
                 className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/[0.04] px-6 py-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/85 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold hover:text-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
               >
-                Open dashboard
+                Talk to CodeZela
               </Link>
             </div>
 
@@ -80,8 +73,12 @@ export default function NotFound() {
                   <p className="text-xs uppercase tracking-[0.24em] text-white/60">
                     {item.external ? "External" : "Site link"}
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-white">{item.title}</p>
-                  <p className="mt-1 text-sm text-white/65">{item.description}</p>
+                  <p className="mt-2 text-lg font-semibold text-white">
+                    {item.title}
+                  </p>
+                  <p className="mt-1 text-sm text-white/65">
+                    {item.description}
+                  </p>
                   <span className="mt-3 inline-flex items-center text-xs font-semibold uppercase tracking-[0.3em] text-gold opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     Explore →
                   </span>
@@ -102,19 +99,6 @@ export default function NotFound() {
                   priority
                   sizes="(min-width: 1024px) 28rem, 90vw"
                 />
-              </div>
-              <div className="mt-4 flex items-center justify-between rounded-[1.2rem] border border-white/12 bg-white/[0.03] px-4 py-3 text-sm text-white/75">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-gold/80">
-                    Quick routes
-                  </p>
-                  <p className="font-medium text-white">
-                    Dashboard · Blog · FAQ · Contact
-                  </p>
-                </div>
-                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 bg-gold/20 text-xs font-semibold uppercase tracking-[0.22em] text-dark-blue shadow-[0_12px_35px_rgba(212,175,55,0.35)]">
-                  kAIro
-                </div>
               </div>
             </div>
           </div>
