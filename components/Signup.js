@@ -17,9 +17,9 @@ export default function Signup() {
               src="/images/hero-img.jpg"
               fill
               className="object-cover"
-              quality={70}
+              quality={50}
               sizes="(min-width: 1024px) 24rem, 90vw"
-              priority
+              loading="lazy"
             />
           </div>
         </div>
@@ -32,10 +32,10 @@ export default function Signup() {
             Let&apos;s design your next AI breakthrough together.
           </h2>
           <p className="mt-6 text-base text-white/80 sm:text-lg lg:max-w-2xl">
-            Codezela Technologies builds production-ready web, mobile, and platform
-            experiences that bring machine learning to life. From bespoke models
-            to intuitive dashboards like kAIro, we help teams launch faster and scale
-            with confidence.
+            Codezela Technologies builds production-ready web, mobile, and
+            platform experiences that bring machine learning to life. From
+            bespoke models to intuitive dashboards like kAIro, we help teams
+            launch faster and scale with confidence.
           </p>
           <ul className="mt-8 grid gap-3 text-sm text-white/70 sm:grid-cols-2">
             <li className="flex items-center gap-2">

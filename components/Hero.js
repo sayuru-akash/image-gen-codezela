@@ -84,7 +84,7 @@ export default function Hero() {
             className="rounded-xl object-cover"
             sizes="(min-width: 1024px) 16rem, 0"
             priority
-            quality={65}
+            quality={50}
           />
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function Hero() {
             fill
             className="rounded-xl object-cover"
             sizes="(min-width: 1024px) 10rem, 0"
-            quality={65}
+            quality={50}
             priority
           />
         </div>
@@ -119,7 +119,7 @@ export default function Hero() {
             fill
             className="rounded-xl object-cover"
             sizes="(min-width: 1024px) 134px, 0"
-            quality={70}
+            quality={50}
             priority
           />
         </div>
@@ -136,7 +136,7 @@ export default function Hero() {
             sizes="(min-width: 1024px) 58vw, 92vw"
             priority
             fetchPriority="high"
-            quality={75}
+            quality={55}
           />
         </div>
       </div>
