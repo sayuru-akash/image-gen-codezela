@@ -59,21 +59,21 @@ export default function BlogCard({
       <div className={`relative w-full overflow-hidden ${imageVariant}`}>
         <Image
           src={image1}
-          width={680}
-          height={510}
+          width={384}
+          height={288}
           alt={title}
-          sizes="(min-width: 1280px) 23vw, (min-width: 1024px) 28vw, (min-width: 768px) 45vw, 92vw"
-          quality={65}
+          sizes="(min-width: 1280px) 352px, (min-width: 1024px) 320px, (min-width: 768px) 45vw, 92vw"
+          quality={60}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 group-hover:opacity-0"
         />
         <Image
           src={image2}
-          width={680}
-          height={510}
+          width={384}
+          height={288}
           alt={`${title} alternate`}
-          sizes="(min-width: 1280px) 23vw, (min-width: 1024px) 28vw, (min-width: 768px) 45vw, 92vw"
-          quality={65}
+          sizes="(min-width: 1280px) 352px, (min-width: 1024px) 320px, (min-width: 768px) 45vw, 92vw"
+          quality={60}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         />

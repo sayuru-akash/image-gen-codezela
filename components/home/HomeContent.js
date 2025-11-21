@@ -389,6 +389,8 @@ export default function HomeContent() {
                           alt={`Partner ${index + 1}`}
                           width={200}
                           height={200}
+                          sizes="(min-width: 1280px) 160px, (min-width: 1024px) 140px, (min-width: 768px) 120px, 100px"
+                          quality={60}
                         />
                       </div>
                     </div>

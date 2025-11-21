@@ -70,8 +70,8 @@ export default function Carousel2({ activeCarousel, onTabChange }) {
                   src="/images/image-6.png"
                   fill
                   className="rounded-3xl object-cover"
-                  sizes="(min-width: 1024px) 24rem, 90vw"
-                  quality={70}
+                  sizes="(min-width: 1024px) 352px, 90vw"
+                  quality={60}
                 />
               </div>
             </div>
