@@ -33,6 +33,7 @@ export default function VideoShowcase() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState({});
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [fullPlayMode, setFullPlayMode] = useState({});
   const videoRefs = useRef({});
   const autoplayRef = useRef(null);
 
@@ -84,9 +85,12 @@ export default function VideoShowcase() {
           video.pause();
           // Mute all videos when pausing
           video.muted = true;
+          // Reset to loop mode when switching slides
+          video.loop = true;
         }
       });
       setIsPlaying({});
+      setFullPlayMode({});
 
       // Auto-play the currently selected video
       const currentVideoId = videos[newIndex]?.id;
@@ -122,6 +126,7 @@ export default function VideoShowcase() {
       const firstVideo = videoRefs.current[firstVideoId];
       // Start muted initially, will enable sound on user interaction
       firstVideo.muted = true;
+      firstVideo.loop = true; // Ensure loop mode for autoplay
       firstVideo.play().catch(() => {
         // Handle autoplay failure (browser restrictions)
         console.log("Initial autoplay prevented by browser");
@@ -158,10 +163,28 @@ export default function VideoShowcase() {
     if (isPlaying[videoId]) {
       video.pause();
       setIsPlaying((prev) => ({ ...prev, [videoId]: false }));
+      // Reset to loop mode when paused
+      video.loop = true;
+      setFullPlayMode((prev) => ({ ...prev, [videoId]: false }));
     } else {
       // Enable sound when user manually plays
       video.muted = false;
       setHasUserInteracted(true);
+
+      // Disable loop for full play mode
+      video.loop = false;
+      setFullPlayMode((prev) => ({ ...prev, [videoId]: true }));
+
+      // Add event listener for when video ends
+      const handleVideoEnd = () => {
+        setIsPlaying((prev) => ({ ...prev, [videoId]: false }));
+        // Reset to loop mode after full play
+        video.loop = true;
+        setFullPlayMode((prev) => ({ ...prev, [videoId]: false }));
+        video.removeEventListener("ended", handleVideoEnd);
+      };
+      video.addEventListener("ended", handleVideoEnd);
+
       video.play();
       setIsPlaying((prev) => ({ ...prev, [videoId]: true }));
     }
@@ -227,7 +250,6 @@ export default function VideoShowcase() {
                       <video
                         ref={(el) => (videoRefs.current[video.id] = el)}
                         className="h-full w-full object-cover"
-                        loop
                         playsInline
                         autoPlay
                         muted
@@ -263,6 +285,14 @@ export default function VideoShowcase() {
                                   const video = videoRefs.current[video.id];
                                   if (video) {
                                     video.muted = !video.muted;
+                                    // If user is manually controlling volume, ensure loop mode
+                                    if (fullPlayMode[video.id]) {
+                                      video.loop = true;
+                                      setFullPlayMode((prev) => ({
+                                        ...prev,
+                                        [video.id]: false,
+                                      }));
+                                    }
                                     // Force re-render by updating state
                                     setIsPlaying((prev) => ({ ...prev }));
                                   }
