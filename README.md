@@ -197,3 +197,5 @@ Need bespoke AI solutions or integration support? The Codezela team specialises 
 - Enterprise software development
 
 Start the conversation at [codezela.com/contact](https://codezela.com/contact).
+
+Built with ♥ by the Codezela Team | 2025 © Codezela Technologies
