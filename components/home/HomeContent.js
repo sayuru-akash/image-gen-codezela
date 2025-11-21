@@ -168,16 +168,6 @@ export default function HomeContent() {
   return (
     <>
       <section className="relative h-screen">
-        <Image
-          alt="AI-generated gallery showcasing kAIro AI capabilities"
-          src="/images/hero-img.jpg"
-          fill
-          priority
-          fetchPriority="high"
-          quality={50}
-          className="object-cover"
-          sizes="100vw"
-        />
         <div className="absolute inset-0 bg-gradient-to-b from-dark-blue/95 via-dark-blue/92 to-[#0F1622]">
           <Navigationbar />
 
