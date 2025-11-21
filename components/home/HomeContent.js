@@ -17,6 +17,7 @@ import TestimonialCard from "@/components/TestimonialCard";
 import UsersCard from "@/components/UsersCard";
 import ExploreInnovation from "@/components/ExploreInnovation";
 import Footer from "@/components/Footer";
+import VideoShowcase from "@/components/VideoShowcase";
 
 export default function HomeContent() {
   const { data: session } = useSession();
@@ -406,6 +407,8 @@ export default function HomeContent() {
             </div>
           </div>
         </section>
+
+        <VideoShowcase />
 
         <section id="usage" className={`${sectionSpacing} scroll-mt-24`}>
           <p className="text-center text-xs uppercase tracking-[0.35em] text-gold/80">
