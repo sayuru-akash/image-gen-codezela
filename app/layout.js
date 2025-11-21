@@ -78,6 +78,21 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link
+          rel="preconnect"
+          href="https://www.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-img.jpg"
+          fetchpriority="high"
+        />
+      </head>
       <body
         className={`${plusJakartaSans.variable} ${poppins.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
