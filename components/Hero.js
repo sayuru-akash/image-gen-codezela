@@ -4,36 +4,32 @@ import Image from "next/image";
 
 export default function Hero() {
   useEffect(() => {
+    const image1 = document.getElementById("image1");
+    const image2 = document.getElementById("image2");
+    const image3 = document.getElementById("image3");
+    const image4 = document.getElementById("image4");
+
     function handleParallaxScroll() {
       const scrollY = window.scrollY;
-      const image1 = document.getElementById("image1");
-      const image2 = document.getElementById("image2");
-      const image3 = document.getElementById("image3");
-      const image4 = document.getElementById("image4");
 
-      // Define movement multipliers for each direction
       const parallaxSpeed = 0.5;
 
       if (image1) {
-        // Image 1: Move up and left
         image1.style.transform = `translate(${
           scrollY * -parallaxSpeed * 0.3
         }px, ${scrollY * -parallaxSpeed}px) rotate(0deg)`;
       }
       if (image2) {
-        // Image 2: Move up and right
         image2.style.transform = `translate(${
           scrollY * parallaxSpeed * 0.3
         }px, ${scrollY * -parallaxSpeed}px) rotate(0deg)`;
       }
       if (image3) {
-        // Image 3: Move to top left (up and left)
         image3.style.transform = `translate(${
           scrollY * -parallaxSpeed * 0.6
         }px, ${scrollY * -parallaxSpeed * 1.2}px) rotate(20deg)`;
       }
       if (image4) {
-        // Image 4: Move to top right (up and right)
         image4.style.transform = `translate(${
           scrollY * parallaxSpeed * 0.6
         }px, ${scrollY * -parallaxSpeed * 1.2}px) rotate(-20deg)`;
@@ -53,7 +49,7 @@ export default function Hero() {
       requestTick();
     }
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -61,7 +57,7 @@ export default function Hero() {
     <div className="relative overflow-hidden pt-60">
       <div
         id="image1"
-        className="parallax-element hidden lg:block absolute w-56 h-72 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 -rotate-[20deg] left-28"
+        className="parallax-element hidden lg:block absolute w-56 h-72 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 -rotate-[20deg] left-28 will-change-transform"
       >
         <div className="relative w-full h-full">
           <Image
@@ -78,7 +74,7 @@ export default function Hero() {
       {/* Image 2 - Top Right */}
       <div
         id="image2"
-        className="parallax-element hidden lg:block absolute w-72 h-72 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 rotate-[20deg] right-15"
+        className="parallax-element hidden lg:block absolute w-72 h-72 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 rotate-[20deg] right-15 will-change-transform"
       >
         <div className="relative w-full h-full">
           <Image
@@ -86,8 +82,9 @@ export default function Hero() {
             src="/images/image-2.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 18rem, 0"
+            sizes="(min-width: 1024px) 16rem, 0"
             priority
+            quality={65}
           />
         </div>
       </div>
@@ -95,7 +92,7 @@ export default function Hero() {
       {/* Image 3 - Bottom Left (moves to top left when scrolling) */}
       <div
         id="image3"
-        className="parallax-element hidden lg:block absolute w-48 h-48 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 rotate-[20deg] left-28 -bottom-40 z-5"
+        className="parallax-element hidden lg:block absolute w-48 h-48 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 rotate-[20deg] left-28 -bottom-40 z-5 will-change-transform"
       >
         <div className="relative w-full h-full">
           <Image
@@ -103,7 +100,8 @@ export default function Hero() {
             src="/images/image-3.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 12rem, 0"
+            sizes="(min-width: 1024px) 10rem, 0"
+            quality={65}
           />
         </div>
       </div>
@@ -111,7 +109,7 @@ export default function Hero() {
       {/* Image 4 - Bottom Right (moves to top right when scrolling) */}
       <div
         id="image4"
-        className="parallax-element hidden lg:block absolute w-40 h-56 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 -rotate-[20deg] right-20 -bottom-40 z-5"
+        className="parallax-element hidden lg:block absolute w-40 h-56 bg-transparent backdrop-blur-xs p-3 rounded-2xl shadow-2xl border border-white/30 -rotate-[20deg] right-20 -bottom-40 z-5 will-change-transform"
       >
         <div className="relative w-full h-full">
           <Image
@@ -119,7 +117,8 @@ export default function Hero() {
             src="/images/image-4.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 11rem, 0"
+            sizes="(min-width: 1024px) 10rem, 0"
+            quality={65}
           />
         </div>
       </div>
@@ -134,7 +133,8 @@ export default function Hero() {
             className="rounded-3xl object-cover"
             sizes="(min-width: 1024px) 50vw, 90vw"
             priority
-            quality={70}
+            fetchPriority="high"
+            quality={65}
           />
         </div>
       </div>

@@ -173,6 +173,7 @@ export default function HomeContent() {
           src="/images/hero-img.jpg"
           fill
           priority
+          fetchPriority="high"
           quality={70}
           className="object-cover"
           sizes="100vw"

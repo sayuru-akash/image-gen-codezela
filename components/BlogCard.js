@@ -62,6 +62,8 @@ export default function BlogCard({
           width={680}
           height={510}
           alt={title}
+          sizes="(min-width: 1280px) 23vw, (min-width: 1024px) 28vw, (min-width: 768px) 45vw, 92vw"
+          quality={60}
           className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 group-hover:opacity-0"
         />
         <Image
@@ -69,6 +71,8 @@ export default function BlogCard({
           width={680}
           height={510}
           alt={`${title} alternate`}
+          sizes="(min-width: 1280px) 23vw, (min-width: 1024px) 28vw, (min-width: 768px) 45vw, 92vw"
+          quality={60}
           className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#05070D] via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-60" />
