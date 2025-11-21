@@ -23,9 +23,10 @@ export default function Carousel3({ activeCarousel, onTabChange }) {
             Target exactly what changes with AI masking.
           </h3>
           <p className="text-sm mt-8 mb-10 text-white/80">
-            Paint over packaging, lighting, clothing, or UI elements and let kAIro AI regenerate
-            only those pixels. Product teams explore variations without rebuilding the entire render,
-            keeping every iteration review-ready.
+            Paint over packaging, lighting, clothing, or UI elements and let
+            kAIro AI regenerate only those pixels. Product teams explore
+            variations without rebuilding the entire render, keeping every
+            iteration review-ready.
           </p>
           <button
             onClick={handleTryNow}

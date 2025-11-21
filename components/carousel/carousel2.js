@@ -23,9 +23,10 @@ export default function Carousel2({ activeCarousel, onTabChange }) {
             Intelligent background and lighting replacement.
           </h3>
           <p className="text-sm mt-8 mb-10 text-white/80">
-            Swap environments, adjust lighting, and rebuild reflections without recreating an entire render.
-            kAIro AI understands depth and perspective so lifestyle photography, product stills, and architectural
-            mockups stay believable after every change.
+            Swap environments, adjust lighting, and rebuild reflections without
+            recreating an entire render. kAIro AI understands depth and
+            perspective so lifestyle photography, product stills, and
+            architectural mockups stay believable after every change.
           </p>
           <button
             onClick={handleTryNow}

@@ -23,9 +23,10 @@ export default function Carousel4({ activeCarousel, onTabChange }) {
             Style transfer for dual image storytelling.
           </h3>
           <p className="text-sm mt-8 mb-10 text-white/80">
-            Combine texture, colour, and lighting from two reference assets to build mood boards,
-            launch lookbooks, or craft cinematic key art. kAIro AI understands hierarchy, so your primary
-            subject stays in focus while the supporting style layers harmoniously.
+            Combine texture, colour, and lighting from two reference assets to
+            build mood boards, launch lookbooks, or craft cinematic key art.
+            kAIro AI understands hierarchy, so your primary subject stays in
+            focus while the supporting style layers harmoniously.
           </p>
           <button
             onClick={handleTryNow}
