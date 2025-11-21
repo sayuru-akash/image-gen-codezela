@@ -150,7 +150,7 @@ export default function Footer() {
       <hr className="border-white my-8" />
 
       <p className="text-white text-center text-sm">
-        © {year}{" "}
+        © {year} kAIro. All rights reserved. A proud product built with love by{" "}
         <Link
           href="https://codezela.com"
           target="_blank"
@@ -159,7 +159,7 @@ export default function Footer() {
         >
           Codezela Technologies
         </Link>
-        . All rights reserved.
+        .
       </p>
     </div>
   );
