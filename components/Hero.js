@@ -82,8 +82,9 @@ export default function Hero() {
             src="/images/image-2.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 18rem, 0"
+            sizes="(min-width: 1024px) 16rem, 0"
             priority
+            quality={65}
           />
         </div>
       </div>
@@ -99,7 +100,8 @@ export default function Hero() {
             src="/images/image-3.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 12rem, 0"
+            sizes="(min-width: 1024px) 10rem, 0"
+            quality={65}
           />
         </div>
       </div>
@@ -115,7 +117,8 @@ export default function Hero() {
             src="/images/image-4.jpg"
             fill
             className="rounded-xl object-cover"
-            sizes="(min-width: 1024px) 11rem, 0"
+            sizes="(min-width: 1024px) 10rem, 0"
+            quality={65}
           />
         </div>
       </div>
@@ -131,7 +134,7 @@ export default function Hero() {
             sizes="(min-width: 1024px) 50vw, 90vw"
             priority
             fetchPriority="high"
-            quality={70}
+            quality={65}
           />
         </div>
       </div>

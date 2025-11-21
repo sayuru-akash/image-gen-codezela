@@ -118,7 +118,8 @@ export default function Gallery() {
         src={item.src}
         alt={item.alt}
         fill
-        sizes="(min-width: 1024px) 25vw, 90vw"
+        sizes="(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 26vw, (min-width: 768px) 45vw, 92vw"
+        quality={65}
         className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
         priority={item.priority}
       />
@@ -179,6 +180,8 @@ export default function Gallery() {
               alt={selectedImage.alt}
               width={1600}
               height={900}
+               sizes="90vw"
+               quality={70}
               className={`max-h-[80vh] w-full object-contain transition-opacity duration-300 ${
                 isLoaded ? "opacity-100" : "opacity-0"
               }`}
