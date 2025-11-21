@@ -176,8 +176,6 @@ export default function HomeContent() {
           fetchPriority="high"
           quality={70}
           className="object-cover"
-          height={1080}
-          width={1920}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-dark-blue/95 via-dark-blue/92 to-[#0F1622]">
           <Navigationbar />

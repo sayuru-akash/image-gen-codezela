@@ -92,7 +92,7 @@ export default function RootLayout({ children }) {
           rel="preload"
           as="image"
           href="/images/hero-img.jpg"
-          fetchpriority="high"
+          fetchPriority="high"
         />
       </head>
       <body
