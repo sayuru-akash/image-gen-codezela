@@ -253,6 +253,8 @@ export default function VideoShowcase() {
                         playsInline
                         autoPlay
                         muted
+                        loading="lazy"
+                        preload="metadata"
                       >
                         <source src={video.src} type="video/mp4" />
                         Your browser does not support the video tag.
