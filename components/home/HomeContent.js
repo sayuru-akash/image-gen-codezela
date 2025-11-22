@@ -159,7 +159,14 @@ export default function HomeContent() {
     []
   );
   const partnerLogos = useMemo(() => {
-    const baseLogos = ["logo-1.svg", "logo-2.svg", "logo-3.svg", "logo-4.svg"];
+    const baseLogos = [
+      "logo-1.svg",
+      "logo1a.png",
+      "logo-3.svg",
+      "logo1b.png",
+      "logo1c.png",
+      "logo1d.png",
+    ];
     return [...baseLogos, ...baseLogos];
   }, []);
 
