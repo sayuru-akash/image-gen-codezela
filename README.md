@@ -198,4 +198,4 @@ Need bespoke AI solutions or integration support? The Codezela team specialises 
 
 Start the conversation at [codezela.com/contact](https://codezela.com/contact).
 
-Built with ♥ by the Codezela Team | © Codezela Technologies
+Built with ♥ by the Codezela Team | © Codezela Technologies 2025
